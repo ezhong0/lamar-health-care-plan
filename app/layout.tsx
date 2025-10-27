@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Footer } from '@/components/Footer';
 import Link from 'next/link';
 
 const inter = Inter({
@@ -53,6 +54,9 @@ export default function RootLayout({
             <main className="min-h-[calc(100vh-3.5rem)] bg-neutral-50 dark:bg-neutral-950">
               {children}
             </main>
+
+            {/* Footer */}
+            <Footer />
           </Providers>
         </ThemeProvider>
       </body>
