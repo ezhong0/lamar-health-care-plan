@@ -21,8 +21,8 @@ export interface CreatePatientRequest {
   referringProviderNPI: string;
   primaryDiagnosis: string;
   medicationName: string;
-  additionalDiagnoses: string[];
-  medicationHistory: string[];
+  additionalDiagnoses?: string[];
+  medicationHistory?: string[];
   patientRecords: string;
 }
 

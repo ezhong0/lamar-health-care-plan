@@ -5,6 +5,131 @@
 
 ---
 
+## Codebase Layout Guide
+
+### Quick Navigation Map
+
+```
+lamar-health/
+├── app/                          # Next.js App Router (Interface Layer)
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Home page
+│
+├── components/                   # React Components (Interface Layer)
+│   ├── ui/                      # shadcn/ui base components
+│   │   ├── alert.tsx
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── form.tsx
+│   │   ├── input.tsx
+│   │   └── label.tsx
+│   ├── PatientForm.tsx          # Main patient form component
+│   └── providers.tsx            # React Query provider
+│
+├── lib/                         # Core Application Logic
+│   ├── api/                     # API Contracts (Shared Frontend/Backend)
+│   │   └── contracts.ts         # Request/response types
+│   │
+│   ├── domain/                  # Domain Layer (Business Logic)
+│   │   ├── types.ts             # Domain entities (Patient, Order, Provider, CarePlan)
+│   │   ├── errors.ts            # Domain-specific errors (DuplicatePatientError, etc.)
+│   │   ├── result.ts            # Result type (Success/Failure)
+│   │   └── warnings.ts          # Warning types (discriminated unions)
+│   │
+│   ├── services/                # Service Layer (Orchestration)
+│   │   └── [not yet implemented]
+│   │
+│   ├── validation/              # Validation Layer
+│   │   └── schemas.ts           # Zod schemas for input validation
+│   │
+│   ├── client/                  # Frontend API Client
+│   │   ├── api.ts               # API wrapper functions
+│   │   └── hooks.ts             # React Query hooks
+│   │
+│   ├── infrastructure/          # Infrastructure Layer (External Systems)
+│   │   ├── db.ts                # Prisma client singleton
+│   │   ├── logger.ts            # Structured logging
+│   │   ├── retry.ts             # Retry utility with exponential backoff
+│   │   └── error-handler.ts     # Centralized error handling
+│   │
+│   └── utils.ts                 # Utility functions (cn, etc.)
+│
+├── prisma/                      # Database Layer
+│   ├── schema.prisma            # Database schema definition
+│   └── migrations/              # Version-controlled DB migrations
+│       └── 20251027211433_init/ # Initial migration
+│
+├── mocks/                       # MSW Mocks (Frontend Development)
+│   ├── handlers.ts              # Mock API handlers
+│   └── browser.ts               # MSW browser setup
+│
+├── __tests__/                   # Test Suites
+│   ├── domain/                  # Domain layer tests
+│   │   ├── errors.test.ts
+│   │   └── result.test.ts
+│   ├── infrastructure/          # Infrastructure layer tests
+│   │   └── retry.test.ts
+│   ├── services/                # Service layer tests (empty, ready)
+│   ├── validation/              # Validation tests (empty, ready)
+│   └── api/                     # API integration tests (empty, ready)
+│
+├── docs/                        # Documentation
+│   └── INTERVIEW_GUIDE.md       # This file
+│
+├── public/                      # Static assets
+│
+├── vitest.config.ts             # Test configuration
+├── next.config.ts               # Next.js configuration
+├── prisma.config.ts             # Prisma configuration
+└── package.json                 # Dependencies
+```
+
+### What Lives Where?
+
+| Layer | Directory | Purpose | Examples |
+|-------|-----------|---------|----------|
+| **Interface** | `app/`, `components/` | HTTP handling, UI rendering | API routes, React components |
+| **Service** | `lib/services/` | Business orchestration, transactions | PatientService, CarePlanService |
+| **Domain** | `lib/domain/` | Business logic, types, rules | Patient type, DuplicatePatientError |
+| **Infrastructure** | `lib/infrastructure/`, `prisma/` | External systems, DB, logging | Prisma client, logger, retry |
+| **Validation** | `lib/validation/` | Input validation | Zod schemas, NPI validator |
+| **Contracts** | `lib/api/` | Shared types for FE/BE | CreatePatientRequest |
+| **Client** | `lib/client/` | Frontend API wrapper | React Query hooks |
+
+### Finding Things Quickly
+
+**"Where do I find...?"**
+
+- **Patient domain type** → `lib/domain/types.ts`
+- **Create patient API contract** → `lib/api/contracts.ts`
+- **Patient form validation** → `lib/validation/schemas.ts`
+- **Error definitions** → `lib/domain/errors.ts`
+- **Result type** → `lib/domain/result.ts`
+- **Warning types** → `lib/domain/warnings.ts`
+- **Retry logic** → `lib/infrastructure/retry.ts`
+- **Logger** → `lib/infrastructure/logger.ts`
+- **Database schema** → `prisma/schema.prisma`
+- **Database client** → `lib/infrastructure/db.ts`
+- **Patient form UI** → `components/PatientForm.tsx`
+- **Mock API responses** → `mocks/handlers.ts`
+- **React Query hooks** → `lib/client/hooks.ts`
+
+### Dependency Flow
+
+```
+app/pages & components (Interface)
+    ↓ imports
+lib/services/ (Service Layer)
+    ↓ imports
+lib/domain/ (Domain Layer)
+    ↑ used by
+lib/infrastructure/ (Infrastructure)
+```
+
+**Key Rule:** Dependencies flow inward. Domain layer has zero dependencies. Infrastructure depends on domain, not vice versa.
+
+---
+
 ## Core Mental Model (The 20% That Matters)
 
 ### The One-Sentence Pitch
@@ -20,15 +145,10 @@
 ### 1. **Layered Architecture (Not Hexagonal)**
 
 **What it is:**
-```
-Interface Layer (API routes, UI)
-    ↓
-Service Layer (orchestration, transactions)
-    ↓
-Domain Layer (business logic, types, rules)
-    ↓
-Infrastructure Layer (Prisma, Anthropic, logging)
-```
+- Interface Layer (API routes, UI)
+- Service Layer (orchestration, transactions)
+- Domain Layer (business logic, types, rules)
+- Infrastructure Layer (Prisma, Anthropic, logging)
 
 **Why you chose it:**
 - ✅ Clear boundaries (easy to navigate)
@@ -39,24 +159,20 @@ Infrastructure Layer (Prisma, Anthropic, logging)
 **If they ask "Why not hexagonal?":**
 > "Hexagonal requires interfaces for every infrastructure component. We're not swapping databases or LLM providers, so those interfaces would have exactly one implementation - pure overhead. The layered approach gives us 80% of the benefits (testability, clear boundaries) with 20% of the complexity. I can add ports/adapters later if we need multiple implementations."
 
+**Files:**
+- Interface: `app/`, `components/`
+- Service: `lib/services/`
+- Domain: `lib/domain/`
+- Infrastructure: `lib/infrastructure/`, `prisma/`
+
 ---
 
 ### 2. **Result Types (Not Try/Catch for Business Logic)**
 
 **What they are:**
-```typescript
-type Result<T, E = Error> = Success<T> | Failure<E>;
-
-// Forces error handling at compile time
-const result = await patientService.createPatient(input);
-
-if (isFailure(result)) {
-  return handleError(result.error);  // Must handle
-}
-
-// TypeScript knows result.data exists here
-const patient = result.data.patient;
-```
+- Type-safe success/failure wrapper
+- Forces error handling at compile time
+- Discriminated union: `Success<T>` or `Failure<E>`
 
 **Why you chose them:**
 - ✅ Explicit error handling (can't forget)
@@ -66,24 +182,18 @@ const patient = result.data.patient;
 **If they ask "Why not just throw errors?":**
 > "Throwing is for unexpected errors (DB down, LLM timeout). Result types are for expected failures (duplicate patient, validation error). Makes error handling visible in the type system - you can't accidentally ignore errors because TypeScript forces you to check. Try/catch is still used, but only at boundaries (API routes, external calls)."
 
+**Files:**
+- Definition: `lib/domain/result.ts`
+- Usage: All service layer functions return `Result<T, E>`
+
 ---
 
 ### 3. **Domain Types Separate from Database Types**
 
 **What it means:**
-```typescript
-// Domain type (what we think about)
-export interface Patient {
-  id: PatientId;            // Branded type
-  firstName: string;
-  lastName: string;
-  mrn: string;
-  createdAt: Date;
-}
-
-// Database type (Prisma generated)
-// Has different shape, includes relations, etc.
-```
+- Domain types represent business concepts (Patient, Order, CarePlan)
+- Database types are Prisma-generated (database schema shape)
+- They're intentionally separate, not coupled
 
 **Why you chose it:**
 - ✅ Domain logic doesn't depend on Prisma
@@ -93,23 +203,19 @@ export interface Patient {
 **If they ask "Isn't this duplication?":**
 > "It's intentional decoupling. Domain types represent business concepts, database types represent storage. They happen to be similar now, but if we add a computed field like 'fullName', it goes in domain type without touching the database. Keeps business logic independent of persistence details."
 
+**Files:**
+- Domain types: `lib/domain/types.ts`
+- Database schema: `prisma/schema.prisma`
+- Mapping happens in service layer
+
 ---
 
 ### 4. **Dependency Injection (Not Singletons)**
 
 **What it looks like:**
-```typescript
-class PatientService {
-  constructor(
-    private readonly db: PrismaClient,           // Injected
-    private readonly duplicateDetector: DuplicateDetector,
-    private readonly providerService: ProviderService
-  ) {}
-}
-
-// Usage in API route:
-const service = new PatientService(prisma, detector, providerService);
-```
+- Services receive dependencies via constructor
+- No global singletons imported directly
+- Dependencies are explicit, not hidden
 
 **Why you chose it:**
 - ✅ Testable (can inject mocks)
@@ -119,31 +225,18 @@ const service = new PatientService(prisma, detector, providerService);
 **If they ask "Why not just import singleton services?":**
 > "DI makes dependencies explicit and testable. In tests, I inject mock implementations. With singletons, I'd need to mock at the module level, which is fragile. DI is slightly more verbose but dramatically easier to test."
 
+**Files:**
+- Service definitions: `lib/services/`
+- Services instantiated in API routes with injected dependencies
+
 ---
 
 ### 5. **Resilient External Calls**
 
 **What it includes:**
-```typescript
-// 1. Retry with exponential backoff
-await retry(() => callLLM(), {
-  attempts: 3,
-  delay: 1000,
-  backoff: 2
-});
-
-// 2. Timeout handling
-const controller = new AbortController();
-setTimeout(() => controller.abort(), 30000);
-await anthropic.create({ ... }, { signal: controller.signal });
-
-// 3. Comprehensive logging
-logger.info('Generating care plan', { patientId });
-// ... on success:
-logger.info('Care plan generated', { patientId, duration });
-// ... on failure:
-logger.error('Care plan failed', { patientId, error: err.message });
-```
+- Retry with exponential backoff (3 attempts, 1s → 2s → 4s)
+- Timeout handling (30s for LLM calls)
+- Comprehensive logging (start, success, failure with duration)
 
 **Why you chose it:**
 - ✅ External systems fail (design for it)
@@ -152,6 +245,11 @@ logger.error('Care plan failed', { patientId, error: err.message });
 
 **If they ask "Isn't this overkill for a prototype?":**
 > "This is where prototypes typically fall short - they work in happy path but fail ungracefully in production. The retry and timeout add 20 lines of code but make the difference between 'works in demo' and 'works in production.' It's not overkill - it's demonstrating I know how production systems behave."
+
+**Files:**
+- Retry utility: `lib/infrastructure/retry.ts`
+- Logger: `lib/infrastructure/logger.ts`
+- Used in: CarePlanService for LLM calls
 
 ---
 
@@ -242,41 +340,26 @@ logger.error('Care plan failed', { patientId, error: err.message });
 **2. LOCATE:**
 > "Auth is cross-cutting. Would add:
 > - Infrastructure: NextAuth.js setup, session management
-> - Middleware: Protect API routes
-> - Service layer: Add userId to operations for audit trail
-> - Domain: User entity, Role enum"
+> - Middleware: Protect API routes (new middleware layer)
+> - Service layer: Add userId parameter to all operations for audit trail
+> - Domain: User entity, Role enum types"
 
 **3. EXTEND:**
-```typescript
-// Middleware (new layer)
-export async function requireAuth(req: NextRequest) {
-  const session = await getServerSession();
-  if (!session) throw new UnauthorizedError();
-  return session;
-}
-
-// Service layer changes (add userId)
-class PatientService {
-  async createPatient(input: PatientInput, userId: string) {
-    logger.info('Creating patient', { userId, mrn: input.mrn });
-    // ... rest of logic
-  }
-}
-
-// Domain layer (new types)
-export interface User {
-  id: UserId;
-  email: string;
-  role: Role;
-}
-
-export type Role = 'admin' | 'pharmacist' | 'medical_assistant';
-```
+> "Would create:
+> - Middleware function to check session and throw UnauthorizedError
+> - Update all service methods to accept userId parameter
+> - Add structured logging with userId context
+> - Define User domain type with id, email, role
+> - Add users table to Prisma schema"
 
 **4. RISKS:**
 > "Main risks: session management complexity, need to update all API routes, database migration for user table. Mitigation: use NextAuth.js (battle-tested), add middleware wrapper to reduce boilerplate, plan database migration carefully."
 
 **Time estimate:** "2-3 days for basic auth, 1 week for full RBAC"
+
+**Files affected:**
+- New: `lib/infrastructure/auth.ts`, `lib/domain/user.ts`
+- Modified: All services, all API routes, `prisma/schema.prisma`
 
 ---
 
@@ -289,52 +372,23 @@ export type Role = 'admin' | 'pharmacist' | 'medical_assistant';
 > "Caching belongs in infrastructure layer, accessed by service layer."
 
 **3. EXTEND:**
-```typescript
-// Infrastructure: Redis client
-class CacheService {
-  constructor(private redis: Redis) {}
-
-  async get<T>(key: string): Promise<T | null> {
-    const data = await this.redis.get(key);
-    return data ? JSON.parse(data) : null;
-  }
-
-  async set(key: string, value: unknown, ttl?: number): Promise<void> {
-    await this.redis.set(key, JSON.stringify(value), 'EX', ttl || 3600);
-  }
-}
-
-// Service layer: Use cache
-class CarePlanService {
-  constructor(
-    private readonly db: PrismaClient,
-    private readonly cache: CacheService,  // New dependency
-    private readonly anthropic: Anthropic
-  ) {}
-
-  async generateCarePlan(patientId: PatientId): Promise<Result<CarePlan>> {
-    // Check cache first
-    const cacheKey = `careplan:${patientId}`;
-    const cached = await this.cache.get<CarePlan>(cacheKey);
-
-    if (cached) {
-      logger.info('Cache hit', { patientId });
-      return { success: true, data: cached };
-    }
-
-    // Generate and cache
-    const result = await this.callLLM(...);
-    await this.cache.set(cacheKey, result, 3600); // 1 hour TTL
-
-    return { success: true, data: result };
-  }
-}
-```
+> "Would create:
+> - CacheService class in infrastructure with get/set methods
+> - Redis client wrapper with JSON serialization
+> - Inject CacheService into CarePlanService constructor
+> - Check cache before LLM call, set cache after generation
+> - Use namespaced keys like `careplan:{patientId}`
+> - TTL of 1 hour (configurable)"
 
 **4. RISKS:**
 > "Cache invalidation is hard. If patient data changes, need to invalidate care plan cache. Could use event-based invalidation (when patient updates, delete cache) or short TTL (5-10 min). Also need Redis in infrastructure - adds operational complexity."
 
 **Time estimate:** "1 day for basic caching, 2-3 days with proper invalidation strategy"
+
+**Files affected:**
+- New: `lib/infrastructure/cache.ts`
+- Modified: `lib/services/care-plan-service.ts` (add cache dependency)
+- Infrastructure: Docker Compose for Redis, environment variables
 
 ---
 
@@ -347,50 +401,25 @@ class CarePlanService {
 > "UI language: i18n library in frontend. Care plan language: prompt engineering in service layer."
 
 **3. EXTEND:**
-```typescript
-// Domain: Add language to types
-export type Language = 'en' | 'es' | 'zh' | 'fr';
-
-export interface CarePlan {
-  id: string;
-  patientId: PatientId;
-  content: string;
-  language: Language;  // New field
-  generatedBy: string;
-  createdAt: Date;
-}
-
-// Service: Generate in requested language
-class CarePlanService {
-  async generateCarePlan(
-    patientId: PatientId,
-    language: Language = 'en'
-  ): Promise<Result<CarePlan>> {
-    const prompt = this.buildPrompt(patient, language);
-    // ...
-  }
-
-  private buildPrompt(patient: Patient, language: Language): string {
-    const languageInstructions = {
-      en: 'Generate in English.',
-      es: 'Generar en español. Use medical terminology appropriate for Spanish-speaking healthcare providers.',
-      // ...
-    };
-
-    return `You are a clinical pharmacist...
-
-    ${languageInstructions[language]}
-
-    Patient Information:
-    ...`;
-  }
-}
-```
+> "Would create:
+> - Language type in domain: 'en' | 'es' | 'zh' | 'fr'
+> - Add language field to CarePlan type and database schema
+> - Update CarePlanService to accept language parameter
+> - Create language-specific prompt instructions map
+> - Modify buildPrompt method to include language instructions
+> - For UI: integrate next-i18next or similar i18n library
+> - Create translation files for each supported language"
 
 **4. RISKS:**
 > "LLM quality varies by language - English is best, others may have medical terminology issues. Would need native speakers to validate. Also increases token costs (longer prompts). For UI language, need translation files and testing across locales."
 
 **Time estimate:** "UI only: 3-4 days. Care plans: 1 week + validation time"
+
+**Files affected:**
+- Modified: `lib/domain/types.ts` (add Language type)
+- Modified: `lib/services/care-plan-service.ts` (language support)
+- Modified: `prisma/schema.prisma` (add language field)
+- New: `locales/` directory with translation files (for UI)
 
 ---
 
@@ -403,60 +432,27 @@ class CarePlanService {
 > "New infrastructure layer: job queue (BullMQ, Trigger.dev). Service layer becomes job producer. New worker layer consumes jobs."
 
 **3. EXTEND:**
-```typescript
-// Infrastructure: Job queue
-class JobQueue {
-  constructor(private queue: Queue) {}
-
-  async enqueueCarePlan(patientId: PatientId): Promise<JobId> {
-    const job = await this.queue.add('generate-careplan', { patientId });
-    return job.id;
-  }
-
-  async getJobStatus(jobId: JobId): Promise<JobStatus> {
-    const job = await this.queue.getJob(jobId);
-    return {
-      status: job.state,
-      progress: job.progress,
-      result: job.returnvalue,
-    };
-  }
-}
-
-// API route changes
-export async function POST(req: NextRequest) {
-  const { patientId } = await req.json();
-
-  // Enqueue instead of executing
-  const jobId = await jobQueue.enqueueCarePlan(patientId);
-
-  return NextResponse.json({
-    success: true,
-    data: { jobId, status: 'queued' },
-  });
-}
-
-// New worker
-// workers/careplan-worker.ts
-const worker = new Worker('careplan', async (job) => {
-  const service = new CarePlanService(...);
-  const result = await service.generateCarePlan(job.data.patientId);
-  return result;
-});
-
-// UI changes: polling
-const { data } = useQuery({
-  queryKey: ['job-status', jobId],
-  queryFn: () => fetchJobStatus(jobId),
-  refetchInterval: 2000, // Poll every 2s
-  enabled: !!jobId && status === 'pending',
-});
-```
+> "Would create:
+> - JobQueue class in infrastructure with enqueue/getStatus methods
+> - Worker process that consumes jobs and calls CarePlanService
+> - Modify API route to enqueue job instead of executing directly
+> - Add job status tracking in database (jobs table)
+> - Frontend polling using React Query with refetchInterval
+> - Job failure handling and retry logic in worker
+> - Monitoring dashboard for queue health"
 
 **4. RISKS:**
 > "Operational complexity - need Redis for queue, worker processes, monitoring, failure handling. Users need feedback (polling adds latency). Job retention policies needed. Error handling becomes async (user might leave before job completes)."
 
 **Time estimate:** "3-5 days (queue setup, worker, UI polling, monitoring)"
+
+**Files affected:**
+- New: `lib/infrastructure/job-queue.ts`
+- New: `workers/careplan-worker.ts`
+- Modified: `app/api/care-plans/route.ts` (enqueue instead of execute)
+- Modified: `prisma/schema.prisma` (add jobs table)
+- Modified: Frontend components (add polling UI)
+- Infrastructure: Redis for queue, worker deployment config
 
 ---
 
