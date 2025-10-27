@@ -27,7 +27,7 @@ import { PatientInputSchema } from '@/lib/validation/schemas';
 import { PatientService } from '@/lib/services/patient-service';
 import { ProviderService } from '@/lib/services/provider-service';
 import { DuplicateDetector } from '@/lib/services/duplicate-detector';
-import { prisma } from '@/lib/infrastructure/db';
+import { prisma, isDatabaseConfigured } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { isFailure } from '@/lib/domain/result';
@@ -53,6 +53,21 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
   const requestId = crypto.randomUUID();
 
   logger.info('Patient creation request received', { requestId });
+
+  // Check if database is configured
+  if (!isDatabaseConfigured()) {
+    logger.error('Database not configured', { requestId });
+    return NextResponse.json<CreatePatientResponse>(
+      {
+        success: false,
+        error: {
+          message: 'Database not configured. Please set DATABASE_URL environment variable.',
+          code: 'DATABASE_NOT_CONFIGURED',
+        },
+      },
+      { status: 503 }
+    );
+  }
 
   try {
     // Step 1: Parse request body
@@ -126,6 +141,21 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
  */
 export async function GET(): Promise<NextResponse> {
   logger.info('List patients request received');
+
+  // Check if database is configured
+  if (!isDatabaseConfigured()) {
+    logger.error('Database not configured');
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Database not configured. Please set DATABASE_URL environment variable.',
+          code: 'DATABASE_NOT_CONFIGURED',
+        },
+      },
+      { status: 503 }
+    );
+  }
 
   try {
     // Fetch patients with orders and care plans for rich list display

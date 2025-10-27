@@ -8,6 +8,10 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     // Run tests sequentially to avoid DOM conflicts
     pool: 'forks',
+    // Ensure tests don't run in parallel within same file
+    sequence: {
+      shuffle: false,
+    },
   },
   resolve: {
     alias: {

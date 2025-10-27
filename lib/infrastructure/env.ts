@@ -68,7 +68,9 @@ export type Env = z.infer<typeof envSchema>;
 /**
  * Validate environment variables
  *
- * @throws {Error} If validation fails with detailed error messages (except in test mode)
+ * In production, logs warnings but doesn't throw to prevent server crash.
+ * In development, throws to catch config issues early.
+ * In test mode, uses safe defaults.
  */
 function validateEnv(): Env {
   const result = envSchema.safeParse(process.env);
@@ -97,10 +99,25 @@ function validateEnv(): Env {
     });
 
     console.error('\n📝 To fix this:');
-    console.error('  1. Copy .env.example to .env');
-    console.error('  2. Fill in all required values');
-    console.error('  3. Restart the application\n');
+    console.error('  1. Set environment variables in Vercel dashboard');
+    console.error('  2. Required: DATABASE_URL, ANTHROPIC_API_KEY');
+    console.error('  3. Redeploy the application\n');
 
+    // In production, log error but don't crash - let API routes handle missing config
+    // This prevents entire app from being down due to config issues
+    if (process.env.NODE_ENV === 'production') {
+      console.error('⚠️  Running with partial config - some features may not work');
+      // Return partial config with safe defaults
+      return {
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
+        DATABASE_URL: process.env.DATABASE_URL || '',
+        NODE_ENV: 'production',
+        LOG_LEVEL: 'info',
+        NEXT_PUBLIC_USE_MOCKS: false,
+      };
+    }
+
+    // In development, throw to catch issues early
     throw new Error('Environment validation failed. Check logs above for details.');
   }
 
