@@ -18,6 +18,28 @@ import type {
 import { ApiError } from './errors';
 
 /**
+ * Get the base URL for API requests
+ *
+ * In browser with proper window.location: returns empty string (uses relative URLs)
+ * In Node.js/tests/jsdom: returns absolute URL with NEXT_PUBLIC_API_URL or defaults to localhost:3000
+ */
+function getBaseUrl(): string {
+  // If API URL is explicitly set, use it (for tests or different environments)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Real browser environment with proper location - use relative URLs
+  // Check for window.location.origin to distinguish real browser from jsdom
+  if (typeof window !== 'undefined' && window.location?.origin && window.location.origin !== 'http://localhost:3000') {
+    return '';
+  }
+
+  // Node.js/test/jsdom environment - use absolute URL
+  return 'http://localhost:3000';
+}
+
+/**
  * Base fetch wrapper with error handling
  *
  * Throws ApiError for failed requests with structured error information.
@@ -27,7 +49,10 @@ import { ApiError } from './errors';
  * @throws {Error} For network errors or JSON parsing failures
  */
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
+  const baseUrl = getBaseUrl();
+  const fullUrl = `${baseUrl}${url}`;
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

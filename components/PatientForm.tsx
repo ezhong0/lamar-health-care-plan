@@ -134,7 +134,14 @@ export function PatientForm() {
 
           <div className="space-y-2">
             <Label htmlFor="mrn">Medical Record Number (MRN) *</Label>
-            <Input id="mrn" {...register('mrn')} placeholder="123456" maxLength={6} />
+            <Input
+              id="mrn"
+              {...register('mrn')}
+              placeholder="123456"
+              maxLength={6}
+              inputMode="numeric"
+              pattern="\d*"
+            />
             {errors.mrn && <p className="text-sm text-red-600 dark:text-red-400">{errors.mrn.message}</p>}
           </div>
         </div>

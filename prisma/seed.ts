@@ -54,7 +54,7 @@ async function main() {
     data: {
       firstName: 'Robert',
       lastName: 'Johnson',
-      mrn: 'MRN001234',
+      mrn: '001234',
       additionalDiagnoses: ['E11.9', 'I10'], // Type 2 diabetes, Essential hypertension
       medicationHistory: ['Prednisone', 'Pyridostigmine'],
       patientRecords: `Patient is a 58-year-old male with generalized myasthenia gravis diagnosed 3 years ago. Currently experiencing increased fatigue and diplopia despite oral medications. Previous treatments include pyridostigmine 60mg TID and prednisone 40mg daily with partial response. Recent EMG shows decremental response consistent with MG. Patient has good insurance coverage and is motivated for treatment. No history of thymoma on recent CT chest.`,
@@ -79,7 +79,7 @@ async function main() {
 
 ## Patient Overview
 - **Name:** Robert Johnson
-- **MRN:** MRN001234
+- **MRN:** 001234
 - **Primary Diagnosis:** G70.00 - Myasthenia Gravis without (acute) exacerbation
 - **Comorbidities:** Type 2 Diabetes Mellitus (E11.9), Essential Hypertension (I10)
 
@@ -145,7 +145,7 @@ async function main() {
     data: {
       firstName: 'Emily',
       lastName: 'Chen',
-      mrn: 'MRN002567',
+      mrn: '002567',
       additionalDiagnoses: ['J30.1', 'L20.9'], // Allergic rhinitis, Atopic dermatitis
       medicationHistory: ['Albuterol', 'Fluticasone', 'Montelukast', 'Prednisone'],
       patientRecords: `45-year-old female with severe persistent asthma, poorly controlled despite maximal inhaled therapy. Multiple hospitalizations in past year (4 admissions), frequent oral steroid bursts. High IgE levels (850 IU/mL). Recent pulmonary function tests show FEV1 55% predicted with significant bronchodilator response. History of allergic rhinitis and atopic dermatitis. Non-smoker. Works as a teacher, missing significant work time due to exacerbations.`,
@@ -169,7 +169,7 @@ async function main() {
     data: {
       firstName: 'Michael',
       lastName: 'Williams',
-      mrn: 'MRN003891',
+      mrn: '003891',
       additionalDiagnoses: ['M79.3', 'Z87.891'], // Panniculitis, Personal history of nicotine dependence
       medicationHistory: ['Methotrexate', 'Prednisone', 'Naproxen'],
       patientRecords: `62-year-old male with seropositive rheumatoid arthritis diagnosed 5 years ago. Disease activity remains moderate-to-severe (DAS28 = 5.2) despite methotrexate 25mg weekly and prednisone 10mg daily. RF positive (120 IU/mL), anti-CCP positive (>250). Multiple swollen and tender joints bilaterally (MCPs, PIPs, wrists, knees). Morning stiffness lasting >2 hours. X-rays show early erosive changes in hands. Patient has failed adequate trial of MTX monotherapy. Former smoker (quit 2 years ago). Good medication compliance. Requesting biologic therapy for better disease control.`,
@@ -193,7 +193,7 @@ async function main() {
     data: {
       firstName: 'Jennifer',
       lastName: 'Martinez',
-      mrn: 'MRN004523',
+      mrn: '004523',
       additionalDiagnoses: ['G62.81', 'F41.9'], // Chronic inflammatory demyelinating polyneuritis, Anxiety disorder
       medicationHistory: ['Glatiramer', 'Gabapentin', 'Vitamin D3'],
       patientRecords: `38-year-old female with relapsing-remitting multiple sclerosis diagnosed 2 years ago. Initial presentation with optic neuritis and sensory symptoms. MRI brain shows multiple periventricular white matter lesions consistent with MS. Currently on glatiramer acetate with suboptimal response - 2 relapses in past year requiring IV methylprednisolone. Recent MRI shows new T2 lesions. EDSS score 3.0. Patient experiencing significant fatigue and anxiety about disease progression. Neuropsychological testing shows mild cognitive impairment. Seeking more effective disease-modifying therapy.`,
@@ -217,7 +217,7 @@ async function main() {
     data: {
       firstName: 'David',
       lastName: 'Thompson',
-      mrn: 'MRN005678',
+      mrn: '005678',
       additionalDiagnoses: ['D68.9', 'K29.70'], // Coagulation defect, Gastritis
       medicationHistory: ['Prednisone', 'Romiplostim', 'Omeprazole'],
       patientRecords: `52-year-old male with chronic immune thrombocytopenic purpura (ITP) for 4 years. Platelet counts chronically low (15,000-30,000) despite multiple treatment attempts. Previous therapies include corticosteroids (partial response with significant side effects), romiplostim (lost efficacy after 18 months), and dapsone (discontinued due to hemolysis). Currently experiencing increased bruising and petechiae. No active bleeding. Patient is splenectomy candidate but prefers medical management. Recent bone marrow biopsy shows adequate megakaryocytes, ruling out production defect. Requesting IVIG trial for platelet support.`,

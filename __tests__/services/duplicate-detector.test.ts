@@ -40,7 +40,7 @@ describe('DuplicateDetector', () => {
           data: {
             firstName: 'John',
             lastName: 'Smith',
-            mrn: 'MRN001',
+            mrn: '200001',
             additionalDiagnoses: [],
             medicationHistory: [],
             patientRecords: 'Records',
@@ -52,7 +52,7 @@ describe('DuplicateDetector', () => {
           {
             firstName: 'Jon', // Typo in first name
             lastName: 'Smith',
-            mrn: 'MRN002',
+            mrn: '200002',
           },
           tx
         );
@@ -69,7 +69,7 @@ describe('DuplicateDetector', () => {
           data: {
             firstName: 'Catherine',
             lastName: 'Johnson',
-            mrn: 'MRN003',
+            mrn: '200003',
             additionalDiagnoses: [],
             medicationHistory: [],
             patientRecords: 'Records',
@@ -80,7 +80,7 @@ describe('DuplicateDetector', () => {
           {
             firstName: 'Katherine', // Different spelling
             lastName: 'Johnson',
-            mrn: 'MRN004',
+            mrn: '200004',
           },
           tx
         );
@@ -96,7 +96,7 @@ describe('DuplicateDetector', () => {
           data: {
             firstName: 'John',
             lastName: 'Smith',
-            mrn: 'MRN005',
+            mrn: '200005',
             additionalDiagnoses: [],
             medicationHistory: [],
             patientRecords: 'Records',
@@ -107,7 +107,7 @@ describe('DuplicateDetector', () => {
           {
             firstName: 'Emily',
             lastName: 'Rodriguez',
-            mrn: 'MRN006',
+            mrn: '200006',
           },
           tx
         );
@@ -122,7 +122,7 @@ describe('DuplicateDetector', () => {
           data: {
             firstName: 'John',
             lastName: 'Smith',
-            mrn: 'MRN007',
+            mrn: '200007',
             additionalDiagnoses: [],
             medicationHistory: [],
             patientRecords: 'Records',
@@ -134,7 +134,7 @@ describe('DuplicateDetector', () => {
           {
             firstName: 'John',
             lastName: 'Smith',
-            mrn: 'MRN007', // Same MRN
+            mrn: '200007', // Same MRN
           },
           tx
         );
@@ -150,7 +150,7 @@ describe('DuplicateDetector', () => {
           data: {
             firstName: 'Johnny', // More similar to query for higher score
             lastName: 'Smith',
-            mrn: 'MRN008',
+            mrn: '200008',
             additionalDiagnoses: [],
             medicationHistory: [],
             patientRecords: 'Records',

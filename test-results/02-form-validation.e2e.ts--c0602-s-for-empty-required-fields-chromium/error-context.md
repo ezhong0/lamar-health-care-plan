@@ -1,0 +1,83 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Lamar Health" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "New Patient" [ref=e7] [cursor=pointer]:
+          - /url: /patients/new
+      - button "Toggle theme" [ref=e8]:
+        - img [ref=e9]
+  - main [ref=e11]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - heading "New Patient" [level=1] [ref=e15]
+        - paragraph [ref=e16]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - heading "Patient Information" [level=2] [ref=e20]
+            - paragraph [ref=e21]: Enter the patient's basic information
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: First Name *
+              - textbox "First Name *" [active] [ref=e25]:
+                - /placeholder: John
+              - paragraph [ref=e26]: First name is required
+            - generic [ref=e27]:
+              - generic [ref=e28]: Last Name *
+              - textbox "Last Name *" [ref=e29]:
+                - /placeholder: Doe
+              - paragraph [ref=e30]: Last name is required
+            - generic [ref=e31]:
+              - generic [ref=e32]: Medical Record Number (MRN) *
+              - textbox "Medical Record Number (MRN) *" [ref=e33]:
+                - /placeholder: "123456"
+              - paragraph [ref=e34]: MRN must be exactly 6 digits
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - heading "Provider Information" [level=2] [ref=e37]
+            - paragraph [ref=e38]: Referring provider details
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Referring Provider Name *
+              - textbox "Referring Provider Name *" [ref=e42]:
+                - /placeholder: Dr. Smith
+              - paragraph [ref=e43]: Referring provider name is required
+            - generic [ref=e44]:
+              - generic [ref=e45]: Provider NPI *
+              - textbox "Provider NPI *" [ref=e46]:
+                - /placeholder: "1234567893"
+              - paragraph [ref=e47]: NPI must be exactly 10 digits
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Medication & Diagnosis" [level=2] [ref=e50]
+            - paragraph [ref=e51]: Current medication and diagnoses
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]: Medication Name *
+              - textbox "Medication Name *" [ref=e55]:
+                - /placeholder: IVIG
+              - paragraph [ref=e56]: Medication name is required
+            - generic [ref=e57]:
+              - generic [ref=e58]: Primary Diagnosis (ICD-10) *
+              - textbox "Primary Diagnosis (ICD-10) *" [ref=e59]:
+                - /placeholder: G70.00
+              - paragraph [ref=e60]: "ICD-10 code must be in format: Letter + 2 digits + optional decimal + up to 4 more characters (e.g., J45.50)"
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - heading "Patient Records" [level=2] [ref=e63]
+            - paragraph [ref=e64]: Clinical notes and relevant medical history
+          - generic [ref=e65]:
+            - generic [ref=e66]: Clinical Notes *
+            - textbox "Clinical Notes *" [ref=e67]:
+              - /placeholder: Enter relevant clinical information, lab results, symptoms, etc.
+            - paragraph [ref=e68]: Patient records are required for care plan generation
+        - button "Create Patient" [ref=e70]
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e80]
+```

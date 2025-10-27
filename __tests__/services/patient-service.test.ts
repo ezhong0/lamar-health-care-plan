@@ -49,7 +49,7 @@ describe('PatientService Integration', () => {
       const input = {
         firstName: 'Alice',
         lastName: 'Johnson',
-        mrn: 'TEST001',
+        mrn: '100001',
         referringProvider: 'Dr. Sarah Smith',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -69,7 +69,7 @@ describe('PatientService Integration', () => {
         // Verify patient was created
         expect(patient.firstName).toBe('Alice');
         expect(patient.lastName).toBe('Johnson');
-        expect(patient.mrn).toBe('TEST001');
+        expect(patient.mrn).toBe('100001');
         expect(patient.additionalDiagnoses).toEqual(['E11.9']);
         expect(patient.medicationHistory).toEqual(['Prednisone']);
 
@@ -91,7 +91,7 @@ describe('PatientService Integration', () => {
           where: { id: patient.id },
         });
         expect(dbPatient).not.toBeNull();
-        expect(dbPatient?.mrn).toBe('TEST001');
+        expect(dbPatient?.mrn).toBe('100001');
 
         const dbOrder = await prisma.order.findUnique({
           where: { id: order.id },
@@ -111,7 +111,7 @@ describe('PatientService Integration', () => {
       await patientService.createPatient({
         firstName: 'Bob',
         lastName: 'Williams',
-        mrn: 'TEST002',
+        mrn: '100002',
         referringProvider: 'Dr. John Doe',
         referringProviderNPI: '1245319599',
         primaryDiagnosis: 'G70.00',
@@ -125,7 +125,7 @@ describe('PatientService Integration', () => {
       const result = await patientService.createPatient({
         firstName: 'Different',
         lastName: 'Person',
-        mrn: 'TEST002', // Same MRN
+        mrn: '100002', // Same MRN
         referringProvider: 'Dr. Jane Smith',
         referringProviderNPI: '1679576722',
         primaryDiagnosis: 'J45.50',
@@ -138,7 +138,7 @@ describe('PatientService Integration', () => {
       expect(isFailure(result)).toBe(true);
 
       if (isFailure(result)) {
-        expect(result.error.message).toContain('TEST002');
+        expect(result.error.message).toContain('100002');
         expect(result.error.message).toContain('already exists');
       }
     });
@@ -148,7 +148,7 @@ describe('PatientService Integration', () => {
       await patientService.createPatient({
         firstName: 'Catherine',
         lastName: 'Martinez',
-        mrn: 'TEST003',
+        mrn: '100003',
         referringProvider: 'Dr. Provider',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -162,7 +162,7 @@ describe('PatientService Integration', () => {
       const result = await patientService.createPatient({
         firstName: 'Katherine', // Similar spelling
         lastName: 'Martinez',
-        mrn: 'TEST004', // Different MRN
+        mrn: '100004', // Different MRN
         referringProvider: 'Dr. Provider',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -187,7 +187,7 @@ describe('PatientService Integration', () => {
         expect(similarityWarning).toBeDefined();
         if (similarityWarning && similarityWarning.type === 'SIMILAR_PATIENT') {
           expect(similarityWarning.similarityScore).toBeGreaterThan(0.7);
-          expect(similarityWarning.similarPatient.mrn).toBe('TEST003');
+          expect(similarityWarning.similarPatient.mrn).toBe('100003');
         }
       }
     });
@@ -197,7 +197,7 @@ describe('PatientService Integration', () => {
       const result1 = await patientService.createPatient({
         firstName: 'Patient',
         lastName: 'One',
-        mrn: 'TEST005',
+        mrn: '100005',
         referringProvider: 'Dr. Shared Provider',
         referringProviderNPI: '1245319599',
         primaryDiagnosis: 'J45.50',
@@ -211,7 +211,7 @@ describe('PatientService Integration', () => {
       const result2 = await patientService.createPatient({
         firstName: 'Patient',
         lastName: 'Two',
-        mrn: 'TEST006',
+        mrn: '100006',
         referringProvider: 'Dr. Shared Provider', // Same provider
         referringProviderNPI: '1245319599', // Same NPI
         primaryDiagnosis: 'G70.00',
@@ -246,7 +246,7 @@ describe('PatientService Integration', () => {
       const result1 = await patientService.createPatient({
         firstName: 'Test',
         lastName: 'Patient',
-        mrn: 'TEST007',
+        mrn: '100007',
         referringProvider: 'Dr. Test',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -265,7 +265,7 @@ describe('PatientService Integration', () => {
         const result2 = await patientService.createPatient({
           firstName: 'Test',
           lastName: 'Patient',
-          mrn: 'TEST008', // Different MRN
+          mrn: '100008', // Different MRN
           referringProvider: 'Dr. Test',
           referringProviderNPI: '1234567893',
           primaryDiagnosis: 'J45.50',
@@ -302,7 +302,7 @@ describe('PatientService Integration', () => {
       const result = await patientService.createPatient({
         firstName: 'Minimal',
         lastName: 'Patient',
-        mrn: 'TEST009',
+        mrn: '100009',
         referringProvider: 'Dr. Test',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -329,7 +329,7 @@ describe('PatientService Integration', () => {
       const createResult = await patientService.createPatient({
         firstName: 'Test',
         lastName: 'Patient',
-        mrn: 'TEST010',
+        mrn: '100010',
         referringProvider: 'Dr. Test',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -375,7 +375,7 @@ describe('PatientService Integration', () => {
       await patientService.createPatient({
         firstName: 'Patient',
         lastName: 'One',
-        mrn: 'TEST011',
+        mrn: '100011',
         referringProvider: 'Dr. Test',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -388,7 +388,7 @@ describe('PatientService Integration', () => {
       await patientService.createPatient({
         firstName: 'Patient',
         lastName: 'Two',
-        mrn: 'TEST012',
+        mrn: '100012',
         referringProvider: 'Dr. Test',
         referringProviderNPI: '1234567893',
         primaryDiagnosis: 'J45.50',
@@ -402,8 +402,8 @@ describe('PatientService Integration', () => {
 
       expect(patients.length).toBeGreaterThanOrEqual(2);
       // Most recent should be first
-      expect(patients[0].mrn).toBe('TEST012');
-      expect(patients[1].mrn).toBe('TEST011');
+      expect(patients[0].mrn).toBe('100012');
+      expect(patients[1].mrn).toBe('100011');
     });
 
     it('respects limit parameter', async () => {

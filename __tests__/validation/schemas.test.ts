@@ -17,7 +17,7 @@ describe('Validation Schemas', () => {
     const validInput = {
       firstName: 'John',
       lastName: 'Smith',
-      mrn: 'MRN12345',
+      mrn: '123456',
       referringProvider: 'Dr. Jane Doe',
       referringProviderNPI: '1234567893', // Valid NPI
       primaryDiagnosis: 'J45.50', // Valid ICD-10
@@ -37,7 +37,7 @@ describe('Validation Schemas', () => {
         const minimal = {
           firstName: 'John',
           lastName: 'Smith',
-          mrn: 'MRN001',
+          mrn: '100001',
           referringProvider: 'Dr. Doe',
           referringProviderNPI: '1234567893',
           primaryDiagnosis: 'J45.50',

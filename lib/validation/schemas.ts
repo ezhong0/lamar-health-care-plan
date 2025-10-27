@@ -75,10 +75,8 @@ export const PatientInputSchema = z.object({
 
   mrn: z
     .string()
-    .min(1, 'MRN is required')
-    .max(50, 'MRN must be less than 50 characters')
     .trim()
-    .regex(/^[A-Za-z0-9-]+$/, 'MRN must contain only letters, numbers, and hyphens'),
+    .regex(/^\d{6}$/, 'MRN must be exactly 6 digits'),
 
   // Provider Information
   referringProvider: z
