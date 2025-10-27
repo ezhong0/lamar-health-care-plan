@@ -7,12 +7,19 @@
 
 import { http, HttpResponse } from 'msw';
 import type { CreatePatientResponse, GenerateCarePlanResponse } from '@/lib/api/contracts';
-import type { PatientId } from '@/lib/domain/types';
+import type { PatientId, CarePlanId } from '@/lib/domain/types';
 
 export const handlers = [
   // Mock patient creation
   http.post('/api/patients', async ({ request }) => {
-    const body = await request.json();
+    const body = (await request.json()) as {
+      firstName: string;
+      lastName: string;
+      mrn: string;
+      additionalDiagnoses?: string[];
+      medicationHistory?: string[];
+      patientRecords: string;
+    };
 
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -23,12 +30,12 @@ export const handlers = [
       data: {
         patient: {
           id: ('mock-patient-' + Date.now()) as PatientId,
-          firstName: (body as any).firstName,
-          lastName: (body as any).lastName,
-          mrn: (body as any).mrn,
-          additionalDiagnoses: (body as any).additionalDiagnoses || [],
-          medicationHistory: (body as any).medicationHistory || [],
-          patientRecords: (body as any).patientRecords,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          mrn: body.mrn,
+          additionalDiagnoses: body.additionalDiagnoses || [],
+          medicationHistory: body.medicationHistory || [],
+          patientRecords: body.patientRecords,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -58,7 +65,7 @@ export const handlers = [
       success: true,
       data: {
         carePlan: {
-          id: ('mock-careplan-' + Date.now()) as any,
+          id: ('mock-careplan-' + Date.now()) as CarePlanId,
           patientId: 'mock-patient-123' as PatientId,
           content: `## Problem List / Drug Therapy Problems (DTPs)
 
