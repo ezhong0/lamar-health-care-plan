@@ -3,6 +3,8 @@
  *
  * Type-safe wrapper around fetch for API calls.
  * Uses contracts from lib/api/contracts.ts to ensure type safety.
+ *
+ * All API errors are thrown as ApiError instances with structured error information.
  */
 
 import type {
@@ -11,10 +13,18 @@ import type {
   GenerateCarePlanRequest,
   GenerateCarePlanResponse,
   GetPatientResponse,
+  ListPatientsResponse,
 } from '@/lib/api/contracts';
+import { ApiError } from './errors';
 
 /**
  * Base fetch wrapper with error handling
+ *
+ * Throws ApiError for failed requests with structured error information.
+ * All successful responses return the parsed JSON data.
+ *
+ * @throws {ApiError} When the API returns an error response
+ * @throws {Error} For network errors or JSON parsing failures
  */
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -28,10 +38,12 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const data = await response.json();
 
   if (!response.ok) {
-    const error = new Error(data.error || 'API request failed');
-    (error as any).code = data.code;
-    (error as any).details = data.details;
-    throw error;
+    // Throw structured ApiError instead of generic Error
+    throw new ApiError(
+      data.error || 'API request failed',
+      data.code,
+      data.details
+    );
   }
 
   return data;
@@ -66,4 +78,11 @@ export async function generateCarePlan(
  */
 export async function getPatient(id: string): Promise<GetPatientResponse> {
   return apiFetch<GetPatientResponse>(`/api/patients/${id}`);
+}
+
+/**
+ * List all patients
+ */
+export async function listPatients(): Promise<ListPatientsResponse> {
+  return apiFetch<ListPatientsResponse>('/api/patients');
 }

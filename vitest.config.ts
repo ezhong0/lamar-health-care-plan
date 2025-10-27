@@ -4,8 +4,10 @@ import path from 'path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'happy-dom',
+    environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
+    // Run tests sequentially to avoid DOM conflicts
+    pool: 'forks',
   },
   resolve: {
     alias: {

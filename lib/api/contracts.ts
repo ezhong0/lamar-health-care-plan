@@ -74,3 +74,40 @@ export interface GetPatientResponse {
     code: string;
   };
 }
+
+// ============================================================================
+// List Patients
+// ============================================================================
+
+/**
+ * Patient with related orders and care plans
+ * Used for list/dashboard views that need relationship data
+ */
+export interface PatientWithRelations extends Patient {
+  orders?: Array<{
+    id: string;
+    medicationName: string;
+    primaryDiagnosis: string;
+    status: string;
+    createdAt: Date;
+    provider: {
+      id: string;
+      name: string;
+      npi: string;
+    };
+  }>;
+  carePlans?: Array<{
+    id: string;
+  }>;
+}
+
+export interface ListPatientsResponse {
+  success: boolean;
+  data?: {
+    patients: PatientWithRelations[];
+  };
+  error?: {
+    message: string;
+    code: string;
+  };
+}

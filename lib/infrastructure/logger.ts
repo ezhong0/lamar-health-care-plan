@@ -6,6 +6,8 @@
  * with log aggregation services (Datadog, CloudWatch, etc.)
  */
 
+import { env } from './env';
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogContext {
@@ -13,7 +15,7 @@ interface LogContext {
 }
 
 class Logger {
-  private level: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+  private level: LogLevel = env.LOG_LEVEL;
 
   private shouldLog(level: LogLevel): boolean {
     const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];

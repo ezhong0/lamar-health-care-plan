@@ -19,6 +19,7 @@
 import { z } from 'zod';
 import { validateNPI } from './npi-validator';
 import { validateICD10 } from './icd10-validator';
+import { sanitizeMarkdown } from '@/lib/utils/sanitize';
 
 // ============================================================================
 // Provider Schema
@@ -57,14 +58,20 @@ export const PatientInputSchema = z.object({
     .min(1, 'First name is required')
     .max(100, 'First name must be less than 100 characters')
     .trim()
-    .regex(/^[a-zA-Z\s'-]+$/, 'First name must contain only letters, spaces, hyphens, and apostrophes'),
+    .regex(
+      /^[\p{L}\p{M}\s'-]+$/u,
+      'First name must contain only letters, spaces, hyphens, and apostrophes'
+    ),
 
   lastName: z
     .string()
     .min(1, 'Last name is required')
     .max(100, 'Last name must be less than 100 characters')
     .trim()
-    .regex(/^[a-zA-Z\s'-]+$/, 'Last name must contain only letters, spaces, hyphens, and apostrophes'),
+    .regex(
+      /^[\p{L}\p{M}\s'-]+$/u,
+      'Last name must contain only letters, spaces, hyphens, and apostrophes'
+    ),
 
   mrn: z
     .string()
@@ -146,7 +153,8 @@ export const PatientInputSchema = z.object({
     .string()
     .min(1, 'Patient records are required for care plan generation')
     .max(50000, 'Patient records must be less than 50,000 characters')
-    .trim(),
+    .trim()
+    .transform(sanitizeMarkdown), // Sanitize to prevent XSS
 });
 
 export type PatientInput = z.infer<typeof PatientInputSchema>;

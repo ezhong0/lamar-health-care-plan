@@ -16,17 +16,6 @@ import { toCarePlanId, toPatientId } from '@/lib/domain/types';
 beforeEach(() => {
   global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
   global.URL.revokeObjectURL = vi.fn();
-
-  // Mock createElement and appendChild for download
-  const mockLink = {
-    href: '',
-    download: '',
-    click: vi.fn(),
-  };
-
-  vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
-  vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
-  vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
 });
 
 describe('CarePlanView', () => {
@@ -66,12 +55,29 @@ describe('CarePlanView', () => {
   });
 
   it('triggers download when download button is clicked', async () => {
+    // Mock document.createElement and related functions for this test only
+    const mockLink = {
+      href: '',
+      download: '',
+      click: vi.fn(),
+    };
+
+    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+    const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
+    const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
+
     render(<CarePlanView carePlan={mockCarePlan} patientName="John Doe" />);
 
     const downloadButton = screen.getByRole('button', { name: /Download/i });
     await userEvent.click(downloadButton);
 
-    expect(document.createElement).toHaveBeenCalledWith('a');
+    expect(createElementSpy).toHaveBeenCalledWith('a');
+    expect(mockLink.click).toHaveBeenCalled();
+
+    // Cleanup
+    createElementSpy.mockRestore();
+    appendChildSpy.mockRestore();
+    removeChildSpy.mockRestore();
   });
 
   it('includes patient name in header when provided', () => {

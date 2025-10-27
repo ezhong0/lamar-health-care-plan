@@ -35,16 +35,20 @@ export function ThemeProvider({
   storageKey = 'lamar-health-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
-
-  useEffect(() => {
-    // Load theme from localStorage on mount
-    const storedTheme = localStorage.getItem(storageKey) as Theme | null;
-    if (storedTheme) {
-      setTheme(storedTheme);
+  // Initialize theme from localStorage (if available) or use default
+  // This prevents the synchronous setState issue by using the initializer function
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Server-side rendering guard
+    if (typeof window === 'undefined') {
+      return defaultTheme;
     }
-  }, [storageKey]);
 
+    // Check localStorage for saved theme
+    const storedTheme = localStorage.getItem(storageKey) as Theme | null;
+    return storedTheme || defaultTheme;
+  });
+
+  // Apply theme to document (DOM manipulation only, no state updates)
   useEffect(() => {
     const root = window.document.documentElement;
 

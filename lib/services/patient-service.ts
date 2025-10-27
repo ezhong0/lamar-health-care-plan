@@ -30,8 +30,8 @@ import type { PrismaClient } from '@prisma/client';
 import type { Result } from '@/lib/domain/result';
 import type { Patient, PatientId, Order } from '@/lib/domain/types';
 import type { Warning } from '@/lib/domain/warnings';
-import { toPatientId, toOrderId } from '@/lib/domain/types';
-import { DuplicatePatientError, PatientNotFoundError } from '@/lib/domain/errors';
+import { toPatientId, toOrderId, toProviderId } from '@/lib/domain/types';
+import { DuplicatePatientError } from '@/lib/domain/errors';
 import { logger } from '@/lib/infrastructure/logger';
 import { ProviderService } from './provider-service';
 import { DuplicateDetector } from './duplicate-detector';
@@ -384,7 +384,7 @@ export class PatientService {
     return {
       id: toOrderId(order.id),
       patientId: toPatientId(order.patientId),
-      providerId: order.providerId as any, // ProviderId type
+      providerId: toProviderId(order.providerId),
       medicationName: order.medicationName,
       primaryDiagnosis: order.primaryDiagnosis,
       status: order.status as 'pending' | 'fulfilled' | 'cancelled',

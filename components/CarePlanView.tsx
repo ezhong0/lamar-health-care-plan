@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import type { CarePlan } from '@/lib/domain/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { sanitizeMarkdown } from '@/lib/utils/sanitize';
 
 interface CarePlanViewProps {
   carePlan: CarePlan;
@@ -51,6 +52,11 @@ export function CarePlanView({ carePlan, patientName }: CarePlanViewProps) {
     hour: 'numeric',
     minute: '2-digit',
   });
+
+  // Defense-in-depth: Sanitize content at display time
+  // Even though content is sanitized at input, we sanitize again here
+  // to protect against any potential database/storage corruption
+  const sanitizedContent = sanitizeMarkdown(carePlan.content);
 
   return (
     <div className="space-y-6">
@@ -198,7 +204,7 @@ export function CarePlanView({ carePlan, patientName }: CarePlanViewProps) {
               hr: () => <hr className="my-8 border-neutral-200 dark:border-neutral-800" />,
             }}
           >
-            {carePlan.content}
+            {sanitizedContent}
           </ReactMarkdown>
         </div>
       </Card>

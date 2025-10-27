@@ -29,7 +29,7 @@ describe('ICD-10 Validator', () => {
 
         for (const code of validCodes) {
           const result = validateICD10(code);
-          expect(result.valid).toBe(true, `Expected ${code} to be valid`);
+          expect(result.valid, `Expected ${code} to be valid`).toBe(true);
           expect(result.error).toBeUndefined();
         }
       });
@@ -129,7 +129,7 @@ describe('ICD-10 Validator', () => {
 
         for (const code of chapters) {
           const result = validateICD10(code);
-          expect(result.valid).toBe(true, `Expected ${code} to be valid`);
+          expect(result.valid, `Expected ${code} to be valid`).toBe(true);
         }
       });
     });

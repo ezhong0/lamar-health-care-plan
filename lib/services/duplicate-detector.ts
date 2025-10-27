@@ -30,7 +30,7 @@
  * - Phonetic matching (Soundex/Metaphone) for pronunciation similarity
  */
 
-import type { Prisma, PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import type { PatientId, OrderId } from '@/lib/domain/types';
 import type { SimilarPatientWarning, DuplicateOrderWarning } from '@/lib/domain/warnings';
 import { logger } from '@/lib/infrastructure/logger';

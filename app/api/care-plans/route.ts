@@ -18,10 +18,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { GenerateCarePlanInputSchema } from '@/lib/validation/schemas';
 import { CarePlanService } from '@/lib/services/care-plan-service';
 import { prisma } from '@/lib/infrastructure/db';
+import { env } from '@/lib/infrastructure/env';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { isFailure } from '@/lib/domain/result';
@@ -59,40 +59,23 @@ export async function POST(
       patientId: validatedInput.patientId,
     });
 
-    // Step 2: Check for Anthropic API key
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // Step 2: Initialize service with validated API key
+    // env.ANTHROPIC_API_KEY is guaranteed to exist and be valid due to startup validation
+    const carePlanService = new CarePlanService(prisma, env.ANTHROPIC_API_KEY);
 
-    if (!apiKey) {
-      logger.error('Anthropic API key not configured', { requestId });
-
-      return NextResponse.json<GenerateCarePlanResponse>(
-        {
-          success: false,
-          error: {
-            message: 'AI service not configured. Please contact support.',
-            code: 'CONFIGURATION_ERROR',
-          },
-        },
-        { status: 500 }
-      );
-    }
-
-    // Step 3: Initialize service
-    const carePlanService = new CarePlanService(prisma, apiKey);
-
-    // Step 4: Generate care plan
+    // Step 3: Generate care plan
     // This handles retry logic, timeout, and comprehensive logging internally
     const result = await carePlanService.generateCarePlan({
       patientId: validatedInput.patientId as PatientId,
     });
 
-    // Step 5: Handle Result type
+    // Step 4: Handle Result type
     if (isFailure(result)) {
       // Service returned error (patient not found, LLM failure, etc.)
       return handleError(result.error) as NextResponse<GenerateCarePlanResponse>;
     }
 
-    // Step 6: Return success response
+    // Step 5: Return success response
     const { carePlan } = result.data;
 
     logger.info('Care plan generated successfully via API', {
@@ -145,22 +128,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   logger.info('List care plans request received', { patientId });
 
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: 'AI service not configured',
-            code: 'CONFIGURATION_ERROR',
-          },
-        },
-        { status: 500 }
-      );
-    }
-
-    const carePlanService = new CarePlanService(prisma, apiKey);
+    // Use validated environment configuration
+    const carePlanService = new CarePlanService(prisma, env.ANTHROPIC_API_KEY);
     const carePlans = await carePlanService.getCarePlansForPatient(
       patientId as PatientId
     );

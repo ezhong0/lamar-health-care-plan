@@ -23,7 +23,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { PatientInputSchema } from '@/lib/validation/schemas';
 import { PatientService } from '@/lib/services/patient-service';
 import { ProviderService } from '@/lib/services/provider-service';
@@ -121,22 +120,50 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
 /**
  * GET /api/patients
  *
- * List recent patients.
+ * List recent patients with orders and care plan counts.
+ * Enhanced to include relationship data for patient list display.
  * Simple implementation - production would add pagination, filtering, search.
  */
 export async function GET(): Promise<NextResponse> {
   logger.info('List patients request received');
 
   try {
-    const providerService = new ProviderService(prisma);
-    const duplicateDetector = new DuplicateDetector();
-    const patientService = new PatientService(
-      prisma,
-      providerService,
-      duplicateDetector
-    );
+    // Fetch patients with orders and care plans for rich list display
+    // Note: Direct Prisma query here instead of service to include relations
+    // This is acceptable for API-specific data shaping
+    const patientsData = await prisma.patient.findMany({
+      take: 50,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        orders: {
+          take: 1, // Only latest order for card display
+          orderBy: { createdAt: 'desc' },
+          include: {
+            provider: true,
+          },
+        },
+        carePlans: {
+          select: {
+            id: true, // Only need count
+          },
+        },
+      },
+    });
 
-    const patients = await patientService.listRecentPatients(50);
+    // Transform to match expected format
+    const patients = patientsData.map((p) => ({
+      id: p.id,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      mrn: p.mrn,
+      additionalDiagnoses: p.additionalDiagnoses as string[],
+      medicationHistory: p.medicationHistory as string[],
+      patientRecords: p.patientRecords,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      orders: p.orders,
+      carePlans: p.carePlans,
+    }));
 
     return NextResponse.json({
       success: true,

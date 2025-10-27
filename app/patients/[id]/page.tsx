@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CarePlanView } from '@/components/CarePlanView';
+import { ApiError } from '@/lib/client/errors';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -24,9 +25,19 @@ export default function PatientDetailPage() {
   const handleGenerateCarePlan = async () => {
     try {
       await generateCarePlan.mutateAsync({ patientId });
-    } catch (error) {
-      // Error will be handled by React Query
-      console.error('Failed to generate care plan:', error);
+    } catch (error: unknown) {
+      // Type-safe error handling
+      if (error instanceof ApiError) {
+        console.error('API error generating care plan:', {
+          message: error.message,
+          code: error.code,
+        });
+      } else if (error instanceof Error) {
+        console.error('Error generating care plan:', error.message);
+      } else {
+        console.error('Unknown error generating care plan:', error);
+      }
+      // Error state will be handled by React Query (generateCarePlan.isError)
     }
   };
 
@@ -46,12 +57,16 @@ export default function PatientDetailPage() {
 
   // Error state
   if (error || !data?.success || !data.data) {
+    const errorMessage = error instanceof ApiError
+      ? error.getUserMessage()
+      : error instanceof Error
+        ? error.message
+        : data?.error?.message || 'Failed to load patient information';
+
     return (
       <div className="max-w-7xl mx-auto py-12 px-4">
         <Alert variant="destructive">
-          <AlertDescription>
-            {(error as any)?.message || data?.error?.message || 'Failed to load patient information'}
-          </AlertDescription>
+          <AlertDescription>{errorMessage}</AlertDescription>
         </Alert>
       </div>
     );
@@ -168,7 +183,11 @@ export default function PatientDetailPage() {
           {generateCarePlan.isError && (
             <Alert variant="destructive">
               <AlertDescription>
-                {(generateCarePlan.error as any)?.message || 'Failed to generate care plan. Please try again.'}
+                {generateCarePlan.error instanceof ApiError
+                  ? generateCarePlan.error.getUserMessage()
+                  : generateCarePlan.error instanceof Error
+                    ? generateCarePlan.error.message
+                    : 'Failed to generate care plan. Please try again.'}
               </AlertDescription>
             </Alert>
           )}
@@ -198,7 +217,7 @@ export default function PatientDetailPage() {
                 </svg>
                 <p className="text-neutral-600 dark:text-neutral-400">No care plans generated yet</p>
                 <p className="text-sm text-neutral-500 dark:text-neutral-500">
-                  Click "Generate Care Plan" to create a new care plan for this patient
+                  Click &quot;Generate Care Plan&quot; to create a new care plan for this patient
                 </p>
               </div>
             </Card>

@@ -158,7 +158,8 @@ function WarningItem({ warning }: { warning: Warning }) {
 
     default:
       // Exhaustive check - TypeScript will error if we miss a case
-      const _exhaustive: never = warning;
+      // Using assertion to ensure exhaustiveness without unused variable warning
+      warning satisfies never;
       return null;
   }
 }

@@ -56,3 +56,15 @@ export function usePatient(id: string) {
     enabled: !!id,
   });
 }
+
+/**
+ * Hook to fetch all patients
+ *
+ * Automatically caches and handles loading/error states
+ */
+export function usePatients() {
+  return useQuery({
+    queryKey: ['patients'],
+    queryFn: () => api.listPatients(),
+  });
+}

@@ -18,7 +18,6 @@
  */
 
 import type { PrismaClient, Prisma } from '@prisma/client';
-import type { Result } from '@/lib/domain/result';
 import type { Provider, ProviderId } from '@/lib/domain/types';
 import type { ProviderConflictWarning } from '@/lib/domain/warnings';
 import { toProviderId } from '@/lib/domain/types';

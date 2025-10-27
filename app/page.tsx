@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { SeedDataButton } from '@/components/SeedDataButton';
 
 export default function Home() {
   return (
@@ -18,6 +19,17 @@ export default function Home() {
               Create New Patient
             </Button>
           </Link>
+          <Link href="/patients">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              View All Patients
+            </Button>
+          </Link>
+        </div>
+        <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 mt-8">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+            Want to explore the features? Load realistic demo data:
+          </p>
+          <SeedDataButton />
         </div>
       </div>
     </div>

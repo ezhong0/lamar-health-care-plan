@@ -30,7 +30,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { PrismaClient } from '@prisma/client';
 import type { Result } from '@/lib/domain/result';
-import type { CarePlan, CarePlanId, PatientId } from '@/lib/domain/types';
+import type { CarePlan, PatientId } from '@/lib/domain/types';
 import { toCarePlanId } from '@/lib/domain/types';
 import { PatientNotFoundError, CarePlanGenerationError } from '@/lib/domain/errors';
 import { logger } from '@/lib/infrastructure/logger';

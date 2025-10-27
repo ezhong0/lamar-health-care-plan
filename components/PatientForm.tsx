@@ -8,6 +8,7 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PatientInputSchema, type PatientInput } from '@/lib/validation/schemas';
 import { useCreatePatient } from '@/lib/client/hooks';
@@ -20,19 +21,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { WarningList } from './WarningList';
 import type { Warning } from '@/lib/domain/warnings';
+import { ApiError } from '@/lib/client/errors';
 
 export function PatientForm() {
   const router = useRouter();
   const createPatient = useCreatePatient();
   const [warnings, setWarnings] = useState<Warning[]>([]);
   const [showWarnings, setShowWarnings] = useState(false);
+  const [createdPatientId, setCreatedPatientId] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<PatientInput>({
-    resolver: zodResolver(PatientInputSchema) as any, // Type assertion needed due to optional arrays with defaults
+    resolver: zodResolver(PatientInputSchema) as Resolver<PatientInput>,
   });
 
   const onSubmit = async (data: PatientInput) => {
@@ -40,35 +43,54 @@ export function PatientForm() {
       const result = await createPatient.mutateAsync(data);
 
       if (result.success && result.data) {
+        const patientId = result.data.patient.id;
+
+        // Store patient ID for navigation after warnings are dismissed
+        setCreatedPatientId(patientId);
+
         // Check if there are warnings
         if (result.data.warnings && result.data.warnings.length > 0) {
           setWarnings(result.data.warnings);
           setShowWarnings(true);
         } else {
-          // No warnings, navigate to patient detail
-          router.push(`/patients/${result.data.patient.id}`);
+          // No warnings, navigate to patient detail immediately
+          router.push(`/patients/${patientId}`);
         }
       }
-    } catch (error: any) {
-      // Error will be handled by React Query
-      console.error('Failed to create patient:', error);
+    } catch (error: unknown) {
+      // Type-safe error handling
+      if (error instanceof ApiError) {
+        console.error('API error creating patient:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+        });
+      } else if (error instanceof Error) {
+        console.error('Error creating patient:', error.message);
+      } else {
+        console.error('Unknown error creating patient:', error);
+      }
+      // Error state will be handled by React Query (createPatient.isError)
     }
   };
 
-  const handleProceedWithWarnings = () => {
-    // In a real app, you might want to create the patient anyway
-    // For now, just close the warnings
-    setShowWarnings(false);
-    // Since we already created the patient, navigate to it
-    // You'd need to store the patient ID
+  const handleDismissWarnings = () => {
+    // Patient was successfully created, navigate to detail page
+    // Both "Proceed" and "Cancel" navigate since creation succeeded
+    if (createdPatientId) {
+      router.push(`/patients/${createdPatientId}`);
+    } else {
+      // Fallback: return to form (shouldn't happen in normal flow)
+      setShowWarnings(false);
+    }
   };
 
   if (showWarnings && warnings.length > 0) {
     return (
       <WarningList
         warnings={warnings}
-        onProceed={handleProceedWithWarnings}
-        onCancel={() => setShowWarnings(false)}
+        onProceed={handleDismissWarnings}
+        onCancel={handleDismissWarnings}
       />
     );
   }
@@ -79,7 +101,11 @@ export function PatientForm() {
       {createPatient.isError && (
         <Alert variant="destructive">
           <AlertDescription>
-            {(createPatient.error as any)?.message || 'Failed to create patient. Please try again.'}
+            {createPatient.error instanceof ApiError
+              ? createPatient.error.getUserMessage()
+              : createPatient.error instanceof Error
+                ? createPatient.error.message
+                : 'Failed to create patient. Please try again.'}
           </AlertDescription>
         </Alert>
       )}
@@ -89,7 +115,7 @@ export function PatientForm() {
         <div>
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Patient Information</h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            Enter the patient's basic information
+            Enter the patient&apos;s basic information
           </p>
         </div>
 
