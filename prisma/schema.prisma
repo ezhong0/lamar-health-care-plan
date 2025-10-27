@@ -1,0 +1,74 @@
+// Prisma schema for Care Plan Generator
+// Database: PostgreSQL with proper indexes for performance
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id                   String   @id @default(cuid())
+  firstName            String   @map("first_name")
+  lastName             String   @map("last_name")
+  mrn                  String   @unique
+  additionalDiagnoses  String[] @map("additional_diagnoses")
+  medicationHistory    String[] @map("medication_history")
+  patientRecords       String   @map("patient_records") @db.Text
+
+  orders     Order[]
+  carePlans  CarePlan[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([mrn])
+  @@index([firstName, lastName])
+  @@map("patients")
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  patientId        String   @map("patient_id")
+  patient          Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  providerId       String   @map("provider_id")
+  provider         Provider @relation(fields: [providerId], references: [id])
+  medicationName   String   @map("medication_name")
+  primaryDiagnosis String   @map("primary_diagnosis")
+  status           String   @default("pending")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([patientId, medicationName])
+  @@index([providerId])
+  @@map("orders")
+}
+
+model Provider {
+  id   String @id @default(cuid())
+  name String
+  npi  String @unique
+
+  orders Order[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("providers")
+}
+
+model CarePlan {
+  id          String  @id @default(cuid())
+  patientId   String  @map("patient_id")
+  patient     Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  content     String  @db.Text
+  generatedBy String  @map("generated_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([patientId, createdAt])
+  @@map("care_plans")
+}
