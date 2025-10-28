@@ -47,7 +47,7 @@ export interface GenerateCarePlanInput {
  */
 export class CarePlanService {
   private readonly anthropic: Anthropic;
-  private readonly model: string = 'claude-3-5-sonnet-20241022';
+  private readonly model: string = 'claude-3-5-haiku-20241022';
   private readonly maxTokens: number = 4096;
   private readonly timeout: number = 60000; // 60 seconds
 
