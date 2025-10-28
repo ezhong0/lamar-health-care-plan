@@ -37,7 +37,7 @@ model Order {
   patientId        String   @map("patient_id")
   patient          Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   providerId       String   @map("provider_id")
-  provider         Provider @relation(fields: [providerId], references: [id])
+  provider         Provider @relation(fields: [providerId], references: [id], onDelete: Restrict)
   medicationName   String   @map("medication_name")
   primaryDiagnosis String   @map("primary_diagnosis")
   status           String   @default("pending")
@@ -46,6 +46,8 @@ model Order {
 
   @@index([patientId, medicationName])
   @@index([providerId])
+  @@index([status])
+  @@index([patientId, status])
   @@map("orders")
 }
 

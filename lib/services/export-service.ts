@@ -168,6 +168,7 @@ export class ExportService {
    * Properly escapes fields for CSV format:
    * - Wraps fields containing commas, quotes, or newlines in double quotes
    * - Escapes existing quotes by doubling them
+   * - Prevents CSV injection (formula execution in Excel)
    *
    * @param fields - Array of field values
    * @returns Comma-separated string
@@ -177,6 +178,14 @@ export class ExportService {
       .map((field) => {
         // Convert to string and handle null/undefined
         const str = field ?? '';
+
+        // Prevent CSV injection (Excel formula execution)
+        // If field starts with =, +, -, @, prefix with apostrophe
+        if (str.length > 0 && /^[=+\-@]/.test(str)) {
+          // Wrap in quotes and prefix with apostrophe to force text interpretation
+          const escaped = str.replace(/"/g, '""');
+          return `"'${escaped}"`;
+        }
 
         // Check if field needs quoting
         if (

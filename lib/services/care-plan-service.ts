@@ -35,6 +35,7 @@ import { toCarePlanId } from '@/lib/domain/types';
 import { PatientNotFoundError, CarePlanGenerationError } from '@/lib/domain/errors';
 import { logger } from '@/lib/infrastructure/logger';
 import { retry } from '@/lib/infrastructure/retry';
+import { sanitizeForLLM } from '@/lib/utils/sanitize-llm';
 
 export interface GenerateCarePlanInput {
   patientId: PatientId;
@@ -106,6 +107,13 @@ export class CarePlanService {
 
       if (!patientData) {
         throw new PatientNotFoundError(input.patientId);
+      }
+
+      // Verify patient has orders (required for care plan generation)
+      if (!patientData.orders || patientData.orders.length === 0) {
+        throw new CarePlanGenerationError(
+          'Cannot generate care plan: patient has no medication orders'
+        );
       }
 
       // Step 2: Build prompt
@@ -324,6 +332,9 @@ export class CarePlanService {
   }): string {
     const mostRecentOrder = patientData.orders[0];
 
+    // Sanitize user-provided text to prevent prompt injection
+    const sanitizedRecords = sanitizeForLLM(patientData.patientRecords);
+
     return `You are a clinical pharmacist creating a care plan for a specialty pharmacy patient.
 
 ## Patient Information
@@ -343,7 +354,7 @@ ${patientData.additionalDiagnoses.length > 0 ? patientData.additionalDiagnoses.m
 ${patientData.medicationHistory.length > 0 ? patientData.medicationHistory.map((m) => `- ${m}`).join('\n') : '- None'}
 
 **Patient Records:**
-${patientData.patientRecords}
+${sanitizedRecords}
 
 ---
 

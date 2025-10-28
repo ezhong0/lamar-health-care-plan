@@ -69,6 +69,10 @@ export class DuplicateDetector {
    * Returns patients with similarity score > threshold.
    * Excludes exact MRN matches (those are handled as hard errors upstream).
    *
+   * Performance note: Currently checks last 100 patients (O(100)).
+   * For production with 10k+ patients, migrate to PostgreSQL pg_trgm
+   * extension for server-side fuzzy matching with GIN indexes (O(log n)).
+   *
    * @param input - Patient name and MRN to check
    * @param tx - Prisma transaction client
    * @returns Array of similar patient warnings
@@ -93,9 +97,10 @@ export class DuplicateDetector {
       mrn: input.mrn,
     });
 
-    // Fetch all patients for comparison
-    // Production: Use PostgreSQL pg_trgm for fuzzy matching in SQL
-    // This would be: SELECT * FROM patients WHERE similarity(name, $1) > 0.7
+    // Fetch recent patients only for comparison (performance optimization)
+    // Duplicates are most likely to be recent entries
+    // Production: Use PostgreSQL pg_trgm for server-side fuzzy matching:
+    // SELECT * FROM patients WHERE similarity(first_name || ' ' || last_name, $1) > 0.7
     const allPatients = await tx.patient.findMany({
       select: {
         id: true,
@@ -103,6 +108,8 @@ export class DuplicateDetector {
         lastName: true,
         mrn: true,
       },
+      orderBy: { createdAt: 'desc' },
+      take: 100, // Only check last 100 patients
     });
 
     const warnings: SimilarPatientWarning[] = [];
@@ -194,7 +201,9 @@ export class DuplicateDetector {
       },
     });
 
-    if (existingOrders.length === 0) {
+    // Only warn if there are 2+ orders (actual duplicates)
+    // Note: This check runs after the current order is created, so length=1 means no duplicates
+    if (existingOrders.length <= 1) {
       return [];
     }
 
@@ -297,17 +306,22 @@ export class DuplicateDetector {
    */
   private jaccardSimilarity(s1: string, s2: string): number {
     // Handle edge cases
-    if (s1 === s2) return 1.0;
     if (s1.length === 0 || s2.length === 0) return 0.0;
+    if (s1 === s2) return 1.0;
 
     const trigrams1 = this.getTrigrams(s1);
     const trigrams2 = this.getTrigrams(s2);
 
-    // Calculate intersection
-    const intersection = trigrams1.filter((t) => trigrams2.includes(t));
+    // Convert to Sets first to avoid counting duplicates
+    // This ensures mathematically correct Jaccard similarity
+    const set1 = new Set(trigrams1);
+    const set2 = new Set(trigrams2);
 
-    // Calculate union (deduplicated)
-    const union = new Set([...trigrams1, ...trigrams2]);
+    // Calculate intersection (elements in both sets)
+    const intersection = [...set1].filter((t) => set2.has(t));
+
+    // Calculate union (all unique elements)
+    const union = new Set([...set1, ...set2]);
 
     return intersection.length / union.size;
   }

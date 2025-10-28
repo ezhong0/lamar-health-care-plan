@@ -49,31 +49,30 @@ export class ProviderService {
    * Behavior:
    * - If NPI doesn't exist: create new provider
    * - If NPI exists with SAME name: return existing (case-insensitive match)
-   * - If NPI exists with DIFFERENT name: throw ProviderConflictError
+   * - If NPI exists with DIFFERENT name: return existing with warning
    *
-   * Why throw on conflict:
-   * This is likely a data entry error. User entered wrong NPI for provider,
-   * or wrong provider name for NPI. This should block patient creation until resolved.
+   * Provider conflicts are warnings, not blocking errors. This allows users to
+   * proceed if they have the correct NPI but a slightly different provider name spelling.
    *
    * @param input - Provider name and NPI
    * @param tx - Optional Prisma transaction client
-   * @returns Provider (existing or newly created)
-   * @throws ProviderConflictError if NPI exists with different name
+   * @returns ProviderServiceResult with provider and optional warnings
    *
    * @example
    * // New provider - creates
-   * const provider = await service.upsertProvider({ name: 'Dr. Smith', npi: '1234567893' });
+   * const { provider, warnings } = await service.upsertProvider({ name: 'Dr. Smith', npi: '1234567893' });
    *
    * // Existing provider with same name - returns existing
-   * const provider = await service.upsertProvider({ name: 'Dr. Smith', npi: '1234567893' });
+   * const { provider, warnings } = await service.upsertProvider({ name: 'Dr. Smith', npi: '1234567893' });
    *
-   * // Existing NPI with different name - throws
-   * await service.upsertProvider({ name: 'Dr. Jones', npi: '1234567893' }); // Error!
+   * // Existing NPI with different name - returns existing with warning
+   * const { provider, warnings } = await service.upsertProvider({ name: 'Dr. Jones', npi: '1234567893' });
+   * // warnings will contain a PROVIDER_CONFLICT warning
    */
   async upsertProvider(
     input: ProviderInput,
     tx?: Prisma.TransactionClient
-  ): Promise<Provider> {
+  ): Promise<ProviderServiceResult> {
     const client = tx || this.db;
     const normalizedInput = this.normalizeProviderInput(input);
 
@@ -88,28 +87,39 @@ export class ProviderService {
     });
 
     if (existing) {
-      // Name match (case-insensitive) - return existing
+      // Name match (case-insensitive) - return existing with no warnings
       if (this.namesMatch(existing.name, normalizedInput.name)) {
         logger.debug('Provider already exists with same name', {
           providerId: existing.id,
           npi: existing.npi,
         });
 
-        return this.toDomainProvider(existing);
+        return {
+          provider: this.toDomainProvider(existing),
+          warnings: [],
+        };
       }
 
-      // Name mismatch - conflict error
+      // Name mismatch - return existing with warning
       logger.warn('Provider NPI conflict detected', {
         npi: normalizedInput.npi,
         existingName: existing.name,
         inputName: normalizedInput.name,
       });
 
-      throw new ProviderConflictError(
-        normalizedInput.npi,
-        normalizedInput.name,
-        existing.name
-      );
+      const warning: ProviderConflictWarning = {
+        type: 'PROVIDER_CONFLICT',
+        severity: 'high',
+        message: `NPI ${normalizedInput.npi} is registered to "${existing.name}". You entered "${normalizedInput.name}".`,
+        npi: normalizedInput.npi,
+        expectedName: normalizedInput.name,
+        actualName: existing.name,
+      };
+
+      return {
+        provider: this.toDomainProvider(existing),
+        warnings: [warning],
+      };
     }
 
     // Create new provider
@@ -130,7 +140,10 @@ export class ProviderService {
       npi: created.npi,
     });
 
-    return this.toDomainProvider(created);
+    return {
+      provider: this.toDomainProvider(created),
+      warnings: [],
+    };
   }
 
   /**
@@ -192,18 +205,34 @@ export class ProviderService {
    * Normalize provider name
    *
    * Converts to title case for consistency.
-   * "john smith" → "John Smith"
-   * "JOHN SMITH" → "John Smith"
+   * Handles edge cases like multiple spaces, McDonald, O'Brien.
    *
    * @param name - Raw name
    * @returns Title-cased name
+   *
+   * @example
+   * normalizeName('john smith')      // 'John Smith'
+   * normalizeName('JOHN SMITH')      // 'John Smith'
+   * normalizeName('DR.  JOHN  SMITH') // 'Dr. John Smith' (normalizes spaces)
+   * normalizeName('McDonald')        // 'Mcdonald' (basic title case)
+   * normalizeName("O'Brien")         // "O'brien" (basic title case)
    */
   private normalizeName(name: string): string {
     return name
       .trim()
       .toLowerCase()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .split(/\s+/)  // Split on any whitespace (handles multiple spaces)
+      .filter(word => word.length > 0)  // Remove empty strings
+      .map((word) => {
+        // Handle empty word (shouldn't happen after filter, but be safe)
+        if (word.length === 0) return word;
+
+        // Handle single character
+        if (word.length === 1) return word.toUpperCase();
+
+        // Default: Title case
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
       .join(' ');
   }
 
