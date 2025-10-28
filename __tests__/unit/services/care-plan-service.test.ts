@@ -6,12 +6,70 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CarePlanService } from '@/lib/services/care-plan-service';
 import { testDb, setupTestDb, teardownTestDb } from '../../helpers/test-db';
 import { createMockAnthropicClient } from '../../helpers/mocks';
 import { PatientNotFoundError, CarePlanGenerationError } from '@/lib/domain/errors';
 import type { PatientId } from '@/lib/domain/types';
 import '../../helpers/matchers';
+
+// Mock the Anthropic SDK to avoid browser environment error
+vi.mock('@anthropic-ai/sdk', () => {
+  // Create mock error classes
+  class MockAPIError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'APIError';
+    }
+  }
+
+  // Create a mock class that returns the mock client
+  class MockAnthropic {
+    messages: any;
+    static APIError = MockAPIError;
+
+    constructor() {
+      const mockClient = {
+        messages: {
+          create: vi.fn().mockImplementation(async () => ({
+            content: [
+              {
+                type: 'text',
+                text: `# Care Plan
+
+**Patient**: Test Patient
+**Diagnosis**: Test Condition
+
+## Treatment Plan
+1. Continue current medication regimen
+2. Monitor symptoms closely
+3. Follow-up in 2 weeks
+
+## Goals
+- Symptom management
+- Improve quality of life
+
+## Next Steps
+- Schedule follow-up appointment
+- Lab work if needed
+
+This care plan is generated for testing purposes and provides comprehensive guidance for patient care.`,
+              },
+            ],
+            model: 'claude-3-5-sonnet-20241022',
+          })),
+        },
+      };
+      this.messages = mockClient.messages;
+    }
+  }
+
+  return {
+    default: MockAnthropic,
+    Anthropic: MockAnthropic,
+  };
+});
+
+import { CarePlanService } from '@/lib/services/care-plan-service';
 
 describe('CarePlanService', () => {
   beforeEach(async () => {
@@ -143,9 +201,9 @@ describe('CarePlanService', () => {
         },
       });
 
-      // Mock client with long delay
+      // Mock client with long delay (longer than service timeout of 25s)
       const mockClient = createMockAnthropicClient({
-        delay: 30000, // 30 seconds (will timeout)
+        delay: 26000, // 26 seconds (will timeout at 25s)
       });
 
       const service = new CarePlanService(testDb, 'test-key');
@@ -156,7 +214,7 @@ describe('CarePlanService', () => {
       });
 
       expect(result).toBeFailure();
-    }, 30000); // Increase test timeout
+    }, 35000); // Increase test timeout to 35s (above service timeout + buffer)
 
     it('should handle LLM API error', async () => {
       const provider = await testDb.provider.create({

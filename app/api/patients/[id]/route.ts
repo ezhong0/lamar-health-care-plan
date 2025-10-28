@@ -14,9 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PatientService } from '@/lib/services/patient-service';
-import { ProviderService } from '@/lib/services/provider-service';
-import { DuplicateDetector } from '@/lib/services/duplicate-detector';
+import { createPatientServices } from '@/lib/services/factory';
 import { prisma } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
@@ -48,14 +46,8 @@ export async function GET(
   logger.info('Get patient request received', { patientId });
 
   try {
-    // Initialize services
-    const providerService = new ProviderService(prisma);
-    const duplicateDetector = new DuplicateDetector();
-    const patientService = new PatientService(
-      prisma,
-      providerService,
-      duplicateDetector
-    );
+    // Initialize services using factory
+    const { patientService } = createPatientServices(prisma);
 
     // Fetch patient with related data
     const result = await patientService.getPatientById(patientId as PatientId);
@@ -102,5 +94,107 @@ export async function GET(
     });
 
     return handleError(error) as NextResponse<GetPatientResponse>;
+  }
+}
+
+/**
+ * DELETE /api/patients/[id]
+ *
+ * Delete patient and all related data (cascade):
+ * - Patient record
+ * - All orders
+ * - All care plans
+ *
+ * Returns count of deleted records for transparency.
+ *
+ * Status codes:
+ * - 200: Success
+ * - 404: Patient not found
+ * - 500: Internal server error
+ */
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id: patientId } = await context.params;
+  const requestId = crypto.randomUUID();
+
+  logger.info('Patient deletion request received', {
+    requestId,
+    patientId,
+  });
+
+  try {
+    // Verify patient exists and get related data count
+    const patient = await prisma.patient.findUnique({
+      where: { id: patientId },
+      include: {
+        orders: true,
+        carePlans: true,
+      },
+    });
+
+    if (!patient) {
+      logger.warn('Patient not found for deletion', {
+        requestId,
+        patientId,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: { message: 'Patient not found', code: 'PATIENT_NOT_FOUND' },
+        },
+        { status: 404 }
+      );
+    }
+
+    // Count related records before deletion
+    const orderCount = patient.orders.length;
+    const carePlanCount = patient.carePlans.length;
+
+    // Delete patient (cascade will handle orders and care plans via Prisma schema)
+    await prisma.patient.delete({
+      where: { id: patientId },
+    });
+
+    logger.info('Patient deleted successfully', {
+      requestId,
+      patientId,
+      patientName: `${patient.firstName} ${patient.lastName}`,
+      ordersDeleted: orderCount,
+      carePlansDeleted: carePlanCount,
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        message: 'Patient deleted successfully',
+        deletedRecords: {
+          patient: 1,
+          orders: orderCount,
+          carePlans: carePlanCount,
+        },
+      },
+    });
+  } catch (error) {
+    logger.error('Patient deletion failed', {
+      requestId,
+      patientId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Failed to delete patient',
+          code: 'DELETE_ERROR',
+          details: error instanceof Error ? error.message : undefined,
+        },
+      },
+      { status: 500 }
+    );
   }
 }

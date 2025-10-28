@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Footer } from '@/components/Footer';
+import { Toaster } from '@/components/Toaster';
 import Link from 'next/link';
 
 const inter = Inter({
@@ -77,6 +78,7 @@ export default function RootLayout({
             {/* Footer */}
             <Footer />
           </Providers>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

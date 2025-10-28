@@ -1,11 +1,20 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { SeedDataButton } from '@/components/SeedDataButton';
+import { DemoScenarioSelector } from '@/components/DemoScenarioSelector';
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] px-4">
-      <div className="max-w-2xl text-center space-y-6">
+    <div className="py-12 px-4">
+      {/* Hero Section */}
+      <motion.div
+        className="max-w-2xl mx-auto text-center space-y-6 mb-16"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-5xl">
           AI-Powered Care Plan Generation
         </h1>
@@ -13,7 +22,12 @@ export default function Home() {
           Streamline your workflow with intelligent pharmacist care plans. Generate
           comprehensive, validated care plans in minutes, not hours.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+        <motion.div
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
           <Link href="/patients/new">
             <Button size="lg" className="w-full sm:w-auto">
               Create New Patient
@@ -24,14 +38,18 @@ export default function Home() {
               View All Patients
             </Button>
           </Link>
-        </div>
-        <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 mt-8">
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-            Want to explore the features? Load realistic demo data:
-          </p>
-          <SeedDataButton />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Demo Scenarios Section */}
+      <motion.div
+        className="max-w-7xl mx-auto"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+      >
+        <DemoScenarioSelector />
+      </motion.div>
     </div>
   );
 }

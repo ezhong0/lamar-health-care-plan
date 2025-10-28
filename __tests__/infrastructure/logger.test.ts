@@ -13,10 +13,18 @@ describe('Logger', () => {
   beforeEach(() => {
     // Spy on console methods
     consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    // The logger caches LOG_LEVEL at module load time, so we need to set the
+    // logger's internal level to 'debug' to allow all logs during tests
+    // @ts-expect-error - accessing private property for testing
+    logger.level = 'debug';
   });
 
   afterEach(() => {
     consoleSpy.mockRestore();
+    // Restore logger level to original
+    // @ts-expect-error - accessing private property for testing
+    logger.level = 'error';
   });
 
   describe('info level', () => {

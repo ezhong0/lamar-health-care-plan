@@ -6,6 +6,7 @@
  *
  * Features:
  * - Patient cards with key information
+ * - Real-time search across name, MRN, medication, and diagnosis
  * - Export all patients to CSV
  * - Loading and empty states
  * - Linear-inspired design
@@ -13,7 +14,10 @@
 
 'use client';
 
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { usePatients } from '@/lib/client/hooks';
 import { PatientCard } from '@/components/PatientCard';
 import { Button } from '@/components/ui/button';
@@ -22,11 +26,55 @@ import type { PatientWithRelations } from '@/lib/api/contracts';
 
 export default function PatientsPage() {
   const { data, isLoading, error } = usePatients();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleExport = () => {
     // Trigger download of CSV export
     window.location.href = '/api/export';
   };
+
+  // Filter patients based on search query
+  const filteredPatients = useMemo(() => {
+    if (!data?.success || !data.data) return [];
+
+    const patients = data.data.patients;
+
+    if (!searchQuery.trim()) {
+      return patients;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return patients.filter((patient: PatientWithRelations) => {
+      // Search in patient name
+      const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+      if (fullName.includes(query)) return true;
+
+      // Search in MRN
+      if (patient.mrn.toLowerCase().includes(query)) return true;
+
+      // Search in medications
+      if (patient.orders && patient.orders.length > 0) {
+        const hasMedication = patient.orders.some((order) =>
+          order.medicationName.toLowerCase().includes(query)
+        );
+        if (hasMedication) return true;
+      }
+
+      // Search in diagnoses
+      if (patient.orders && patient.orders.length > 0) {
+        const hasDiagnosis = patient.orders.some((order) =>
+          order.primaryDiagnosis.toLowerCase().includes(query)
+        );
+        if (hasDiagnosis) return true;
+      }
+
+      return false;
+    });
+  }, [data, searchQuery]);
+
+  const totalPatients = data?.success && data.data ? data.data.patients.length : 0;
+  const showingCount = filteredPatients.length;
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -52,15 +100,42 @@ export default function PatientsPage() {
           </div>
         </div>
 
+        {/* Search Bar */}
+        {data?.success && data.data && data.data.patients.length > 0 && (
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+              <input
+                type="text"
+                placeholder="Search by name, MRN, medication, or diagnosis..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-neutral-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-transparent transition-all"
+              />
+            </div>
+            {/* Search Results Count */}
+            {searchQuery && (
+              <div className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                Showing {showingCount} of {totalPatients} patients
+                {showingCount === 0 && (
+                  <span className="ml-2 text-amber-600 dark:text-amber-500">
+                    - No matches found. Try a different search term.
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Stats */}
         {data?.success && data.data && (
           <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Total Patients
+                {searchQuery ? 'Filtered' : 'Total'} Patients
               </p>
               <p className="text-3xl font-semibold text-neutral-900 dark:text-white mt-1">
-                {data.data.patients.length}
+                {filteredPatients.length}
               </p>
             </div>
             <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
@@ -69,7 +144,7 @@ export default function PatientsPage() {
               </p>
               <p className="text-3xl font-semibold text-neutral-900 dark:text-white mt-1">
                 {
-                  data.data.patients.filter(
+                  filteredPatients.filter(
                     (p: PatientWithRelations) => p.carePlans && p.carePlans.length > 0
                   ).length
                 }
@@ -81,7 +156,7 @@ export default function PatientsPage() {
               </p>
               <p className="text-3xl font-semibold text-neutral-900 dark:text-white mt-1">
                 {
-                  data.data.patients.filter(
+                  filteredPatients.filter(
                     (p: PatientWithRelations) => p.orders && p.orders.length > 0
                   ).length
                 }
@@ -109,7 +184,7 @@ export default function PatientsPage() {
           </Alert>
         )}
 
-        {/* Empty State */}
+        {/* Empty State - No Patients */}
         {data?.success && data.data && data.data.patients.length === 0 && (
           <div className="text-center py-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
             <p className="text-neutral-600 dark:text-neutral-400 mb-4">
@@ -126,12 +201,33 @@ export default function PatientsPage() {
           </div>
         )}
 
+        {/* Empty State - No Search Results */}
+        {data?.success && data.data && data.data.patients.length > 0 && filteredPatients.length === 0 && searchQuery && (
+          <div className="text-center py-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
+            <Search className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
+            <p className="text-neutral-600 dark:text-neutral-400 mb-2">
+              No patients match &quot;{searchQuery}&quot;
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+              Try adjusting your search or{' '}
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-neutral-900 dark:text-white underline hover:no-underline"
+              >
+                clear the search
+              </button>
+            </p>
+          </div>
+        )}
+
         {/* Patient List */}
-        {data?.success && data.data && data.data.patients.length > 0 && (
+        {data?.success && data.data && filteredPatients.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.data.patients.map((patient: PatientWithRelations) => (
-              <PatientCard key={patient.id} patient={patient} />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {filteredPatients.map((patient: PatientWithRelations) => (
+                <PatientCard key={patient.id} patient={patient} />
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>

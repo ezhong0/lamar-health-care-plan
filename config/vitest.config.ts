@@ -10,8 +10,13 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./config/vitest.setup.ts'],
-    // Run tests sequentially to avoid DOM conflicts
+    // Run tests sequentially to avoid database conflicts
     pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true, // Run all tests in single fork for database isolation
+      },
+    },
     // Ensure tests don't run in parallel within same file
     sequence: {
       shuffle: false,

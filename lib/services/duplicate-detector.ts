@@ -306,9 +306,11 @@ export class DuplicateDetector {
    * jaccardSimilarity('test', 'test')   // 1.0 (identical)
    */
   private jaccardSimilarity(s1: string, s2: string): number {
-    // Handle edge cases - check equality FIRST (includes empty string case)
-    if (s1 === s2) return 1.0; // Identical strings (including '', '') = perfect match
+    // Handle edge cases
+    // Note: Check empty first - empty strings should not be similar for duplicate detection
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (s1.length === 0 || s2.length === 0) return 0.0;
+    if (s1 === s2) return 1.0;
 
     const trigrams1 = this.getTrigrams(s1);
     const trigrams2 = this.getTrigrams(s2);

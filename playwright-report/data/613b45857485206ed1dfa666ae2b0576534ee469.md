@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - navigation [ref=e11]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - link "Lamar Health" [ref=e15] [cursor=pointer]:
+          - /url: /
+        - link "New Patient" [ref=e16] [cursor=pointer]:
+          - /url: /patients/new
+        - link "All Patients" [ref=e17] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e18]:
+        - link "GitHub" [ref=e19] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e20]
+          - text: GitHub
+        - button "Toggle theme" [ref=e22]:
+          - img [ref=e23]
+  - main [ref=e25]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Patients" [level=1] [ref=e30]
+          - paragraph [ref=e31]: View and manage patient records and care plans
+        - generic [ref=e32]:
+          - button "Export All" [ref=e33]
+          - link "New Patient" [ref=e34] [cursor=pointer]:
+            - /url: /patients/new
+            - button "New Patient" [ref=e35]
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Total Patients
+          - paragraph [ref=e39]: "0"
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: With Care Plans
+          - paragraph [ref=e42]: "0"
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Active Orders
+          - paragraph [ref=e45]: "0"
+      - generic [ref=e46]:
+        - paragraph [ref=e47]: No patients yet. Create your first patient or load demo data.
+        - generic [ref=e48]:
+          - link "Create Patient" [ref=e49] [cursor=pointer]:
+            - /url: /patients/new
+            - button "Create Patient" [ref=e50]
+          - link "Load Demo Data" [ref=e51] [cursor=pointer]:
+            - /url: /
+            - button "Load Demo Data" [ref=e52]
+  - contentinfo [ref=e53]:
+    - generic [ref=e54]:
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Lamar Health Care Plan Generator
+          - generic [ref=e58]: ·
+          - generic [ref=e59]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e60] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e61]
+          - generic [ref=e64]: View on GitHub
+      - generic [ref=e66]:
+        - generic [ref=e67]: TypeScript
+        - generic [ref=e68]: React
+        - generic [ref=e69]: Next.js 16
+        - generic [ref=e70]: Prisma
+        - generic [ref=e71]: PostgreSQL
+        - generic [ref=e72]: Claude 3.5
+        - generic [ref=e73]: Tailwind CSS
+  - region "Notifications alt+T"
+  - alert [ref=e74]
+```

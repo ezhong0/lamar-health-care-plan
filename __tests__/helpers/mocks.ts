@@ -18,7 +18,7 @@ export function createMockAnthropicClient(overrides?: {
   shouldFail?: boolean;
   delay?: number;
 }): Anthropic {
-  const mockResponse = overrides?.response || `# Care Plan
+  const mockResponse = overrides?.response ?? `# Care Plan
 
 ## Problem List / Drug Therapy Problems (DTPs)
 1. Patient requires IVIG therapy for myasthenia gravis
@@ -62,12 +62,33 @@ export function createMockAnthropicClient(overrides?: {
   const mockClient = {
     messages: {
       create: vi.fn().mockImplementation(async ({ signal }: { signal?: AbortSignal }) => {
-        // Simulate delay
+        // Simulate delay with abort support
         if (overrides?.delay) {
-          await new Promise((resolve) => setTimeout(resolve, overrides.delay));
+          await new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(resolve, overrides.delay);
+
+            // If signal is already aborted, reject immediately
+            if (signal?.aborted) {
+              clearTimeout(timeoutId);
+              const error = new Error('Request aborted');
+              error.name = 'AbortError';
+              reject(error);
+              return;
+            }
+
+            // Listen for abort during the delay
+            if (signal) {
+              signal.addEventListener('abort', () => {
+                clearTimeout(timeoutId);
+                const error = new Error('Request aborted');
+                error.name = 'AbortError';
+                reject(error);
+              });
+            }
+          });
         }
 
-        // Check if aborted
+        // Check if aborted (in case no delay)
         if (signal?.aborted) {
           const error = new Error('Request aborted');
           error.name = 'AbortError';

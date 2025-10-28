@@ -305,8 +305,8 @@ describe('ICD-10 Validator', () => {
     it('should handle maximum length valid code', () => {
       const result = validateICD10('S00.0000');
 
-      // This should fail (too many decimal digits)
-      expect(result.valid).toBe(false);
+      // ICD-10 allows up to 4 decimal digits (7 chars total)
+      expect(result.valid).toBe(true);
     });
 
     it('should handle code with leading zeros in category', () => {

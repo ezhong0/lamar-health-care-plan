@@ -50,10 +50,13 @@ export function useGenerateCarePlan() {
  * Automatically caches and handles loading/error states
  */
 export function usePatient(id: string) {
+  // Only run query on client-side to avoid SSR issues
+  const isClient = typeof window !== 'undefined';
+
   return useQuery({
     queryKey: ['patient', id],
     queryFn: () => api.getPatient(id),
-    enabled: !!id,
+    enabled: !!id && isClient,
   });
 }
 
@@ -63,8 +66,12 @@ export function usePatient(id: string) {
  * Automatically caches and handles loading/error states
  */
 export function usePatients() {
+  // Only run query on client-side to avoid SSR issues
+  const isClient = typeof window !== 'undefined';
+
   return useQuery({
     queryKey: ['patients'],
     queryFn: () => api.listPatients(),
+    enabled: isClient,
   });
 }

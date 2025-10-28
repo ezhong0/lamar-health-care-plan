@@ -2,22 +2,28 @@
  * Patient Detail Page
  *
  * Displays patient information, orders, and care plans.
- * Supports generating new care plans.
+ * Supports generating new care plans and deleting patients.
  */
 
 'use client';
 
-import { useParams } from 'next/navigation';
+import React, { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { usePatient, useGenerateCarePlan } from '@/lib/client/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CarePlanView } from '@/components/CarePlanView';
+import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
 import { ApiError } from '@/lib/client/errors';
 
 export default function PatientDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const patientId = params.id as string;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data, isLoading, error } = usePatient(patientId);
   const generateCarePlan = useGenerateCarePlan();
@@ -38,6 +44,37 @@ export default function PatientDetailPage() {
         console.error('Unknown error generating care plan:', error);
       }
       // Error state will be handled by React Query (generateCarePlan.isError)
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!data?.data?.patient) return;
+
+    const patientName = `${data.data.patient.firstName} ${data.data.patient.lastName}`;
+    const toastId = toast.loading('Deleting patient...');
+
+    try {
+      const response = await fetch(`/api/patients/${patientId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to delete patient');
+      }
+
+      toast.success('Patient deleted successfully', {
+        id: toastId,
+        description: `${patientName} and all associated data have been removed.`,
+      });
+
+      // Redirect to patients list after successful deletion
+      router.push('/patients');
+    } catch (error) {
+      toast.error('Failed to delete patient', {
+        id: toastId,
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
     }
   };
 
@@ -74,14 +111,26 @@ export default function PatientDetailPage() {
 
   const { patient, orders, carePlans } = data.data;
   const patientName = `${patient.firstName} ${patient.lastName}`;
+  const orderCount = orders?.length || 0;
+  const carePlanCount = carePlans?.length || 0;
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       <div className="space-y-8">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">{patientName}</h1>
-          <p className="text-neutral-600 dark:text-neutral-400">MRN: {patient.mrn}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2 flex-1">
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">{patientName}</h1>
+            <p className="text-neutral-600 dark:text-neutral-400">MRN: {patient.mrn}</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowDeleteDialog(true)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-500 dark:hover:text-red-400 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Patient
+          </Button>
         </div>
 
         {/* Patient Information */}
@@ -224,6 +273,16 @@ export default function PatientDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        patientName={patientName}
+        orderCount={orderCount}
+        carePlanCount={carePlanCount}
+      />
     </div>
   );
 }

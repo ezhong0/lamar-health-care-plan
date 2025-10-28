@@ -21,58 +21,42 @@
   - main [ref=e16]:
     - generic [ref=e18]:
       - generic [ref=e19]:
-        - heading "Test Lopez" [level=1] [ref=e20]
-        - paragraph [ref=e21]: "MRN: 261575"
-      - generic [ref=e22]:
-        - heading "Patient Information" [level=2] [ref=e23]
+        - heading "New Patient" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e23]:
         - generic [ref=e24]:
-          - generic [ref=e25]:
-            - paragraph [ref=e26]: Name
-            - paragraph [ref=e27]: Test Lopez
-          - generic [ref=e28]:
-            - paragraph [ref=e29]: Medical Record Number
-            - paragraph [ref=e30]: "261575"
-          - generic [ref=e31]:
-            - paragraph [ref=e32]: Patient Records
-            - paragraph [ref=e33]: E2E test patient - auto-generated for testing purposes.
-      - generic [ref=e34]:
-        - heading "Orders" [level=2] [ref=e35]
-        - generic [ref=e37]:
-          - generic [ref=e38]:
-            - paragraph [ref=e39]: IVIG
-            - paragraph [ref=e40]: "Diagnosis: G70.00"
-            - paragraph [ref=e41]: "Created: 10/28/2025"
-          - generic [ref=e43]: pending
-      - generic [ref=e44]:
-        - generic [ref=e45]:
-          - heading "Care Plans" [level=2] [ref=e46]
-          - button "Generate Care Plan" [ref=e47]:
-            - img
-            - text: Generate Care Plan
-        - generic [ref=e49]:
-          - img [ref=e50]
-          - paragraph [ref=e52]: No care plans generated yet
-          - paragraph [ref=e53]: Click "Generate Care Plan" to create a new care plan for this patient
-  - contentinfo [ref=e54]:
-    - generic [ref=e55]:
-      - generic [ref=e56]:
-        - generic [ref=e57]:
-          - generic [ref=e58]: Lamar Health Care Plan Generator
-          - generic [ref=e59]: ·
-          - generic [ref=e60]: Built with Next.js, Prisma & Claude AI
-        - link "View on GitHub" [ref=e61] [cursor=pointer]:
+          - heading "Review Warnings" [level=1] [ref=e25]
+          - paragraph [ref=e26]: We found 1 potential issue that require your attention. Please review and decide how to proceed.
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: Duplicate Order
+            - paragraph [ref=e36]: Order for IVIG already exists for this patient (created Oct 28, 2025)
+            - generic [ref=e37]: "Existing Order: IVIG (10/28/2025)"
+        - generic [ref=e38]:
+          - button "Cancel" [ref=e39]
+          - button "Proceed Anyway" [ref=e40]
+  - contentinfo [ref=e41]:
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Lamar Health Care Plan Generator
+          - generic [ref=e46]: ·
+          - generic [ref=e47]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e48] [cursor=pointer]:
           - /url: https://github.com/ezhong0/lamar-health-care-plan
-          - img [ref=e62]
-          - generic [ref=e65]: View on GitHub
-      - generic [ref=e67]:
-        - generic [ref=e68]: TypeScript
-        - generic [ref=e69]: React
-        - generic [ref=e70]: Next.js 16
-        - generic [ref=e71]: Prisma
-        - generic [ref=e72]: PostgreSQL
-        - generic [ref=e73]: Claude 3.5
-        - generic [ref=e74]: Tailwind CSS
-  - button "Open Next.js Dev Tools" [ref=e80] [cursor=pointer]:
-    - img [ref=e81]
-  - alert [ref=e84]
+          - img [ref=e49]
+          - generic [ref=e52]: View on GitHub
+      - generic [ref=e54]:
+        - generic [ref=e55]: TypeScript
+        - generic [ref=e56]: React
+        - generic [ref=e57]: Next.js 16
+        - generic [ref=e58]: Prisma
+        - generic [ref=e59]: PostgreSQL
+        - generic [ref=e60]: Claude 3.5
+        - generic [ref=e61]: Tailwind CSS
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e67] [cursor=pointer]:
+    - img [ref=e68]
+  - alert [ref=e71]
 ```
