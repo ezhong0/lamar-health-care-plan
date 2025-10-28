@@ -132,11 +132,13 @@ export class PatientService {
         }
 
         // Step 2: Check for similar patients (warnings, not errors)
+        // Pass medication name to check if similar patient has same medication
         const similarPatientWarnings = await this.duplicateDetector.findSimilarPatients(
           {
             firstName: input.firstName,
             lastName: input.lastName,
             mrn: input.mrn,
+            medicationName: input.medicationName,
           },
           tx
         );

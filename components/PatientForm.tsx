@@ -31,9 +31,11 @@ export function PatientForm() {
   const [warnings, setWarnings] = useState<Warning[]>([]);
   const [showWarnings, setShowWarnings] = useState(false);
   const [createdPatientId, setCreatedPatientId] = useState<string | null>(null);
+  const [pendingOrderData, setPendingOrderData] = useState<PatientInput | null>(null); // Store order data for linking
   const [selectedExample, setSelectedExample] = useState<string>('');
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
+  const [isLinking, setIsLinking] = useState(false); // Loading state for linking
 
   const {
     register,
@@ -162,6 +164,9 @@ export function PatientForm() {
       // Store patient ID for navigation after warnings are dismissed
       setCreatedPatientId(patientId);
 
+      // Store order data in case user wants to link to existing patient
+      setPendingOrderData(data);
+
       // Check if there are warnings
       if (result.data.warnings && result.data.warnings.length > 0) {
         setWarnings(result.data.warnings);
@@ -182,6 +187,69 @@ export function PatientForm() {
     } else {
       // Fallback: return to form (shouldn't happen in normal flow)
       setShowWarnings(false);
+    }
+  };
+
+  const handleLinkToExisting = async (existingPatientId: string) => {
+    // User chose to link order to existing patient instead of creating new patient
+    if (!pendingOrderData) {
+      toast.error('Order data not found', {
+        description: 'Unable to link order. Please try again.',
+      });
+      return;
+    }
+
+    setIsLinking(true);
+
+    try {
+      // Call API to add order to existing patient
+      const response = await fetch(`/api/patients/${existingPatientId}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          medicationName: pendingOrderData.medicationName,
+          primaryDiagnosis: pendingOrderData.primaryDiagnosis,
+          referringProvider: pendingOrderData.referringProvider,
+          referringProviderNPI: pendingOrderData.referringProviderNPI,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Failed to add order to existing patient');
+      }
+
+      // Delete the newly created patient since we're linking to existing one
+      if (createdPatientId) {
+        try {
+          await fetch(`/api/patients/${createdPatientId}`, {
+            method: 'DELETE',
+          });
+        } catch (error) {
+          console.error('Failed to delete duplicate patient:', error);
+          // Don't block the flow if deletion fails
+        }
+      }
+
+      // Clear the draft
+      localStorage.removeItem('patient-form-draft');
+
+      // Show success message
+      toast.success('Order linked to existing patient', {
+        description: `${pendingOrderData.medicationName} added to ${result.data.patient.firstName} ${result.data.patient.lastName}`,
+      });
+
+      // Navigate to the existing patient
+      router.push(`/patients/${existingPatientId}`);
+    } catch (error) {
+      toast.error('Failed to link order', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsLinking(false);
     }
   };
 
@@ -267,11 +335,22 @@ export function PatientForm() {
   return (
     <>
       {showWarnings && warnings.length > 0 ? (
-        <WarningList
-          warnings={warnings}
-          onProceed={handleDismissWarnings}
-          onCancel={handleDismissWarnings}
-        />
+        <div className="relative">
+          {isLinking && (
+            <div className="absolute inset-0 bg-white/80 dark:bg-neutral-950/80 z-50 flex items-center justify-center">
+              <div className="text-center space-y-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white mx-auto"></div>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">Linking order to existing patient...</p>
+              </div>
+            </div>
+          )}
+          <WarningList
+            warnings={warnings}
+            onProceed={handleDismissWarnings}
+            onCancel={handleDismissWarnings}
+            onLinkToExisting={handleLinkToExisting}
+          />
+        </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* Error Alert */}

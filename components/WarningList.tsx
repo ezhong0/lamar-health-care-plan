@@ -15,6 +15,7 @@ interface WarningListProps {
   warnings: Warning[];
   onProceed: () => void;
   onCancel: () => void;
+  onLinkToExisting?: (patientId: string) => void; // Optional: Link order to existing patient
 }
 
 /**
@@ -145,12 +146,21 @@ function WarningItem({ warning }: { warning: Warning }) {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">Similar Patient Found</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                {warning.hasSameMedication ? 'Duplicate Order Detected' : 'Similar Patient Found'}
+              </p>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{warning.message}</p>
               <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
                 <span className="font-medium">Similar Patient:</span> {warning.similarPatient.name} (MRN:{' '}
                 {warning.similarPatient.mrn}) - {Math.round(warning.similarityScore * 100)}% match
               </div>
+              {warning.canLinkToExisting && (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                  <p className="text-xs text-blue-900 dark:text-blue-100">
+                    <span className="font-medium">Tip:</span> You can add this order to the existing patient instead of creating a new one.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -164,7 +174,12 @@ function WarningItem({ warning }: { warning: Warning }) {
   }
 }
 
-export function WarningList({ warnings, onProceed, onCancel }: WarningListProps) {
+export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }: WarningListProps) {
+  // Check if any warning allows linking to existing patient
+  const linkableWarning = warnings.find(
+    (w) => w.type === 'SIMILAR_PATIENT' && w.canLinkToExisting
+  );
+
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
       <Card className="p-8 space-y-6">
@@ -191,8 +206,18 @@ export function WarningList({ warnings, onProceed, onCancel }: WarningListProps)
           <Button variant="outline" onClick={onCancel} size="lg">
             Cancel
           </Button>
+          {linkableWarning && linkableWarning.type === 'SIMILAR_PATIENT' && onLinkToExisting && (
+            <Button
+              variant="default"
+              onClick={() => onLinkToExisting(linkableWarning.similarPatient.id)}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+            >
+              Add to Existing Patient
+            </Button>
+          )}
           <Button onClick={onProceed} size="lg">
-            Proceed Anyway
+            Create New Patient
           </Button>
         </div>
       </Card>

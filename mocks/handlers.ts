@@ -44,6 +44,8 @@ export const handlers = [
             type: 'SIMILAR_PATIENT',
             severity: 'medium',
             message: 'Similar patient found: John Smith (MRN: 000123)',
+            canLinkToExisting: true,
+            hasSameMedication: false,
             similarPatient: {
               id: 'existing-patient-1' as PatientId,
               mrn: '000123',

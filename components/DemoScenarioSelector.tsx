@@ -86,6 +86,9 @@ export function DemoScenarioSelector() {
       const { scenario, patientsCreated, prefillData } = data.data;
 
       if (scenario.mode === 'prefill' && prefillData) {
+        // Clear any existing draft to prevent conflicts
+        localStorage.removeItem('patient-form-draft');
+
         // Store prefill data in localStorage and navigate to form
         localStorage.setItem('demo-prefill-data', JSON.stringify(prefillData));
 
@@ -100,6 +103,9 @@ export function DemoScenarioSelector() {
         router.push('/patients/new');
       } else {
         // Database mode - just navigate to patients list
+        // Clear draft when loading database-only scenarios too
+        localStorage.removeItem('patient-form-draft');
+
         toast.success('Demo scenario loaded!', {
           id: toastId,
           description: `${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} created successfully.`,

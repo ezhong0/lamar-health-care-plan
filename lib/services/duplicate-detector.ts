@@ -40,6 +40,7 @@ export interface PatientMatchInput {
   firstName: string;
   lastName: string;
   mrn: string;
+  medicationName?: string; // Optional: Check if similar patient has this medication
 }
 
 export interface OrderMatchInput {
@@ -108,6 +109,11 @@ export class DuplicateDetector {
         firstName: true,
         lastName: true,
         mrn: true,
+        orders: input.medicationName ? {
+          select: {
+            medicationName: true,
+          },
+        } : false,
       },
       orderBy: { createdAt: 'desc' },
       take: DUPLICATE_DETECTION.MAX_PATIENTS_TO_CHECK,
@@ -133,16 +139,29 @@ export class DuplicateDetector {
 
       // Add warning if above threshold
       if (score >= DuplicateDetector.SIMILARITY_THRESHOLD) {
+        // Check if this patient already has the same medication
+        const hasSameMedication = input.medicationName && patient.orders
+          ? patient.orders.some(order =>
+              order.medicationName.toLowerCase().trim() === input.medicationName!.toLowerCase().trim()
+            )
+          : false;
+
+        const message = hasSameMedication
+          ? `Duplicate order detected: ${patient.firstName} ${patient.lastName} (MRN: ${patient.mrn}) already has ${input.medicationName}`
+          : `Similar patient found: ${patient.firstName} ${patient.lastName} (MRN: ${patient.mrn}) - ${Math.round(score * 100)}% match`;
+
         warnings.push({
           type: 'SIMILAR_PATIENT',
           severity: 'medium',
-          message: `Similar patient found: ${patient.firstName} ${patient.lastName} (MRN: ${patient.mrn}) - ${Math.round(score * 100)}% match`,
+          message,
           similarPatient: {
             id: patient.id as PatientId,
             mrn: patient.mrn,
             name: `${patient.firstName} ${patient.lastName}`,
           },
           similarityScore: score,
+          canLinkToExisting: !hasSameMedication, // Can only link if not duplicate medication
+          hasSameMedication,
         });
       }
     }

@@ -54,4 +54,7 @@ export interface SimilarPatientWarning {
     name: string;
   };
   similarityScore: number;
+  // Action options for user
+  canLinkToExisting: boolean; // If true, user can add order to existing patient
+  hasSameMedication: boolean; // If true, this is essentially a duplicate order
 }
