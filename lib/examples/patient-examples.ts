@@ -51,33 +51,61 @@ const myastheniaGravisExample: PatientExample = {
     medicationName: 'IVIG (Privigen)',
     additionalDiagnoses: ['I10', 'K21.9'], // Hypertension, GERD
     medicationHistory: ['Pyridostigmine', 'Prednisone', 'Lisinopril', 'Omeprazole'],
-    patientRecords: `Patient: A.B. (Age 46, Female, 72 kg)
-DOB: 1979-06-08
+    patientRecords: `Name: A.B. (Fictional)
+MRN: 123456 (fictional)
+DOB: 1979-06-08 (Age 46)
+Sex: Female
+Weight: 72 kg
 Allergies: None known to medications (no IgA deficiency)
 
-PRIMARY DIAGNOSIS: Generalized myasthenia gravis (AChR antibody positive), MGFA class IIb
-SECONDARY DIAGNOSES: Hypertension (well controlled), GERD
+Primary diagnosis: Generalized myasthenia gravis (AChR antibody positive), MGFA class IIb
+Secondary diagnoses: Hypertension (well controlled), GERD
 
-HOME MEDICATIONS:
-- Pyridostigmine 60 mg PO q6h PRN (current avg 3-4 doses/day)
+Home meds:
+- Pyridostigmine 60 mg PO q6h PRN (current avg 3–4 doses/day)
 - Prednisone 10 mg PO daily
 - Lisinopril 10 mg PO daily
 - Omeprazole 20 mg PO daily
 
-RECENT HISTORY:
-Progressive proximal muscle weakness and ptosis over 2 weeks with worsening speech and swallowing fatigue. Neurology recommends IVIG for rapid symptomatic control (planned course prior to planned thymectomy). Baseline respiratory status: no stridor; baseline FVC 2.8 L (predicted 4.0 L; ~70% predicted). No current myasthenic crisis but declining strength.
+Recent history:
+Progressive proximal muscle weakness and ptosis over 2 weeks with worsening speech and swallowing fatigue.
+Neurology recommends IVIG for rapid symptomatic control (planned course prior to planned thymectomy).
+Baseline respiratory status: no stridor; baseline FVC 2.8 L (predicted 4.0 L; ~70% predicted). No current myasthenic crisis but declining strength.
 
-BASELINE CLINIC NOTE (Pre-Infusion) - 2025-10-15:
+A. Baseline clinic note (pre-infusion)
+Date: 2025-10-15
+
 Vitals: BP 128/78, HR 78, RR 16, SpO2 98% RA, Temp 36.7°C
-Exam: Ptosis bilateral, fatigable proximal weakness (4/5), speech slurred after repeated counting, no respiratory distress
 
-LABS:
-- CBC WNL
-- BMP: Na 138, K 4.1, Cl 101, HCO3 24, BUN 12, SCr 0.78, eGFR >90 mL/min/1.73m²
-- IgG baseline: 10 g/L
+Exam: Ptosis bilateral, fatigable proximal weakness (4/5), speech slurred after repeated counting, no respiratory distress.
 
-PLAN:
-IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient infusion center. Premedicate with acetaminophen + diphenhydramine. Monitor vitals and FVC daily. Continue pyridostigmine and prednisone.`,
+Labs: CBC WNL; BMP: Na 138, K 4.1, Cl 101, HCO3 24, BUN 12, SCr 0.78, eGFR >90 mL/min/1.73m².
+
+IgG baseline: 10 g/L (for replacement context; note IVIG for immunomodulation here).
+
+Plan: IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient infusion center. Premedicate with acetaminophen + diphenhydramine; monitor vitals and FVC daily; continue pyridostigmine and prednisone.
+
+B. Infusion visit note — Day 1
+Date: 2025-10-16
+
+IVIG product: Privigen (10% IVIG) — lot #P12345 (fictional)
+
+Dose given: 28.8 g (0.4 g/kg × 72 kg) diluted per manufacturer instructions.
+
+Premeds: Acetaminophen 650 mg PO + Diphenhydramine 25 mg PO 30 minutes pre-infusion.
+
+Infusion start rate: 0.5 mL/kg/hr for first 30 minutes (per institution titration) then increased per tolerance to max manufacturer rate.
+
+Vitals: q15 minutes first hour then q30 minutes; no fever, transient mild headache at 2 hours (resolved after slowing infusion).
+
+Respiratory: FVC 2.7 L (stable).
+
+Disposition: Completed infusion; observed 60 minutes post-infusion; discharged with plan for days 2–5.
+
+C. Follow-up — 2 weeks post-course
+Date: 2025-10-30
+
+Clinical status: Subjective improvement in speech and proximal strength; fewer fatigability episodes. No thrombotic events or renal issues reported. Next neurology follow-up in 4 weeks to consider repeat course vs. thymectomy timing.`,
   },
 };
 

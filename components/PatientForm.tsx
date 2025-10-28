@@ -69,10 +69,10 @@ export function PatientForm() {
 
         // Handle optional fields
         if (prefillData.additionalDiagnoses?.length > 0) {
-          formData.additionalDiagnoses = prefillData.additionalDiagnoses.join(', ') as any;
+          formData.additionalDiagnoses = prefillData.additionalDiagnoses as any;
         }
         if (prefillData.medicationHistory?.length > 0) {
-          formData.medicationHistory = prefillData.medicationHistory.join(', ') as any;
+          formData.medicationHistory = prefillData.medicationHistory as any;
         }
 
         // For now, just populate with the first order

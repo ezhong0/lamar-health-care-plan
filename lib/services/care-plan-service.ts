@@ -378,31 +378,65 @@ Be specific to this medication and diagnosis, not generic.
 
 Include 3 types of goals:
 
-**Primary Goal:**
+**Primary:**
 - Clinical outcome goal (specific, measurable, time-bound)
 
-**Safety Goals:**
+**Safety goal:**
 - Specific adverse events to prevent
 - Measurable safety parameters (labs, vitals)
 - Timeframe for monitoring
 
-**Process Goal:**
+**Process:**
 - Completion of therapy course
 - Documentation requirements
 
 ### 3. Pharmacist Interventions / Plan
 
-Provide detailed interventions covering 6-9 of these areas (as applicable):
+Provide detailed interventions covering ALL 9 of these subsections:
 
-1. **Dosing & Administration** - Verify dose calculation, document lot numbers
-2. **Premedication** - What to give, when, why
-3. **Infusion Rates & Titration** - Starting rate, escalation schedule, what to do if reaction
-4. **Hydration & Organ Protection** - Renal protection, fluid management
-5. **Risk Mitigation** - Thrombosis, infection, specific complications
-6. **Concomitant Medications** - Drug interactions, timing adjustments
-7. **Monitoring During Administration** - Vital signs schedule, lab checks
-8. **Adverse Event Management** - How to recognize and respond to reactions
-9. **Documentation & Communication** - What to document, who to notify
+1. **Dosing & Administration**
+   - Verify total dose calculation using actual body weight
+   - Document lot number and expiration of product
+   - Provide specific clinical details for this medication
+
+2. **Premedication**
+   - Recommend specific premeds with doses and timing
+   - Explain rationale for each premedication
+
+3. **Infusion Rates & Titration**
+   - Starting rate per manufacturer guidelines
+   - Stepwise escalation schedule with at least 3 planned rate increases
+   - What to do if infusion reactions occur
+
+4. **Hydration & Renal Protection**
+   - Pre-infusion hydration requirements
+   - Renal function monitoring schedule
+   - Special considerations for renal risk
+
+5. **Thrombosis Risk Mitigation**
+   - Baseline thrombosis risk assessment
+   - Prophylactic measures per protocol
+   - Patient education on warning signs
+
+6. **Concomitant Medications**
+   - Review drug interactions
+   - Timing adjustments needed
+   - Continue/adjust existing medications
+
+7. **Monitoring During Infusion**
+   - Vitals frequency (q15min first hour, then q30-60min)
+   - Any disease-specific monitoring
+   - Infusion log documentation
+
+8. **Adverse Event Management**
+   - Mild reaction protocol
+   - Moderate/severe reaction protocol
+   - Emergency procedures
+
+9. **Documentation & Communication**
+   - EMR documentation requirements
+   - Who to notify and when
+   - Dose modifications and adverse events
 
 Each section should be 2-4 sentences with specific clinical details.
 
@@ -410,24 +444,28 @@ Each section should be 2-4 sentences with specific clinical details.
 
 Provide a detailed monitoring schedule:
 
-**Before First Dose:**
-- Required labs (CBC, BMP, organ function)
+**Before First Infusion:**
+- Required labs (CBC, BMP including SCr and BUN, organ function)
 - Baseline vitals
-- Any baseline assessments
+- Any baseline assessments specific to condition
 
-**During Each Dose/Infusion:**
-- Vital sign frequency
-- Infusion monitoring
-- Documentation requirements
+**During Each Infusion:**
+- Vital signs frequency (q15-30 min)
+- Infusion log documentation
+- Real-time monitoring
 
-**Post-Dose Monitoring:**
-- Follow-up labs (timing: 24h, 72h, 1 week, etc.)
-- Symptom monitoring
-- When to assess for complications
+**Within 72 Hours of Each Infusion:**
+- Assess for delayed adverse events
+- Monitor for specific complications
+
+**Post-Course (3-7 Days):**
+- Follow-up labs to check organ function
+- Evaluate for complications if symptomatic
 
 **Clinical Follow-up:**
-- Pharmacy and prescriber follow-up schedule
-- When to reassess therapy
+- Pharmacy and specialty clinic follow-up timing
+- When to reassess therapy effectiveness
+- Long-term monitoring plan
 
 ## Guidelines
 

@@ -48,8 +48,8 @@ export async function generatePatientExample(): Promise<GenerationResult> {
 Create a patient who requires biologic or immunoglobulin therapy for a legitimate medical condition. The patient should have:
 
 1. Basic demographics (first name, last name, 6-digit MRN)
-2. A referring provider (name and valid 10-digit NPI starting with 1 or 2)
-3. A primary diagnosis (valid ICD-10 code)
+2. A referring provider (name and VALID 10-digit NPI)
+3. A primary diagnosis (VALID ICD-10 code in correct format)
 4. A specialty medication (biologics, IVIG, or other infusion therapy)
 5. Detailed patient records including:
    - Age, sex, weight
@@ -68,16 +68,42 @@ Make the scenario medically accurate and realistic. Use diverse conditions such 
 
 Vary the demographic details and clinical complexity.
 
+IMPORTANT VALIDATION REQUIREMENTS:
+
+**NPI (referringProviderNPI):**
+- MUST use one of these VALID NPIs (they pass Luhn algorithm):
+  - 1234567893
+  - 1245319599
+  - 1679576722
+  - 1982736450
+  - 1000000012
+  - 1000000020
+  - 1000000038
+  - 1000000046
+- Do NOT make up random 10-digit numbers - they will fail validation!
+
+**ICD-10 Code (primaryDiagnosis):**
+- MUST match format: Letter + 2 digits + decimal + 1-4 more digits/chars
+- Examples of VALID codes:
+  - G70.00 (Myasthenia gravis)
+  - J45.50 (Severe persistent asthma)
+  - E11.9 (Type 2 diabetes)
+  - M05.79 (Rheumatoid arthritis)
+  - G35 (Multiple sclerosis)
+  - L50.1 (Chronic urticaria)
+  - I10 (Essential hypertension)
+- The code MUST include a decimal point (e.g., "G70.00" not "G7000")
+
 Return ONLY a valid JSON object with this exact structure (no markdown, no explanations):
 {
   "firstName": "string",
   "lastName": "string",
   "mrn": "string (exactly 6 digits)",
   "referringProvider": "string (e.g. Dr. First Last)",
-  "referringProviderNPI": "string (exactly 10 digits, valid NPI)",
-  "primaryDiagnosis": "string (valid ICD-10 code)",
+  "referringProviderNPI": "string (use one from the valid list above)",
+  "primaryDiagnosis": "string (use format like G70.00, J45.50, etc.)",
   "medicationName": "string (specific medication name)",
-  "patientRecords": "string (detailed clinical note as shown in examples)"
+  "patientRecords": "string (detailed clinical note)"
 }`;
 
     const response = await client.messages.create({
