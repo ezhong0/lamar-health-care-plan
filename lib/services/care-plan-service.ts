@@ -48,8 +48,8 @@ export interface GenerateCarePlanInput {
 export class CarePlanService {
   private readonly anthropic: Anthropic;
   private readonly model: string = 'claude-haiku-4-5-20251001';
-  private readonly maxTokens: number = 2048;
-  private readonly timeout: number = 45000; // 45 seconds (under Vercel limit)
+  private readonly maxTokens: number = 1500; // Reduced for faster generation
+  private readonly timeout: number = 25000; // 25 seconds - Haiku should be done in 10-15s
 
   constructor(
     private readonly db: PrismaClient,
@@ -117,22 +117,8 @@ export class CarePlanService {
         promptLength: prompt.length,
       });
 
-      // Step 3: Call Claude with retry + timeout
-      const content = await retry(
-        () => this.callClaude(prompt),
-        {
-          attempts: 3,
-          delay: 1000,
-          backoff: 2,
-          onRetry: (error, attempt) => {
-            logger.warn('LLM call failed, retrying', {
-              patientId: input.patientId,
-              attempt,
-              error: error.message,
-            });
-          },
-        }
-      );
+      // Step 3: Call Claude (NO retry - fail fast for better UX)
+      const content = await this.callClaude(prompt);
 
       // Step 4: Validate response (basic check)
       if (!content || content.length < 100) {
