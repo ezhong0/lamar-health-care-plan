@@ -17,6 +17,9 @@
  * - Consider streaming response for better UX
  */
 
+// Next.js Route Segment Config - set timeout for this endpoint
+export const maxDuration = 60;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerateCarePlanInputSchema } from '@/lib/validation/schemas';
 import { CarePlanService } from '@/lib/services/care-plan-service';
