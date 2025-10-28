@@ -145,7 +145,7 @@ const rheumatoidArthritisExample: PatientExample = {
     lastName: 'Williams',
     mrn: '345678',
     referringProvider: 'Dr. Michael Chang',
-    referringProviderNPI: '1679576722',
+    referringProviderNPI: '1679576722',  // Fixed: was duplicate with complexMultiSystemExample
     primaryDiagnosis: 'M05.79',
     medicationName: 'Infliximab (Remicade)',
     additionalDiagnoses: ['M81.0', 'I10'], // Osteoporosis, hypertension
@@ -258,7 +258,7 @@ const complexMultiSystemExample: PatientExample = {
     lastName: 'Anderson',
     mrn: '567890',
     referringProvider: 'Dr. David Kim',
-    referringProviderNPI: '1245319599',
+    referringProviderNPI: '1518060555',  // Fixed: was duplicate with severeAsthmaExample
     primaryDiagnosis: 'M33.12',
     medicationName: 'Rituximab (Rituxan)',
     additionalDiagnoses: ['R13.10', 'I73.00', 'F32.9', 'J84.10'], // Dysphagia, Raynaud, depression, ILD
@@ -363,15 +363,158 @@ Initiate Omalizumab 300 mg SC every 4 weeks based on weight and IgE level. Conti
 };
 
 /**
+ * DEMO SCENARIO EXAMPLES
+ * These examples demonstrate the duplicate detection warning system
+ */
+
+/**
+ * Duplicate Patient Demo - Similar Name (Part 1)
+ * Demonstrates fuzzy matching - will trigger warning if "Katherine Bennett" is entered
+ */
+const duplicatePatientDemo1: PatientExample = {
+  id: 'duplicate-demo-similar-name',
+  name: 'Demo: Similar Name Detection',
+  description: 'Catherine Bennett - use with "Katherine Bennett" to see fuzzy matching warning',
+  complexity: 'simple',
+  category: 'neuromuscular',
+  data: {
+    firstName: 'Catherine',
+    lastName: 'Bennett',
+    mrn: '900001',
+    referringProvider: 'Dr. Sarah Chen',
+    referringProviderNPI: '1234567893',
+    primaryDiagnosis: 'G70.00',
+    medicationName: 'IVIG (Privigen)',
+    patientRecords: `Patient: C.B. (Age 45, Female, 68 kg)
+DOB: 1980-03-15
+Allergies: None known
+
+PRIMARY DIAGNOSIS: Myasthenia gravis
+HOME MEDICATIONS: Pyridostigmine 60 mg PO q6h
+
+RECENT HISTORY:
+Progressive muscle weakness and ptosis over 2 weeks. Neurology recommends IVIG for symptomatic control.
+
+PLAN:
+IVIG 2 g/kg total given as 0.4 g/kg/day x 5 days.`,
+  },
+};
+
+/**
+ * Duplicate Patient Demo - Similar Name (Part 2)
+ * Enter this AFTER "Catherine Bennett" to trigger fuzzy match warning
+ */
+const duplicatePatientDemo2: PatientExample = {
+  id: 'duplicate-demo-similar-name-2',
+  name: 'Demo: Katherine (triggers warning)',
+  description: 'Katherine Bennett - similar to Catherine, will trigger fuzzy matching warning',
+  complexity: 'simple',
+  category: 'respiratory',
+  data: {
+    firstName: 'Katherine',  // Similar to Catherine - will trigger warning
+    lastName: 'Bennett',
+    mrn: '900002',  // Different MRN
+    referringProvider: 'Dr. Sarah Chen',
+    referringProviderNPI: '1234567893',  // Same provider (avoid NPI conflict)
+    primaryDiagnosis: 'J45.50',
+    medicationName: 'Dupilumab',
+    patientRecords: `Patient: K.B. (Age 45, Female, 65 kg)
+DOB: 1980-03-15
+Allergies: None known
+
+PRIMARY DIAGNOSIS: Severe persistent asthma
+HOME MEDICATIONS: Fluticasone/Salmeterol
+
+RECENT HISTORY:
+Frequent asthma exacerbations despite maximal therapy. Pulmonology recommends biologic.
+
+PLAN:
+Initiate Dupilumab 600 mg SC loading dose.`,
+  },
+};
+
+/**
+ * Duplicate Order Demo - Second Order for Same Patient
+ * Demonstrates duplicate order warning - same patient + same medication
+ */
+const duplicateOrderDemo: PatientExample = {
+  id: 'duplicate-demo-order',
+  name: 'Demo: Duplicate Order',
+  description: 'Alice Bennet + IVIG (second order) - will trigger duplicate order warning',
+  complexity: 'simple',
+  category: 'neuromuscular',
+  data: {
+    firstName: 'Alice',  // Same as myastheniaGravisExample
+    lastName: 'Bennet',
+    mrn: '900003',  // Different MRN (same person, new encounter)
+    referringProvider: 'Dr. Sarah Chen',
+    referringProviderNPI: '1234567893',
+    primaryDiagnosis: 'G70.00',
+    medicationName: 'IVIG (Privigen)',  // Same medication - will trigger warning
+    patientRecords: `Patient: A.B. (Age 46, Female, 72 kg)
+DOB: 1979-06-08
+Allergies: None known
+
+PRIMARY DIAGNOSIS: Myasthenia gravis - follow-up treatment
+
+RECENT HISTORY:
+Patient previously received IVIG with good response. Symptoms recurring. Neurology recommends repeat course.
+
+PLAN:
+IVIG 2 g/kg total given as 0.4 g/kg/day x 5 days (repeat course).`,
+  },
+};
+
+/**
+ * Provider Conflict Demo
+ * Demonstrates provider NPI conflict warning - same NPI with different name
+ */
+const providerConflictDemo: PatientExample = {
+  id: 'duplicate-demo-provider-conflict',
+  name: 'Demo: Provider Conflict',
+  description: 'Uses Dr. Sarah Chen\'s NPI with different name - triggers provider warning',
+  complexity: 'simple',
+  category: 'respiratory',
+  data: {
+    firstName: 'Michael',
+    lastName: 'Thompson',
+    mrn: '900004',
+    referringProvider: 'Dr. S. Chen',  // Different name variation - will trigger warning
+    referringProviderNPI: '1234567893',  // Same NPI as Dr. Sarah Chen above
+    primaryDiagnosis: 'J45.50',
+    medicationName: 'Omalizumab',
+    patientRecords: `Patient: M.T. (Age 32, Male, 78 kg)
+DOB: 1993-05-20
+Allergies: None known
+
+PRIMARY DIAGNOSIS: Severe persistent asthma
+HOME MEDICATIONS: Fluticasone/Salmeterol
+
+RECENT HISTORY:
+Uncontrolled asthma despite maximal therapy. Recommend biologic therapy.
+
+PLAN:
+Initiate Omalizumab based on weight and IgE level.`,
+  },
+};
+
+/**
  * All available patient examples in a structured collection
  */
 export const PATIENT_EXAMPLES: ReadonlyArray<PatientExample> = [
+  // Standard clinical examples
   myastheniaGravisExample,
   severeAsthmaExample,
   rheumatoidArthritisExample,
   cidpExample,
   complexMultiSystemExample,
   simpleExample,
+
+  // Demo scenarios for duplicate detection warnings
+  duplicatePatientDemo1,
+  duplicatePatientDemo2,
+  duplicateOrderDemo,
+  providerConflictDemo,
 ] as const;
 
 /**

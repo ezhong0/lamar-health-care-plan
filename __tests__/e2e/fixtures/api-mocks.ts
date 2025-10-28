@@ -72,12 +72,36 @@ export const mockCarePlan = {
 
 /**
  * Setup API route mocking for care plan generation
+ *
+ * This mock intercepts care plan creation and stores it in memory
+ * so subsequent patient fetches can include the generated care plan
  */
 export async function mockCarePlanAPI(page: Page) {
+  // Store generated care plans in memory keyed by patient ID
+  const generatedCarePlans = new Map<string, any>();
+
+  // Mock care plan creation
   await page.route('**/api/care-plans', async (route: Route) => {
     const request = route.request();
 
     if (request.method() === 'POST') {
+      // Get patient ID from request body
+      const postData = request.postDataJSON();
+      const patientId = postData?.patientId;
+
+      const carePlan = {
+        id: 'mock-care-plan-id-' + Date.now(),
+        patientId: patientId,
+        content: mockCarePlan.content,
+        generatedBy: 'claude-3-5-sonnet-20241022',
+        createdAt: new Date().toISOString(),
+      };
+
+      // Store for later retrieval
+      if (patientId) {
+        generatedCarePlans.set(patientId, carePlan);
+      }
+
       // Simulate slight delay for realism
       await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -86,16 +110,37 @@ export async function mockCarePlanAPI(page: Page) {
         contentType: 'application/json',
         body: JSON.stringify({
           success: true,
-          data: {
-            carePlan: {
-              id: 'mock-care-plan-id',
-              patientId: 'mock-patient-id',
-              content: mockCarePlan.content,
-              generatedBy: 'claude-3-5-sonnet-20241022',
-              createdAt: new Date().toISOString(),
-            },
-          },
+          data: { carePlan },
         }),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Intercept patient GET requests to inject mock care plans
+  await page.route('**/api/patients/*', async (route: Route) => {
+    const request = route.request();
+
+    if (request.method() === 'GET') {
+      // Get the real response first
+      const response = await page.request.fetch(route.request());
+      const json = await response.json();
+
+      // Extract patient ID from URL
+      const urlMatch = request.url().match(/\/api\/patients\/([^?]+)/);
+      const patientId = urlMatch?.[1];
+
+      // If we have a mock care plan for this patient, inject it
+      if (patientId && generatedCarePlans.has(patientId) && json.success && json.data) {
+        const mockCarePlan = generatedCarePlans.get(patientId);
+        json.data.carePlans = [mockCarePlan];
+      }
+
+      await route.fulfill({
+        status: response.status(),
+        headers: response.headers(),
+        body: JSON.stringify(json),
       });
     } else {
       await route.continue();
