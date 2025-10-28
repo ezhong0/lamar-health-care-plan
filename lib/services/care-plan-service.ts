@@ -360,35 +360,85 @@ ${sanitizedRecords}
 
 ## Task
 
-Generate a comprehensive pharmacist care plan for this patient. The care plan should include:
+Generate a comprehensive pharmacist care plan for this patient. The care plan must be detailed and thorough, following the structure below:
 
-1. **Problem List / Drug Therapy Problems (DTPs)**
-   - List relevant DTPs (efficacy, safety, adherence, indication)
-   - Be specific to the medication and diagnosis
+### 1. Problem List / Drug Therapy Problems (DTPs)
 
-2. **SMART Goals**
-   - Specific, Measurable, Achievable, Relevant, Time-bound
-   - Include both efficacy goals and safety goals
+List 4-6 relevant drug therapy problems covering:
+- Need for rapid therapeutic effect (efficacy)
+- Risk of adverse effects specific to this medication
+- Risk of complications (organ-specific: renal, cardiac, thrombotic, etc.)
+- Drug-drug interactions or dosing timing considerations
+- Patient education / adherence gaps
+- Any monitoring requirements
 
-3. **Pharmacist Interventions / Plan**
-   - Clinical monitoring (labs, vitals, symptoms)
-   - Patient education points
-   - Medication administration guidance
-   - Safety precautions
-   - Follow-up schedule
+Be specific to this medication and diagnosis, not generic.
 
-4. **Deliverable**
-   - What will be provided to the patient/provider (e.g., medication guide, monitoring plan)
+### 2. Goals (SMART)
+
+Include 3 types of goals:
+
+**Primary Goal:**
+- Clinical outcome goal (specific, measurable, time-bound)
+
+**Safety Goals:**
+- Specific adverse events to prevent
+- Measurable safety parameters (labs, vitals)
+- Timeframe for monitoring
+
+**Process Goal:**
+- Completion of therapy course
+- Documentation requirements
+
+### 3. Pharmacist Interventions / Plan
+
+Provide detailed interventions covering 6-9 of these areas (as applicable):
+
+1. **Dosing & Administration** - Verify dose calculation, document lot numbers
+2. **Premedication** - What to give, when, why
+3. **Infusion Rates & Titration** - Starting rate, escalation schedule, what to do if reaction
+4. **Hydration & Organ Protection** - Renal protection, fluid management
+5. **Risk Mitigation** - Thrombosis, infection, specific complications
+6. **Concomitant Medications** - Drug interactions, timing adjustments
+7. **Monitoring During Administration** - Vital signs schedule, lab checks
+8. **Adverse Event Management** - How to recognize and respond to reactions
+9. **Documentation & Communication** - What to document, who to notify
+
+Each section should be 2-4 sentences with specific clinical details.
+
+### 4. Monitoring Plan & Lab Schedule
+
+Provide a detailed monitoring schedule:
+
+**Before First Dose:**
+- Required labs (CBC, BMP, organ function)
+- Baseline vitals
+- Any baseline assessments
+
+**During Each Dose/Infusion:**
+- Vital sign frequency
+- Infusion monitoring
+- Documentation requirements
+
+**Post-Dose Monitoring:**
+- Follow-up labs (timing: 24h, 72h, 1 week, etc.)
+- Symptom monitoring
+- When to assess for complications
+
+**Clinical Follow-up:**
+- Pharmacy and prescriber follow-up schedule
+- When to reassess therapy
 
 ## Guidelines
 
-- Use evidence-based recommendations
-- Be specific and actionable (not generic)
-- Consider specialty pharmacy context (complex medications, insurance authorization)
-- Use professional medical language
-- Format in clean markdown
+- **Be comprehensive and detailed** - this should be 1500-2000 words
+- Use evidence-based recommendations with specific clinical parameters
+- Include specific numbers (dose rates, vital sign frequencies, lab timing)
+- Consider specialty pharmacy context (high-cost medications, prior authorizations, compliance documentation)
+- Use professional medical language appropriate for pharmacist documentation
+- Format in clean markdown with clear headers and sections
 
-Generate the care plan now:`;
+Generate the complete care plan now:`;
   }
 
   /**

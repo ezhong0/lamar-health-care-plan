@@ -22,6 +22,9 @@ export interface DuplicatePatientWarning {
     mrn: string;
     name: string;
   };
+  // Action options for user
+  canLinkToExisting: boolean; // If true, user can add order to existing patient
+  hasSameMedication: boolean; // If true, existing patient already has this medication
 }
 
 export interface DuplicateOrderWarning {

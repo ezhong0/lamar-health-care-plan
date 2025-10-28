@@ -82,8 +82,8 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   },
   {
     id: 'duplicate-order',
-    name: 'Duplicate Order (Flow 3)',
-    description: 'Submit form to see "Duplicate Order" warning. Patient already has IVIG order - new order will still be created.',
+    name: 'Duplicate Order',
+    description: 'Submit form to see duplicate MRN + order warning. Same patient (MRN 007001) with same medication (IVIG).',
     icon: '💊',
     mode: 'prefill',
     patientsToLoad: [
@@ -123,7 +123,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   },
   {
     id: 'provider-conflict',
-    name: 'Provider Conflict (Flow 4)',
+    name: 'Provider Conflict',
     description: 'Submit form to see "Provider Name Mismatch" warning. Existing provider will be linked despite name difference.',
     icon: '⚠️',
     mode: 'prefill',

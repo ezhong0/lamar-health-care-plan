@@ -44,17 +44,27 @@ function WarningItem({ warning }: { warning: Warning }) {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">Duplicate Patient</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                {warning.hasSameMedication ? 'Duplicate MRN and Order' : 'Duplicate MRN'}
+              </p>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{warning.message}</p>
               <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
                 <span className="font-medium">Existing Patient:</span> {warning.existingPatient.name} (MRN:{' '}
                 {warning.existingPatient.mrn})
               </div>
-              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
-                <p className="text-xs text-blue-900 dark:text-blue-100">
-                  <span className="font-medium">If you proceed:</span> A new patient will be created with a separate record, despite the MRN match.
-                </p>
-              </div>
+              {warning.canLinkToExisting ? (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                  <p className="text-xs text-blue-900 dark:text-blue-100">
+                    <span className="font-medium">Options:</span> You can add this order to the existing patient{warning.hasSameMedication ? ', but they already have this medication' : ''}. Creating a new patient with the same MRN is not allowed.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/20 rounded-md">
+                  <p className="text-xs text-red-900 dark:text-red-100">
+                    <span className="font-medium">Error:</span> Cannot create a new patient with MRN {warning.existingPatient.mrn} because it already exists.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -198,8 +208,20 @@ function WarningItem({ warning }: { warning: Warning }) {
 export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }: WarningListProps) {
   // Check if any warning allows linking to existing patient
   const linkableWarning = warnings.find(
-    (w) => w.type === 'SIMILAR_PATIENT' && w.canLinkToExisting
+    (w) => (w.type === 'SIMILAR_PATIENT' || w.type === 'DUPLICATE_PATIENT') && w.canLinkToExisting
   );
+
+  // Check if there's a duplicate MRN warning (can't create new patient with same MRN)
+  const hasDuplicateMRN = warnings.some((w) => w.type === 'DUPLICATE_PATIENT');
+
+  // Get the patient ID to link to
+  const patientIdToLink = linkableWarning
+    ? linkableWarning.type === 'SIMILAR_PATIENT'
+      ? linkableWarning.similarPatient.id
+      : linkableWarning.type === 'DUPLICATE_PATIENT'
+      ? linkableWarning.existingPatient.id
+      : undefined
+    : undefined;
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
@@ -227,19 +249,21 @@ export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }:
           <Button variant="outline" onClick={onCancel} size="lg">
             Cancel
           </Button>
-          {linkableWarning && linkableWarning.type === 'SIMILAR_PATIENT' && onLinkToExisting && (
+          {linkableWarning && patientIdToLink && onLinkToExisting && (
             <Button
               variant="default"
-              onClick={() => onLinkToExisting(linkableWarning.similarPatient.id)}
+              onClick={() => onLinkToExisting(patientIdToLink)}
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Add to Existing Patient
             </Button>
           )}
-          <Button onClick={onProceed} size="lg">
-            Create New Patient
-          </Button>
+          {!hasDuplicateMRN && (
+            <Button onClick={onProceed} size="lg">
+              Create New Patient
+            </Button>
+          )}
         </div>
       </Card>
     </div>

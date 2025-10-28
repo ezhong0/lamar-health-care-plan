@@ -388,7 +388,7 @@ export function PatientForm() {
         </Alert>
       )}
 
-      {/* Example Data Selector - Sophisticated Multi-Example System */}
+      {/* Example Data Generator */}
       <Card className="p-6 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-900/30 border-dashed">
         <div className="space-y-4">
           <div>
@@ -396,39 +396,17 @@ export function PatientForm() {
               Try with Example Data
             </h3>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Load curated patient scenarios or generate a new example with AI to explore the application.
+              Generate a realistic patient scenario with AI to explore the application.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Curated Examples Selector */}
-            <div className="flex-1">
-              <select
-                value={selectedExample}
-                onChange={(e) => {
-                  setSelectedExample(e.target.value);
-                  if (e.target.value) {
-                    loadCuratedExample(e.target.value);
-                  }
-                }}
-                className="w-full h-10 px-3 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
-              >
-                <option value="">Select a curated example...</option>
-                {PATIENT_EXAMPLES.map((example) => (
-                  <option key={example.id} value={example.id}>
-                    {example.name} • {example.complexity} • {example.description}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* AI Generation Button */}
+          <div className="flex justify-center">
             <Button
               type="button"
               variant="outline"
               onClick={generateAIExample}
               disabled={isGeneratingAI}
-              className="shrink-0 min-w-[160px] font-medium"
+              className="min-w-[200px] h-10 font-medium"
             >
               {isGeneratingAI ? (
                 <>
@@ -481,22 +459,6 @@ export function PatientForm() {
               <AlertDescription className="text-sm">{aiGenerationError}</AlertDescription>
             </Alert>
           )}
-
-          {/* Example Legend */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-              <div className="h-2 w-2 rounded-full bg-green-500" />
-              <span>Simple</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-              <div className="h-2 w-2 rounded-full bg-yellow-500" />
-              <span>Moderate</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-              <div className="h-2 w-2 rounded-full bg-red-500" />
-              <span>Complex</span>
-            </div>
-          </div>
         </div>
       </Card>
 

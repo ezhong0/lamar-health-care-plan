@@ -35,11 +35,11 @@ export const DUPLICATE_DETECTION = {
  * Care Plan Generation Configuration
  */
 export const CARE_PLAN = {
-  /** Maximum tokens for LLM response (Haiku: 4096 max, we use 1500 for speed) */
-  MAX_TOKENS: 1500,
+  /** Maximum tokens for LLM response (Haiku 4.5: 8192 max, we use 4096 for comprehensive care plans) */
+  MAX_TOKENS: 4096,
 
-  /** Timeout for LLM API calls in milliseconds (25s - Haiku typically responds in 10-15s) */
-  TIMEOUT_MS: 25000,
+  /** Timeout for LLM API calls in milliseconds (60s for longer responses) */
+  TIMEOUT_MS: 60000,
 
   /** Maximum number of recent orders to include in care plan prompt */
   MAX_ORDERS_IN_PROMPT: 10,

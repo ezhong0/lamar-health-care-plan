@@ -92,11 +92,8 @@ export function DemoScenarioSelector() {
         // Store prefill data in localStorage and navigate to form
         localStorage.setItem('demo-prefill-data', JSON.stringify(prefillData));
 
-        toast.success('Demo scenario ready!', {
+        toast.success('Demo loaded', {
           id: toastId,
-          description: patientsCreated > 0
-            ? `${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} loaded. Form pre-filled - ready to submit!`
-            : 'Form pre-filled with demo data - ready to submit!',
         });
 
         // Navigate to new patient form
@@ -106,9 +103,8 @@ export function DemoScenarioSelector() {
         // Clear draft when loading database-only scenarios too
         localStorage.removeItem('patient-form-draft');
 
-        toast.success('Demo scenario loaded!', {
+        toast.success('Demo loaded', {
           id: toastId,
-          description: `${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} created successfully.`,
         });
 
         // Navigate to patients list

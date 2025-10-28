@@ -14,6 +14,7 @@ import { PatientInputSchema } from '@/lib/validation/schemas';
 import { createPatientServices } from '@/lib/services/factory';
 import { logger } from '@/lib/infrastructure/logger';
 import type { Warning } from '@/lib/domain/warnings';
+import type { PatientId } from '@/lib/domain/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,30 +53,38 @@ export async function POST(req: NextRequest) {
     // Run all validation checks WITHOUT creating anything
     const warnings: Warning[] = [];
 
-    // Check 1: Exact MRN duplicate (blocking error)
+    // Check 1: Exact MRN duplicate (warning, not blocking)
     const existingPatient = await prisma.patient.findUnique({
       where: { mrn: input.mrn },
+      include: {
+        orders: {
+          select: {
+            medicationName: true,
+          },
+        },
+      },
     });
 
     if (existingPatient) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: `MRN ${input.mrn} already exists`,
-            code: 'DUPLICATE_MRN',
-            details: {
-              existingPatient: {
-                id: existingPatient.id,
-                firstName: existingPatient.firstName,
-                lastName: existingPatient.lastName,
-                mrn: existingPatient.mrn,
-              },
-            },
-          },
-        },
-        { status: 409 }
+      // Check if the existing patient has the same medication
+      const hasSameMedication = existingPatient.orders.some(
+        (order) => order.medicationName.toLowerCase().trim() === input.medicationName.toLowerCase().trim()
       );
+
+      warnings.push({
+        type: 'DUPLICATE_PATIENT',
+        severity: 'high',
+        message: hasSameMedication
+          ? `Patient with MRN ${input.mrn} already exists and has an order for ${input.medicationName}.`
+          : `Patient with MRN ${input.mrn} already exists. You can add this order to the existing patient.`,
+        existingPatient: {
+          id: existingPatient.id as PatientId,
+          mrn: existingPatient.mrn,
+          name: `${existingPatient.firstName} ${existingPatient.lastName}`,
+        },
+        canLinkToExisting: true,
+        hasSameMedication,
+      });
     }
 
     // Check 2: Similar patients (fuzzy match)
