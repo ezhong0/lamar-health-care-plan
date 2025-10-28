@@ -67,6 +67,9 @@ describe('retry utility', () => {
         backoff: 2,
       });
 
+      // Catch to prevent unhandled rejection
+      promise.catch(() => {});
+
       await vi.runAllTimersAsync();
 
       await expect(promise).rejects.toThrow('Final failure');
@@ -143,6 +146,9 @@ describe('retry utility', () => {
         onRetry,
       });
 
+      // Catch to prevent unhandled rejection
+      promise.catch(() => {});
+
       await vi.runAllTimersAsync();
 
       await expect(promise).rejects.toThrow();
@@ -176,6 +182,9 @@ describe('retry utility', () => {
         delay: 100,
         backoff: 2,
       });
+
+      // Catch to prevent unhandled rejection
+      promise.catch(() => {});
 
       await vi.runAllTimersAsync();
 

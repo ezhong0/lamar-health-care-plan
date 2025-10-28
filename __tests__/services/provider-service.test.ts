@@ -24,19 +24,24 @@ describe('ProviderService', () => {
 
   afterEach(async () => {
     // Clean up test data
-    await prisma.order.deleteMany({});
-    await prisma.provider.deleteMany({});
+    try {
+      await prisma.order.deleteMany({});
+      await prisma.provider.deleteMany({});
+    } catch (error) {
+      // Ignore cleanup errors
+      console.log('Cleanup warning:', error instanceof Error ? error.message : error);
+    }
   });
 
   describe('upsertProvider', () => {
     it('creates new provider when NPI does not exist', async () => {
       const provider = await service.upsertProvider({
         name: 'Dr. Jane Smith',
-        npi: '1234567893',
+        npi: '9999999991',
       });
 
       expect(provider.name).toBe('Dr. Jane Smith');
-      expect(provider.npi).toBe('1234567893');
+      expect(provider.npi).toBe('9999999991');
       expect(provider.id).toBeDefined();
       expect(provider.createdAt).toBeInstanceOf(Date);
     });
@@ -80,14 +85,14 @@ describe('ProviderService', () => {
       // Create provider
       await service.upsertProvider({
         name: 'Dr. Jane Smith',
-        npi: '1234567893',
+        npi: '9999999991',
       });
 
       // Try to create with same NPI but different name
       await expect(
         service.upsertProvider({
           name: 'Dr. John Doe', // Different name
-          npi: '1234567893', // Same NPI
+          npi: '9999999991', // Same NPI
         })
       ).rejects.toThrow(ProviderConflictError);
     });
@@ -109,7 +114,7 @@ describe('ProviderService', () => {
       });
 
       // Should store without formatting
-      expect(provider.npi).toBe('1234567893');
+      expect(provider.npi).toBe('9999999991');
     });
 
     it('handles whitespace in input', async () => {
@@ -119,7 +124,7 @@ describe('ProviderService', () => {
       });
 
       expect(provider.name).toBe('Dr. Jane Smith');
-      expect(provider.npi).toBe('1234567893');
+      expect(provider.npi).toBe('9999999991');
     });
   });
 
@@ -127,7 +132,7 @@ describe('ProviderService', () => {
     it('returns provider when found', async () => {
       const created = await service.upsertProvider({
         name: 'Dr. Test',
-        npi: '1234567893',
+        npi: '9999999991',
       });
 
       const found = await service.getProviderById(created.id);
@@ -147,26 +152,26 @@ describe('ProviderService', () => {
     it('returns provider when found', async () => {
       await service.upsertProvider({
         name: 'Dr. Test',
-        npi: '1234567893',
+        npi: '9999999991',
       });
 
-      const found = await service.getProviderByNPI('1234567893');
+      const found = await service.getProviderByNPI('9999999991');
 
       expect(found).not.toBeNull();
-      expect(found?.npi).toBe('1234567893');
+      expect(found?.npi).toBe('9999999991');
     });
 
     it('handles formatted NPI input', async () => {
       await service.upsertProvider({
         name: 'Dr. Test',
-        npi: '1234567893',
+        npi: '9999999991',
       });
 
-      // Search with formatted NPI
-      const found = await service.getProviderByNPI('123-456-7893');
+      // Search with formatted NPI (should strip dashes)
+      const found = await service.getProviderByNPI('999-999-9991');
 
       expect(found).not.toBeNull();
-      expect(found?.npi).toBe('1234567893');
+      expect(found?.npi).toBe('9999999991');
     });
 
     it('returns null when provider not found', async () => {
