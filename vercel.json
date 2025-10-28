@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && next build --no-turbo",
+  "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "functions": {
     "app/api/**/*.ts": {
