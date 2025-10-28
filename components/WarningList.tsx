@@ -211,9 +211,6 @@ export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }:
     (w) => (w.type === 'SIMILAR_PATIENT' || w.type === 'DUPLICATE_PATIENT') && w.canLinkToExisting
   );
 
-  // Check if there's a duplicate MRN warning (can't create new patient with same MRN)
-  const hasDuplicateMRN = warnings.some((w) => w.type === 'DUPLICATE_PATIENT');
-
   // Get the patient ID to link to
   const patientIdToLink = linkableWarning
     ? linkableWarning.type === 'SIMILAR_PATIENT'
@@ -259,11 +256,9 @@ export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }:
               Add to Existing Patient
             </Button>
           )}
-          {!hasDuplicateMRN && (
-            <Button onClick={onProceed} size="lg">
-              Create New Patient
-            </Button>
-          )}
+          <Button onClick={onProceed} size="lg">
+            Create New Patient
+          </Button>
         </div>
       </Card>
     </div>

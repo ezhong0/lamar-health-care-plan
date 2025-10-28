@@ -22,8 +22,11 @@
  * - Duplicate checks run inside transaction (prevent race conditions)
  *
  * Error vs Warning philosophy:
- * - ERROR (blocks creation): Exact duplicate MRN, provider conflict
- * - WARNING (allows creation): Similar patient names, duplicate order
+ * - ERROR (blocks creation): Provider conflict with invalid data
+ * - WARNING (allows creation): Exact duplicate MRN, similar patient names, duplicate order
+ *
+ * Note: Multiple patients can have the same MRN (unique constraint removed for demo purposes).
+ * In production, you may want to enforce MRN uniqueness.
  */
 
 import type { PrismaClient } from '@prisma/client';
@@ -73,14 +76,16 @@ export class PatientService {
    * Create patient with full orchestration
    *
    * Steps:
-   * 1. Check for exact MRN duplicate (error if exists) - unless skipWarnings is true
-   * 2. Check for similar patients (warnings) - unless skipWarnings is true
-   * 3. Upsert referring provider
-   * 4. Create patient
-   * 5. Create order
-   * 6. Check for duplicate orders (warnings) - unless skipWarnings is true
+   * 1. Check for similar patients (warnings) - unless skipWarnings is true
+   * 2. Upsert referring provider
+   * 3. Create patient
+   * 4. Create order
+   * 5. Check for duplicate orders (warnings) - unless skipWarnings is true
    *
    * All wrapped in transaction for atomicity.
+   *
+   * Note: Exact MRN duplicates are allowed and shown as warnings (handled by validation endpoint).
+   * Multiple patients can have the same MRN.
    *
    * @param input - Patient creation input
    * @param skipWarnings - If true, skip all duplicate detection checks (used when warnings already validated)
@@ -95,11 +100,11 @@ export class PatientService {
    * });
    *
    * if (isFailure(result)) {
-   *   // Handle error (duplicate MRN, provider conflict)
+   *   // Handle error (provider conflict, etc.)
    * }
    *
    * const { patient, order, warnings } = result.data;
-   * // Show warnings to user (similar patients, duplicate orders)
+   * // Show warnings to user (duplicate MRN, similar patients, duplicate orders)
    */
   async createPatient(
     input: PatientServiceInput,
@@ -119,26 +124,9 @@ export class PatientService {
         let duplicateOrderWarnings: Warning[] = [];
 
         if (!skipWarnings) {
-          // Step 1: Check for exact MRN duplicate (hard error)
-          const existingPatient = await tx.patient.findUnique({
-            where: { mrn: input.mrn },
-          });
-
-          if (existingPatient) {
-            logger.warn('Duplicate patient detected', {
-              mrn: input.mrn,
-              existingPatientId: existingPatient.id,
-            });
-
-            throw new DuplicatePatientError({
-              mrn: existingPatient.mrn,
-              firstName: existingPatient.firstName,
-              lastName: existingPatient.lastName,
-            });
-          }
-
-          // Step 2: Check for similar patients (warnings, not errors)
+          // Check for similar patients (warnings, not errors)
           // Pass medication name to check if similar patient has same medication
+          // Note: Exact MRN duplicates are now handled by validation endpoint and shown as warnings
           similarPatientWarnings = await this.duplicateDetector.findSimilarPatients(
             {
               firstName: input.firstName,

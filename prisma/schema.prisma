@@ -16,7 +16,7 @@ model Patient {
   id                   String   @id @default(cuid())
   firstName            String   @map("first_name")
   lastName             String   @map("last_name")
-  mrn                  String   @unique
+  mrn                  String
   additionalDiagnoses  String[] @map("additional_diagnoses")
   medicationHistory    String[] @map("medication_history")
   patientRecords       String   @map("patient_records") @db.Text

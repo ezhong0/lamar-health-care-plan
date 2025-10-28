@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     const warnings: Warning[] = [];
 
     // Check 1: Exact MRN duplicate (warning, not blocking)
-    const existingPatient = await prisma.patient.findUnique({
+    const existingPatient = await prisma.patient.findFirst({
       where: { mrn: input.mrn },
       include: {
         orders: {

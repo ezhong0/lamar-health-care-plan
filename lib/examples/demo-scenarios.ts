@@ -83,7 +83,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'duplicate-order',
     name: 'Duplicate Order',
-    description: 'Submit form to see duplicate MRN + order warning. Same patient (MRN 007001) with same medication (IVIG).',
+    description: 'Submit form to see duplicate order warning. System detects Alice Bennett already has IVIG order.',
     icon: '💊',
     mode: 'prefill',
     patientsToLoad: [
@@ -91,8 +91,48 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
         firstName: 'Alice',
         lastName: 'Bennett',
         mrn: '007001',
-        patientRecords: 'Patient with Myasthenia Gravis requiring IVIG therapy. Previous infusion completed successfully.',
-        additionalDiagnoses: ['Myasthenia Gravis'],
+        patientRecords: `**Name:** A.B. (Fictional)
+**MRN:** 007001
+**DOB:** 1979-06-08 (Age 46)
+**Sex:** Female
+**Weight:** 72 kg
+**Allergies:** None known to medications (no IgA deficiency)
+
+**Primary diagnosis:** Generalized myasthenia gravis (AChR antibody positive), MGFA class IIb (G70.00)
+**Secondary diagnoses:** Hypertension (well controlled) (I10), GERD (K21.9)
+
+### Home Medications
+- Pyridostigmine 60 mg PO q6h PRN (current avg 3–4 doses/day)
+- Prednisone 10 mg PO daily
+- Lisinopril 10 mg PO daily
+- Omeprazole 20 mg PO daily
+
+### Recent History
+- Progressive proximal muscle weakness and ptosis over 2 weeks with worsening speech and swallowing fatigue
+- Neurology recommends IVIG for rapid symptomatic control (planned course prior to planned thymectomy)
+- Baseline respiratory status: no stridor; baseline FVC 2.8 L (predicted 4.0 L; ~70% predicted). No current myasthenic crisis but declining strength
+
+### Baseline Clinic Note (Pre-Infusion)
+
+**Date:** 2025-10-15
+
+**Vitals:**
+- BP 128/78, HR 78, RR 16, SpO2 98% RA, Temp 36.7°C
+
+**Exam:**
+- Ptosis bilateral, fatigable proximal weakness (4/5), speech slurred after repeated counting, no respiratory distress
+
+**Labs:**
+- CBC WNL
+- BMP: Na 138, K 4.1, Cl 101, HCO3 24, BUN 12, SCr 0.78, eGFR >90 mL/min/1.73m²
+- IgG baseline: 10 g/L (for replacement context; note IVIG for immunomodulation here)
+
+**Plan:**
+- IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient infusion center
+- Premedicate with acetaminophen + diphenhydramine
+- Monitor vitals and FVC daily
+- Continue pyridostigmine and prednisone`,
+        additionalDiagnoses: ['Hypertension', 'GERD'],
         orders: [
           {
             medicationName: 'IVIG (Privigen)',
@@ -108,8 +148,53 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       firstName: 'Alice',
       lastName: 'Bennett',
       mrn: '007001',
-      patientRecords: 'Patient needs refill of IVIG therapy. This should trigger duplicate order warning.',
-      additionalDiagnoses: ['Myasthenia Gravis'],
+      patientRecords: `**Name:** A.B. (Fictional)
+**MRN:** 007001
+**DOB:** 1979-06-08 (Age 46)
+**Sex:** Female
+**Weight:** 72 kg
+**Allergies:** None known to medications (no IgA deficiency)
+
+**Primary diagnosis:** Generalized myasthenia gravis (AChR antibody positive), MGFA class IIb (G70.00)
+**Secondary diagnoses:** Hypertension (well controlled) (I10), GERD (K21.9)
+
+### Home Medications
+- Pyridostigmine 60 mg PO q6h PRN (current avg 3–4 doses/day)
+- Prednisone 10 mg PO daily
+- Lisinopril 10 mg PO daily
+- Omeprazole 20 mg PO daily
+
+### Recent History
+- Initial IVIG course completed 2 weeks ago with good symptomatic improvement
+- Patient now requesting refill of IVIG therapy
+- Continued muscle weakness management
+
+### Infusion Visit Note — Day 1 (Previous Course)
+
+**Date:** 2025-10-16
+
+**IVIG Product:**
+- Privigen (10% IVIG) — lot #P12345 (fictional)
+
+**Dose Given:**
+- 28.8 g (0.4 g/kg × 72 kg) diluted per manufacturer instructions
+
+**Premeds:**
+- Acetaminophen 650 mg PO + Diphenhydramine 25 mg PO 30 minutes pre-infusion
+
+**Infusion Start Rate:**
+- 0.5 mL/kg/hr for first 30 minutes then increased per tolerance to max manufacturer rate
+
+**Vitals:**
+- q15 minutes first hour then q30 minutes
+- No fever, transient mild headache at 2 hours (resolved after slowing infusion)
+
+**Respiratory:**
+- FVC 2.7 L (stable)
+
+**Disposition:**
+- Completed infusion, observed 60 minutes post-infusion, discharged with plan for days 2–5`,
+      additionalDiagnoses: ['Hypertension', 'GERD'],
       orders: [
         {
           medicationName: 'IVIG (Privigen)',
@@ -171,9 +256,69 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       firstName: 'Elizabeth',
       lastName: 'Anderson',
       mrn: '003456',
-      patientRecords: 'Complex patient with multiple chronic conditions. Currently managing diabetes, hypertension, and hyperlipidemia. Patient shows good adherence to medication regimen. Recent A1C of 7.2%, BP controlled at 128/82.',
-      additionalDiagnoses: ['Type 2 Diabetes', 'Hypertension', 'Hyperlipidemia', 'Chronic Kidney Disease Stage 3'],
-      medicationHistory: ['Metformin 1000mg BID', 'Lisinopril 20mg daily', 'Atorvastatin 40mg daily'],
+      patientRecords: `**Name:** E.A. (Fictional)
+**MRN:** 003456
+**DOB:** 1965-08-22 (Age 60)
+**Sex:** Female
+**Weight:** 85 kg
+**Allergies:** Sulfa antibiotics (rash)
+
+**Primary diagnosis:** Type 2 Diabetes Mellitus, uncontrolled (E11.65)
+**Secondary diagnoses:** Essential Hypertension (I10), Hyperlipidemia (E78.5), Chronic Kidney Disease Stage 3a (N18.31)
+
+### Home Medications
+- Metformin 1000 mg PO BID with meals
+- Lisinopril 20 mg PO daily
+- Atorvastatin 40 mg PO daily at bedtime
+- Aspirin 81 mg PO daily
+
+### Recent History
+- Type 2 diabetes for 15 years, progressively difficult to control despite oral medications
+- Recent A1C 9.1% (previous 8.5% six months ago, 8.8% one year ago) - trending upward
+- Experiencing polyuria, polydipsia, and fatigue
+- No history of DKA or severe hypoglycemia
+- Hypertension well-controlled on current regimen (home BP averaging 130/80)
+- CKD Stage 3a stable (eGFR 52 mL/min/1.73m² for past year, no proteinuria)
+- No diabetic retinopathy on recent eye exam
+- Mild peripheral neuropathy (symmetric stocking distribution)
+- Excellent medication adherence, follows dietary recommendations
+
+### Baseline Clinic Note
+
+**Date:** 2025-10-20
+
+**Vitals:**
+- BP 132/82, HR 76, RR 14, SpO2 98% RA, Temp 36.9°C
+- BMI 32.1 (obese)
+- Weight: 85 kg (stable)
+
+**Exam:**
+- Alert and oriented, no acute distress
+- Cardiovascular: Regular rate and rhythm, no murmurs, no edema
+- Respiratory: Clear to auscultation bilaterally
+- Extremities: Decreased sensation to monofilament testing bilaterally, pedal pulses 2+ bilaterally
+
+**Labs:**
+- A1C: 9.1% (goal <7.5% for this patient)
+- Fasting glucose: 198 mg/dL
+- Random glucose: 245 mg/dL
+- BMP: Na 139, K 4.0, Cl 103, HCO3 24, BUN 22, SCr 1.28, eGFR 52 mL/min/1.73m² (CKD 3a)
+- Lipid panel: Total cholesterol 178, LDL 92, HDL 48, Triglycerides 188
+- Urine albumin/creatinine ratio: 28 mg/g (normal)
+- CBC: WNL
+- TSH: 2.1 mIU/L (normal)
+
+**Plan:**
+- Metformin at maximum tolerated dose (2000 mg/day total)
+- Add GLP-1 agonist or basal insulin - endocrinology recommends adding second-line agent
+- Patient education on hypoglycemia recognition and management
+- Continue Lisinopril for renal protection and BP control
+- Continue Atorvastatin for cardiovascular risk reduction
+- Nephrology follow-up in 6 months for CKD management
+- Endocrinology referral for diabetes optimization
+- Podiatry referral for neuropathy management`,
+      additionalDiagnoses: ['Essential Hypertension', 'Hyperlipidemia', 'Chronic Kidney Disease Stage 3a', 'Peripheral Neuropathy'],
+      medicationHistory: ['Metformin 1000mg BID', 'Lisinopril 20mg daily', 'Atorvastatin 40mg daily', 'Aspirin 81mg daily'],
       orders: [
         {
           medicationName: 'Metformin 1000mg',

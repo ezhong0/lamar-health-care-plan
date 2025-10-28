@@ -7,7 +7,7 @@
  * Design decisions:
  * - CSV format (Excel-compatible, simpler than XLSX)
  * - Proper CSV escaping for fields with commas/quotes
- * - Includes care plan summaries (first 200 chars)
+ * - Includes full care plan content (for compliance documentation)
  * - Uses existing services to fetch data (no direct database access)
  *
  * Independence:
@@ -32,14 +32,16 @@ export class ExportService {
    * Export all patients to CSV
    *
    * Generates Excel-compatible CSV with patient data, orders, and care plans.
-   * Format designed for pharma company reporting requirements.
+   * Format designed for pharma company reporting and compliance documentation.
    *
    * Columns:
    * - Patient info (MRN, name)
    * - Medication and diagnosis
    * - Provider info (name, NPI)
-   * - Care plan status and summary
+   * - Care plan status and full content
    * - Dates
+   *
+   * Note: Care plans can be lengthy (1500-2000 words), so CSV file may be large.
    *
    * @returns Result with CSV content as string
    */
@@ -86,7 +88,7 @@ export class ExportService {
           'Provider NPI',
           'Care Plan Generated',
           'Care Plan Date',
-          'Care Plan Summary',
+          'Care Plan (Full)',
           'Created Date',
         ])
       );
@@ -104,9 +106,9 @@ export class ExportService {
             ? patient.additionalDiagnoses.join('; ')
             : 'None';
 
-        // Format care plan summary (first 200 chars)
-        const carePlanSummary = latestCarePlan
-          ? this.truncateText(latestCarePlan.content, 200)
+        // Include full care plan content (not truncated)
+        const carePlanContent = latestCarePlan
+          ? latestCarePlan.content
           : 'N/A';
 
         rows.push(
@@ -123,7 +125,7 @@ export class ExportService {
             latestCarePlan
               ? this.formatDate(latestCarePlan.createdAt)
               : 'N/A',
-            carePlanSummary,
+            carePlanContent,
             this.formatDate(patient.createdAt),
           ])
         );
