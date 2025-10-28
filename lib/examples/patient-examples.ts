@@ -44,7 +44,7 @@ const myastheniaGravisExample: PatientExample = {
   data: {
     firstName: 'Alice',
     lastName: 'Bennet',
-    mrn: '123456',
+    mrn: '101234',
     referringProvider: 'Dr. Sarah Chen',
     referringProviderNPI: '1234567893',
     primaryDiagnosis: 'G70.00',
@@ -52,7 +52,7 @@ const myastheniaGravisExample: PatientExample = {
     additionalDiagnoses: ['I10', 'K21.9'], // Hypertension, GERD
     medicationHistory: ['Pyridostigmine', 'Prednisone', 'Lisinopril', 'Omeprazole'],
     patientRecords: `Name: A.B. (Fictional)
-MRN: 123456 (fictional)
+MRN: 101234 (fictional)
 DOB: 1979-06-08 (Age 46)
 Sex: Female
 Weight: 72 kg
@@ -121,7 +121,7 @@ const severeAsthmaExample: PatientExample = {
   data: {
     firstName: 'Marcus',
     lastName: 'Johnson',
-    mrn: '234567',
+    mrn: '102345',
     referringProvider: 'Dr. Emily Rodriguez',
     referringProviderNPI: '1245319599',
     primaryDiagnosis: 'J45.50',
@@ -171,9 +171,9 @@ const rheumatoidArthritisExample: PatientExample = {
   data: {
     firstName: 'Jennifer',
     lastName: 'Williams',
-    mrn: '345678',
+    mrn: '103456',
     referringProvider: 'Dr. Michael Chang',
-    referringProviderNPI: '1679576722',  // Fixed: was duplicate with complexMultiSystemExample
+    referringProviderNPI: '1679576722',
     primaryDiagnosis: 'M05.79',
     medicationName: 'Infliximab (Remicade)',
     additionalDiagnoses: ['M81.0', 'I10'], // Osteoporosis, hypertension
@@ -225,9 +225,9 @@ const cidpExample: PatientExample = {
   data: {
     firstName: 'Robert',
     lastName: 'Martinez',
-    mrn: '456789',
+    mrn: '104567',
     referringProvider: 'Dr. Lisa Patel',
-    referringProviderNPI: '1003000126',
+    referringProviderNPI: '1000000004',
     primaryDiagnosis: 'G61.81',
     medicationName: 'IVIG (Gammagard)',
     additionalDiagnoses: ['E11.9', 'E78.5', 'G47.33'], // Type 2 DM, hyperlipidemia, OSA
@@ -284,9 +284,9 @@ const complexMultiSystemExample: PatientExample = {
   data: {
     firstName: 'Patricia',
     lastName: 'Anderson',
-    mrn: '567890',
+    mrn: '105678',
     referringProvider: 'Dr. David Kim',
-    referringProviderNPI: '1518060555',  // Fixed: was duplicate with severeAsthmaExample
+    referringProviderNPI: '1200000002',
     primaryDiagnosis: 'M33.12',
     medicationName: 'Rituximab (Rituxan)',
     additionalDiagnoses: ['R13.10', 'I73.00', 'F32.9', 'J84.10'], // Dysphagia, Raynaud, depression, ILD
@@ -355,7 +355,7 @@ const simpleExample: PatientExample = {
   data: {
     firstName: 'Emma',
     lastName: 'Taylor',
-    mrn: '678901',
+    mrn: '106789',
     referringProvider: 'Dr. James Wilson',
     referringProviderNPI: '1679576722',
     primaryDiagnosis: 'J45.22',

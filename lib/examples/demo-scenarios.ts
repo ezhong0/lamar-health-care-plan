@@ -58,7 +58,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
             medicationName: 'Gabapentin 300mg',
             primaryDiagnosis: 'M54.5',
             providerName: 'Dr. Robert Martinez',
-            providerNpi: '2345678900',
+            providerNpi: '1600000016',
             status: 'pending',
           },
         ],
@@ -74,7 +74,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
           medicationName: 'Ibuprofen 800mg',
           primaryDiagnosis: 'M79.3',
           providerName: 'Dr. Sarah Williams',
-          providerNpi: '3456789015',
+          providerNpi: '1800000014',
           status: 'pending',
         },
       ],
@@ -239,7 +239,7 @@ Clinical status: Subjective improvement in speech and proximal strength; fewer f
       {
         firstName: 'Thomas',
         lastName: 'Richards',
-        mrn: '007002',
+        mrn: '008201',
         patientRecords: 'Patient with asthma, prescribed Omalizumab by Dr. Sarah Chen.',
         orders: [
           {
@@ -255,7 +255,7 @@ Clinical status: Subjective improvement in speech and proximal strength; fewer f
     prefillData: {
       firstName: 'Maria',
       lastName: 'Rodriguez',
-      mrn: '007003',
+      mrn: '008202',
       patientRecords: 'Patient with chronic urticaria, prescribed Omalizumab. Provider name variation should trigger warning.',
       orders: [
         {
@@ -278,9 +278,9 @@ Clinical status: Subjective improvement in speech and proximal strength; fewer f
     prefillData: {
       firstName: 'Elizabeth',
       lastName: 'Anderson',
-      mrn: '003456',
+      mrn: '009401',
       patientRecords: `Name: E.A. (Fictional)
-MRN: 003456 (fictional)
+MRN: 009401 (fictional)
 DOB: 1965-08-22 (Age 60)
 Sex: Female
 Weight: 85 kg
@@ -323,21 +323,21 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
           medicationName: 'Metformin 1000mg',
           primaryDiagnosis: 'E11.9',
           providerName: 'Dr. James Thompson',
-          providerNpi: '4567890122',
+          providerNpi: '1400000018',
           status: 'pending',
         },
         {
           medicationName: 'Lisinopril 20mg',
           primaryDiagnosis: 'I10',
           providerName: 'Dr. James Thompson',
-          providerNpi: '4567890122',
+          providerNpi: '1400000018',
           status: 'pending',
         },
         {
           medicationName: 'Atorvastatin 40mg',
           primaryDiagnosis: 'E78.5',
           providerName: 'Dr. James Thompson',
-          providerNpi: '4567890122',
+          providerNpi: '1400000018',
           status: 'pending',
         },
       ],
@@ -353,14 +353,14 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
     prefillData: {
       firstName: "Mary-Anne",
       lastName: "O'Brien",
-      mrn: '004567',
+      mrn: '010521',
       patientRecords: 'Patient with hyphenated first name and apostrophe in last name. Tests special character handling in the system.',
       orders: [
         {
           medicationName: 'Vitamin D3 1000 IU',
           primaryDiagnosis: 'E55.9',
           providerName: "Dr. Patrick O'Connor",
-          providerNpi: '5678901237',
+          providerNpi: '2000000010',
           status: 'pending',
         },
       ],
@@ -376,7 +376,7 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
       {
         firstName: 'Robert',
         lastName: 'Taylor',
-        mrn: '006789',
+        mrn: '011632',
         patientRecords: 'Patient with hypertension and Type 2 diabetes. Well-controlled on current medication regimen.',
         additionalDiagnoses: ['I10', 'E11.9'],
         orders: [
@@ -384,14 +384,14 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
             medicationName: 'Amlodipine 10mg',
             primaryDiagnosis: 'I10',
             providerName: 'Dr. Lisa Anderson',
-            providerNpi: '7890123459',
+            providerNpi: '1245319599',
             status: 'fulfilled',
           },
           {
             medicationName: 'Glipizide 5mg',
             primaryDiagnosis: 'E11.9',
             providerName: 'Dr. Lisa Anderson',
-            providerNpi: '7890123459',
+            providerNpi: '1245319599',
             status: 'fulfilled',
           },
         ],
@@ -399,7 +399,7 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
       {
         firstName: 'Linda',
         lastName: 'Martinez',
-        mrn: '006790',
+        mrn: '011743',
         patientRecords: 'Patient with COPD, currently stable on bronchodilator therapy.',
         additionalDiagnoses: ['J44.9'],
         orders: [
@@ -407,7 +407,7 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
             medicationName: 'Albuterol Inhaler',
             primaryDiagnosis: 'J44.9',
             providerName: 'Dr. Michael Brown',
-            providerNpi: '8901234566',
+            providerNpi: '1679576722',
             status: 'fulfilled',
           },
         ],
@@ -415,14 +415,14 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
       {
         firstName: 'William',
         lastName: 'Garcia',
-        mrn: '006791',
+        mrn: '011854',
         patientRecords: 'Patient with depression, responding well to SSRI therapy.',
         orders: [
           {
             medicationName: 'Sertraline 50mg',
             primaryDiagnosis: 'F32.9',
             providerName: 'Dr. Jennifer Lee',
-            providerNpi: '9012345671',
+            providerNpi: '1982736450',
             status: 'fulfilled',
           },
         ],

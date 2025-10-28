@@ -14,7 +14,7 @@ import { PatientInputSchema } from '@/lib/validation/schemas';
 import { createPatientServices } from '@/lib/services/factory';
 import { logger } from '@/lib/infrastructure/logger';
 import type { Warning } from '@/lib/domain/warnings';
-import type { PatientId } from '@/lib/domain/types';
+import { toPatientId } from '@/lib/domain/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           ? `Patient with MRN ${input.mrn} already exists and has an order for ${input.medicationName}.`
           : `Patient with MRN ${input.mrn} already exists. You can add this order to the existing patient.`,
         existingPatient: {
-          id: existingPatient.id as PatientId,
+          id: toPatientId(existingPatient.id),
           mrn: existingPatient.mrn,
           name: `${existingPatient.firstName} ${existingPatient.lastName}`,
         },

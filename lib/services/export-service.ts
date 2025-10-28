@@ -182,8 +182,9 @@ export class ExportService {
         const str = field ?? '';
 
         // Prevent CSV injection (Excel formula execution)
-        // If field starts with =, +, -, @, prefix with apostrophe
-        if (str.length > 0 && /^[=+\-@]/.test(str)) {
+        // If field starts with =, +, -, @, tab, or newline, prefix with apostrophe
+        // This prevents malicious formulas like =CMD|'/c calc'!A1 from executing
+        if (str.length > 0 && /^[=+\-@\t\r\n]/.test(str)) {
           // Wrap in quotes and prefix with apostrophe to force text interpretation
           const escaped = str.replace(/"/g, '""');
           return `"'${escaped}"`;
@@ -204,23 +205,6 @@ export class ExportService {
         return str;
       })
       .join(',');
-  }
-
-  /**
-   * Truncate text to specified length
-   *
-   * Adds ellipsis if text is truncated.
-   *
-   * @param text - Text to truncate
-   * @param maxLength - Maximum length
-   * @returns Truncated text
-   */
-  private truncateText(text: string, maxLength: number): string {
-    if (text.length <= maxLength) {
-      return text;
-    }
-
-    return text.substring(0, maxLength - 3) + '...';
   }
 
   /**

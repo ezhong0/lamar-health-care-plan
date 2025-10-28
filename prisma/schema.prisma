@@ -29,6 +29,7 @@ model Patient {
 
   @@index([mrn])
   @@index([firstName, lastName])
+  @@index([createdAt])
   @@map("patients")
 }
 
@@ -48,6 +49,8 @@ model Order {
   @@index([providerId])
   @@index([status])
   @@index([patientId, status])
+  @@index([createdAt])
+  @@index([status, createdAt])
   @@map("orders")
 }
 

@@ -55,13 +55,13 @@ function WarningItem({ warning }: { warning: Warning }) {
               {warning.canLinkToExisting ? (
                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
                   <p className="text-xs text-blue-900 dark:text-blue-100">
-                    <span className="font-medium">Options:</span> You can add this order to the existing patient{warning.hasSameMedication ? ', but they already have this medication' : ''}. Creating a new patient with the same MRN is not allowed.
+                    <span className="font-medium">Options:</span> You can add this order to the existing patient{warning.hasSameMedication ? ' (they already have this medication)' : ''}, or create a new patient record with the same MRN (patients may have multiple orders).
                   </p>
                 </div>
               ) : (
-                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/20 rounded-md">
-                  <p className="text-xs text-red-900 dark:text-red-100">
-                    <span className="font-medium">Error:</span> Cannot create a new patient with MRN {warning.existingPatient.mrn} because it already exists.
+                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/20 rounded-md">
+                  <p className="text-xs text-amber-900 dark:text-amber-100">
+                    <span className="font-medium">Warning:</span> Patient with MRN {warning.existingPatient.mrn} already exists. You can still create a new patient, but consider if this order belongs to the existing patient.
                   </p>
                 </div>
               )}

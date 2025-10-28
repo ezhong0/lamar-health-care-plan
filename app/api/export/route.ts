@@ -22,6 +22,7 @@ import { prisma } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { isFailure } from '@/lib/domain/result';
+import crypto from 'crypto';
 
 /**
  * GET /api/export

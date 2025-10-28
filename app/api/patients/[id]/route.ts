@@ -18,9 +18,9 @@ import { createPatientServices } from '@/lib/services/factory';
 import { prisma } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
-import type { PatientId } from '@/lib/domain/types';
-import { toCarePlanId } from '@/lib/domain/types';
+import { toPatientId, toCarePlanId } from '@/lib/domain/types';
 import type { GetPatientResponse } from '@/lib/api/contracts';
+import crypto from 'crypto';
 
 /**
  * GET /api/patients/[id]
@@ -50,7 +50,7 @@ export async function GET(
     const { patientService } = createPatientServices(prisma);
 
     // Fetch patient with related data
-    const result = await patientService.getPatientById(patientId as PatientId);
+    const result = await patientService.getPatientById(toPatientId(patientId));
 
     if (!result) {
       logger.warn('Patient not found', { patientId });

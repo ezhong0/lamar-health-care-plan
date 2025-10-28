@@ -28,8 +28,9 @@ import { env } from '@/lib/infrastructure/env';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { isFailure } from '@/lib/domain/result';
-import type { PatientId } from '@/lib/domain/types';
+import { toPatientId } from '@/lib/domain/types';
 import type { GenerateCarePlanResponse } from '@/lib/api/contracts';
+import crypto from 'crypto';
 
 /**
  * POST /api/care-plans
@@ -69,7 +70,7 @@ export async function POST(
     // Step 3: Generate care plan
     // This handles retry logic, timeout, and comprehensive logging internally
     const result = await carePlanService.generateCarePlan({
-      patientId: validatedInput.patientId as PatientId,
+      patientId: toPatientId(validatedInput.patientId),
     });
 
     // Step 4: Handle Result type
@@ -134,7 +135,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // Use validated environment configuration
     const carePlanService = new CarePlanService(prisma, env.ANTHROPIC_API_KEY);
     const carePlans = await carePlanService.getCarePlansForPatient(
-      patientId as PatientId
+      toPatientId(patientId)
     );
 
     return NextResponse.json({
