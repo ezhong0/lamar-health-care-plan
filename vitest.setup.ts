@@ -6,10 +6,6 @@
 
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
-import { config } from 'dotenv';
-
-// Load environment variables from .env file for tests
-config();
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

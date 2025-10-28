@@ -1,0 +1,11 @@
+# Exclude test files and directories from Vercel deployment
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+vitest.config.ts
+vitest.setup.ts
+playwright.config.ts
+e2e/
+.env.test
