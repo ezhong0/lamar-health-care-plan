@@ -128,6 +128,11 @@ Medical assistant is entering a new patient who:
 
 ## Flow 2: Duplicate Patient Warning (Fuzzy Name Match)
 
+### Demo Scenario Available
+**📋 "Duplicate Detection (Flow 2)"** - Load "Michael Smith", then form pre-fills with "Mikey Smith" to trigger fuzzy matching warning. Available on home page.
+
+---
+
 ### Business Scenario
 Medical assistant enters patient data where the name is very similar to an existing patient, but MRN is different.
 
@@ -301,6 +306,11 @@ Last Visit: 10/15/2025   |  First Visit
 ---
 
 ## Flow 3: Duplicate Order Warning (Same Patient + Same Medication)
+
+### Demo Scenario Available
+**💊 "Duplicate Order (Flow 3)"** - Load "Alice Bennett" with IVIG order, then form pre-fills with same patient + same medication to trigger duplicate order warning. Available on home page.
+
+---
 
 ### Business Scenario
 Patient already has an order for the medication being entered.
@@ -488,6 +498,11 @@ Previous Order Details:
 ---
 
 ## Flow 4: Provider Conflict Warning (Same NPI, Different Name)
+
+### Demo Scenario Available
+**⚠️ "Provider Conflict (Flow 4)"** - Load "Thomas Richards" with "Dr. Sarah Chen" (NPI 1234567893), then form pre-fills with "Dr. S. Chen" (same NPI) to trigger provider conflict warning. Available on home page.
+
+---
 
 ### Business Scenario
 Provider NPI already exists in system, but name doesn't match.

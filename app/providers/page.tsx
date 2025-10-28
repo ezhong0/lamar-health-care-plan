@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Provider {
   id: string;
@@ -30,6 +32,7 @@ export default function ProvidersPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [cleaningUp, setCleaningUp] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -71,6 +74,39 @@ export default function ProvidersPage() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCleanup = async () => {
+    if (!confirm('Delete all providers with no orders? This action cannot be undone.')) {
+      return;
+    }
+
+    setCleaningUp(true);
+    const toastId = toast.loading('Cleaning up orphaned providers...');
+
+    try {
+      const response = await fetch('/api/providers/cleanup', {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to cleanup providers');
+      }
+
+      toast.success(data.data.message, { id: toastId });
+
+      // Refresh providers list
+      await fetchProviders();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to cleanup providers',
+        { id: toastId }
+      );
+    } finally {
+      setCleaningUp(false);
     }
   };
 

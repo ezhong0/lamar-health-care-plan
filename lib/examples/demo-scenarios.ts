@@ -106,6 +106,86 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     },
   },
   {
+    id: 'duplicate-order',
+    name: 'Duplicate Order (Flow 3)',
+    description: 'Load patient with IVIG, then pre-fill same patient + same medication to see duplicate order warning.',
+    icon: '💊',
+    mode: 'prefill',
+    patientsToLoad: [
+      {
+        firstName: 'Alice',
+        lastName: 'Bennett',
+        mrn: '007001',
+        patientRecords: 'Patient with Myasthenia Gravis requiring IVIG therapy. Previous infusion completed successfully.',
+        additionalDiagnoses: ['Myasthenia Gravis'],
+        orders: [
+          {
+            medicationName: 'IVIG (Privigen)',
+            primaryDiagnosis: 'G70.00',
+            providerName: 'Dr. Sarah Chen',
+            providerNpi: '1234567893',
+            status: 'pending',
+          },
+        ],
+      },
+    ],
+    prefillData: {
+      firstName: 'Alice',
+      lastName: 'Bennett',
+      mrn: '007001',
+      patientRecords: 'Patient needs refill of IVIG therapy. This should trigger duplicate order warning.',
+      additionalDiagnoses: ['Myasthenia Gravis'],
+      orders: [
+        {
+          medicationName: 'IVIG (Privigen)',
+          primaryDiagnosis: 'G70.00',
+          providerName: 'Dr. Sarah Chen',
+          providerNpi: '1234567893',
+          status: 'pending',
+        },
+      ],
+    },
+  },
+  {
+    id: 'provider-conflict',
+    name: 'Provider Conflict (Flow 4)',
+    description: 'Load patient with Dr. Sarah Chen, then pre-fill with same NPI but different name to see conflict warning.',
+    icon: '⚠️',
+    mode: 'prefill',
+    patientsToLoad: [
+      {
+        firstName: 'Thomas',
+        lastName: 'Richards',
+        mrn: '007002',
+        patientRecords: 'Patient with asthma, prescribed Omalizumab by Dr. Sarah Chen.',
+        orders: [
+          {
+            medicationName: 'Omalizumab',
+            primaryDiagnosis: 'J45.50',
+            providerName: 'Dr. Sarah Chen',
+            providerNpi: '1234567893',
+            status: 'pending',
+          },
+        ],
+      },
+    ],
+    prefillData: {
+      firstName: 'Maria',
+      lastName: 'Rodriguez',
+      mrn: '007003',
+      patientRecords: 'Patient with chronic urticaria, prescribed Omalizumab. Provider name variation should trigger warning.',
+      orders: [
+        {
+          medicationName: 'Omalizumab',
+          primaryDiagnosis: 'L50.1',
+          providerName: 'Dr. S. Chen',
+          providerNpi: '1234567893',
+          status: 'pending',
+        },
+      ],
+    },
+  },
+  {
     id: 'complex-care',
     name: 'Complex Care',
     description: 'Pre-fill form with complex patient (multiple medications) to test care plan generation.',

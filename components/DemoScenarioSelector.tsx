@@ -151,48 +151,48 @@ export function DemoScenarioSelector() {
         </div>
       </div>
 
-      {/* Scenarios Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Scenarios Grid - 4 columns, smaller cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {scenarios.map((scenario, index) => (
           <motion.div
             key={scenario.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
           >
-            <Card className="p-6 space-y-4 h-full flex flex-col hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors">
+            <Card className="p-4 space-y-3 h-full flex flex-col hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors">
               {/* Icon and Title */}
-              <div className="space-y-3">
-                <div className="text-3xl">{scenario.icon}</div>
+              <div className="space-y-2">
+                <div className="text-2xl">{scenario.icon}</div>
                 <div>
-                  <h3 className="font-semibold text-neutral-900 dark:text-white">
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                     {scenario.name}
                   </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 line-clamp-2">
                     {scenario.description}
                   </p>
                 </div>
               </div>
 
               {/* Patient Count */}
-              <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-500">
-                <Users className="h-4 w-4" />
+              <div className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
+                <Users className="h-3 w-3" />
                 <span>
                   {scenario.patientsCount} patient{scenario.patientsCount === 1 ? '' : 's'}
                 </span>
               </div>
 
               {/* Load Button */}
-              <div className="mt-auto pt-2">
+              <div className="mt-auto pt-1">
                 <Button
                   onClick={() => handleLoadScenario(scenario.id, scenario.name)}
                   disabled={loadingScenario !== null}
-                  className="w-full"
+                  className="w-full text-xs h-8"
                   variant={loadingScenario === scenario.id ? 'secondary' : 'default'}
                 >
                   {loadingScenario === scenario.id ? (
                     <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1.5" />
                       Loading...
                     </>
                   ) : (
