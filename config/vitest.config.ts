@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./config/vitest.setup.ts'],
     // Run tests sequentially to avoid DOM conflicts
     pool: 'forks',
     // Ensure tests don't run in parallel within same file
@@ -19,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './'),
+      '@': path.resolve(__dirname, '../'),
     },
   },
 });
