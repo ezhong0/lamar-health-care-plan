@@ -151,8 +151,43 @@ export function PatientForm() {
   }, [watch]);
 
   const onSubmit = async (data: PatientInput) => {
-    // Use mutateAsync to maintain async flow, but don't catch errors
-    // This allows React Query to properly set error state while maintaining form sync
+    try {
+      // Step 1: Validate and check for warnings BEFORE creating
+      const validateResponse = await fetch('/api/patients/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const validateResult = await validateResponse.json();
+
+      // Handle validation errors (blocking errors like duplicate MRN)
+      if (!validateResponse.ok || !validateResult.success) {
+        throw new Error(validateResult.error?.message || 'Validation failed');
+      }
+
+      // Step 2: Check if there are warnings
+      if (validateResult.data.warnings && validateResult.data.warnings.length > 0) {
+        // Store the form data so we can create later if user confirms
+        setPendingOrderData(data);
+        setWarnings(validateResult.data.warnings);
+        setShowWarnings(true);
+        return; // Stop here - don't create yet
+      }
+
+      // Step 3: No warnings - proceed with creation
+      await createPatientNow(data);
+    } catch (error) {
+      toast.error('Validation failed', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
+    }
+  };
+
+  const createPatientNow = async (data: PatientInput) => {
+    // Actually create the patient (warnings already shown or none exist)
     const result = await createPatient.mutateAsync(data);
 
     if (result.success && result.data) {
@@ -161,33 +196,30 @@ export function PatientForm() {
       // Clear the draft since patient was successfully created
       localStorage.removeItem('patient-form-draft');
 
-      // Store patient ID for navigation after warnings are dismissed
+      // Store patient ID
       setCreatedPatientId(patientId);
 
-      // Store order data in case user wants to link to existing patient
-      setPendingOrderData(data);
-
-      // Check if there are warnings
-      if (result.data.warnings && result.data.warnings.length > 0) {
-        setWarnings(result.data.warnings);
-        setShowWarnings(true);
-      } else {
-        // No warnings, navigate to patient detail immediately
-        router.push(`/patients/${patientId}`);
-      }
+      // Navigate to patient detail immediately (no warnings to show)
+      router.push(`/patients/${patientId}`);
     }
   };
 
-  const handleDismissWarnings = () => {
-    // Patient was successfully created, navigate to detail page
-    // Both "Proceed" and "Cancel" navigate since creation succeeded
-    if (createdPatientId) {
-      // Use router.push for client-side navigation
-      router.push(`/patients/${createdPatientId}`);
-    } else {
-      // Fallback: return to form (shouldn't happen in normal flow)
-      setShowWarnings(false);
+  const handleConfirmCreate = async () => {
+    // User confirmed they want to create despite warnings
+    if (!pendingOrderData) {
+      toast.error('Form data not found');
+      return;
     }
+
+    setShowWarnings(false); // Close warning modal
+    await createPatientNow(pendingOrderData); // Actually create the patient
+  };
+
+  const handleCancelCreate = () => {
+    // User cancelled - don't create anything, return to form
+    setShowWarnings(false);
+    setWarnings([]);
+    setPendingOrderData(null);
   };
 
   const handleLinkToExisting = async (existingPatientId: string) => {
@@ -220,18 +252,6 @@ export function PatientForm() {
 
       if (!response.ok || !result.success) {
         throw new Error(result.error?.message || 'Failed to add order to existing patient');
-      }
-
-      // Delete the newly created patient since we're linking to existing one
-      if (createdPatientId) {
-        try {
-          await fetch(`/api/patients/${createdPatientId}`, {
-            method: 'DELETE',
-          });
-        } catch (error) {
-          console.error('Failed to delete duplicate patient:', error);
-          // Don't block the flow if deletion fails
-        }
       }
 
       // Clear the draft
@@ -346,8 +366,8 @@ export function PatientForm() {
           )}
           <WarningList
             warnings={warnings}
-            onProceed={handleDismissWarnings}
-            onCancel={handleDismissWarnings}
+            onProceed={handleConfirmCreate}
+            onCancel={handleCancelCreate}
             onLinkToExisting={handleLinkToExisting}
           />
         </div>
