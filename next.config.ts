@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Disable Turbopack for stable Prisma support
-  // Turbopack in Next.js 16 doesn't properly bundle Prisma binaries yet
-  // Using webpack ensures Prisma query engine binaries are included in deployment
+  // Prisma + Vercel: Explicitly include binary files in serverless functions
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/.prisma/client/libquery_engine-*.so.node'],
+    },
+  },
 };
 
 export default nextConfig;
