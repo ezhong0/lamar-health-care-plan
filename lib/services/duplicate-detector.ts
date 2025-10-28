@@ -201,9 +201,9 @@ export class DuplicateDetector {
       },
     });
 
-    // Only warn if there are 2+ orders (actual duplicates)
-    // Note: This check runs after the current order is created, so length=1 means no duplicates
-    if (existingOrders.length <= 1) {
+    // Warn if there are any existing orders (prevents duplicates)
+    // This check runs BEFORE creating a new order to check if it would be a duplicate
+    if (existingOrders.length === 0) {
       return [];
     }
 
@@ -305,9 +305,9 @@ export class DuplicateDetector {
    * jaccardSimilarity('test', 'test')   // 1.0 (identical)
    */
   private jaccardSimilarity(s1: string, s2: string): number {
-    // Handle edge cases
-    if (s1.length === 0 || s2.length === 0) return 0.0;
+    // Handle edge cases - check equality FIRST (includes '', '' case)
     if (s1 === s2) return 1.0;
+    if (s1.length === 0 || s2.length === 0) return 0.0;
 
     const trigrams1 = this.getTrigrams(s1);
     const trigrams2 = this.getTrigrams(s2);
