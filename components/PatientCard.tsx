@@ -18,6 +18,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -36,6 +37,7 @@ export function PatientCard({ patient, onDelete }: PatientCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const latestOrder = patient.orders?.[0];
   const carePlanCount = patient.carePlans?.length || 0;
@@ -64,6 +66,9 @@ export function PatientCard({ patient, onDelete }: PatientCardProps) {
         id: toastId,
         description: `${patient.firstName} ${patient.lastName} and all associated data have been removed.`,
       });
+
+      // Invalidate React Query cache to refresh patient list
+      await queryClient.invalidateQueries({ queryKey: ['patients'] });
 
       // Call optional callback (for parent to refresh list)
       onDelete?.();

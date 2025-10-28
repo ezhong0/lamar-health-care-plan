@@ -16,21 +16,70 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { usePatients } from '@/lib/client/hooks';
 import { PatientCard } from '@/components/PatientCard';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import type { PatientWithRelations } from '@/lib/api/contracts';
 
 export default function PatientsPage() {
   const { data, isLoading, error } = usePatients();
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleExport = () => {
     // Trigger download of CSV export
     window.location.href = '/api/export';
+  };
+
+  const handleDeleteAll = async () => {
+    setIsDeleting(true);
+    const toastId = toast.loading('Deleting all patients...');
+
+    try {
+      const response = await fetch('/api/patients/delete-all', {
+        method: 'DELETE',
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok || !responseData.success) {
+        throw new Error(responseData.error?.message || 'Failed to delete patients');
+      }
+
+      toast.success('All patients deleted', {
+        id: toastId,
+        description: `${responseData.data.deletedCount} patient${responseData.data.deletedCount === 1 ? '' : 's'} removed successfully.`,
+      });
+
+      // Invalidate React Query cache and refresh
+      await queryClient.invalidateQueries({ queryKey: ['patients'] });
+      router.refresh();
+      setShowDeleteAllDialog(false);
+    } catch (error) {
+      toast.error('Failed to delete patients', {
+        id: toastId,
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Filter patients based on search query
@@ -91,6 +140,16 @@ export default function PatientsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {data?.success && data.data && data.data.patients.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteAllDialog(true)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-500 dark:hover:text-red-400 dark:hover:bg-red-950/50 border-red-200 dark:border-red-900/50"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All
+              </Button>
+            )}
             <Button variant="outline" onClick={handleExport}>
               Export All
             </Button>
@@ -230,6 +289,65 @@ export default function PatientsPage() {
             </AnimatePresence>
           </div>
         )}
+
+        {/* Delete All Confirmation Dialog */}
+        <Dialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-left flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/50">
+                  <Trash2 className="h-6 w-6 text-red-600 dark:text-red-500" />
+                </div>
+                Delete All Patients?
+              </DialogTitle>
+              <DialogDescription className="text-left text-base pt-4">
+                This will permanently delete{' '}
+                <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                  all {totalPatients} patient{totalPatients === 1 ? '' : 's'}
+                </span>{' '}
+                and their associated data. This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-4">
+              <p className="text-sm text-red-900 dark:text-red-200">
+                <span className="font-medium">Warning:</span> All patient records, medication
+                orders, and care plans will be permanently removed from the database.
+              </p>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowDeleteAllDialog(false)}
+                disabled={isDeleting}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDeleteAll}
+                disabled={isDeleting}
+                className="w-full sm:w-auto"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete All Patients
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

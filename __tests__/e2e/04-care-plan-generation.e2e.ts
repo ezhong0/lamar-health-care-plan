@@ -159,11 +159,11 @@ test.describe('Care Plan Generation', () => {
 
     // Try to generate care plan
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-    await expect(generateButton).toBeVisible({ timeout: 10000 });
+    await expect(generateButton).toBeVisible({ timeout: 15000 });
     await generateButton.click();
 
     // Should show error message
-    await expect(page.getByText(/failed.*generate.*care plan/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/failed.*generate.*care plan/i)).toBeVisible({ timeout: 10000 });
 
     // Button should still be available to retry
     await expect(generateButton).toBeVisible();

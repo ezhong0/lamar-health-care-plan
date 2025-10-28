@@ -83,14 +83,32 @@ export function DemoScenarioSelector() {
         throw new Error(data.error?.message || 'Failed to load scenario');
       }
 
-      toast.success('Demo scenario loaded!', {
-        id: toastId,
-        description: `${data.data.patientsCreated} patient${data.data.patientsCreated === 1 ? '' : 's'} created successfully.`,
-      });
+      const { scenario, patientsCreated, prefillData } = data.data;
 
-      // Navigate to patients list
-      router.push('/patients');
-      router.refresh();
+      if (scenario.mode === 'prefill' && prefillData) {
+        // Store prefill data in localStorage and navigate to form
+        localStorage.setItem('demo-prefill-data', JSON.stringify(prefillData));
+
+        toast.success('Demo scenario ready!', {
+          id: toastId,
+          description: patientsCreated > 0
+            ? `${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} loaded. Form pre-filled - ready to submit!`
+            : 'Form pre-filled with demo data - ready to submit!',
+        });
+
+        // Navigate to new patient form
+        router.push('/patients/new');
+      } else {
+        // Database mode - just navigate to patients list
+        toast.success('Demo scenario loaded!', {
+          id: toastId,
+          description: `${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} created successfully.`,
+        });
+
+        // Navigate to patients list
+        router.push('/patients');
+        router.refresh();
+      }
     } catch (error) {
       toast.error('Failed to load scenario', {
         id: toastId,

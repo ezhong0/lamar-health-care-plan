@@ -64,10 +64,10 @@ export async function POST(req: NextRequest) {
 
     logger.info('Cleared existing demo data', { requestId, scenarioId });
 
-    // Load scenario patients
+    // Load scenario patients into database
     const createdPatients = [];
 
-    for (const demoPatient of scenario.patients) {
+    for (const demoPatient of scenario.patientsToLoad) {
       // Create or get providers for this patient's orders
       const providerMap = new Map<string, string>();
 
@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
           id: scenario.id,
           name: scenario.name,
           description: scenario.description,
+          mode: scenario.mode,
         },
         patientsCreated: createdPatients.length,
         patients: createdPatients.map((p) => ({
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
           mrn: p.mrn,
           ordersCount: p.orders.length,
         })),
+        prefillData: scenario.prefillData || null,
       },
     });
   } catch (error) {
@@ -172,7 +174,8 @@ export async function GET() {
         name: s.name,
         description: s.description,
         icon: s.icon,
-        patientsCount: s.patients.length,
+        mode: s.mode,
+        patientsCount: s.patientsToLoad.length + (s.prefillData ? 1 : 0),
       })),
     },
   });

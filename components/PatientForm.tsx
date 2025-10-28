@@ -17,8 +17,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { WarningList } from './WarningList';
 import type { Warning } from '@/lib/domain/warnings';
 import { ApiError } from '@/lib/client/errors';
@@ -42,6 +43,50 @@ export function PatientForm() {
   } = useForm<PatientInput>({
     resolver: zodResolver(PatientInputSchema) as Resolver<PatientInput>,
   });
+
+  // Check for demo prefill data from localStorage on mount
+  useEffect(() => {
+    const prefillDataStr = localStorage.getItem('demo-prefill-data');
+    if (prefillDataStr) {
+      try {
+        const prefillData = JSON.parse(prefillDataStr);
+
+        // Populate form fields
+        setValue('firstName', prefillData.firstName);
+        setValue('lastName', prefillData.lastName);
+        setValue('mrn', prefillData.mrn);
+        setValue('patientRecords', prefillData.patientRecords);
+
+        // Handle optional fields
+        if (prefillData.additionalDiagnoses?.length > 0) {
+          setValue('additionalDiagnoses', prefillData.additionalDiagnoses.join(', '));
+        }
+        if (prefillData.medicationHistory?.length > 0) {
+          setValue('medicationHistory', prefillData.medicationHistory.join(', '));
+        }
+
+        // For now, just populate with the first order
+        // TODO: Support multiple orders in the form
+        if (prefillData.orders && prefillData.orders.length > 0) {
+          const firstOrder = prefillData.orders[0];
+          setValue('medicationName', firstOrder.medicationName);
+          setValue('primaryDiagnosis', firstOrder.primaryDiagnosis);
+          setValue('referringProvider', firstOrder.providerName);
+          setValue('referringProviderNPI', firstOrder.providerNpi);
+        }
+
+        // Clear the localStorage
+        localStorage.removeItem('demo-prefill-data');
+
+        toast.info('Demo data loaded', {
+          description: 'Form pre-filled with demo scenario. Review and submit when ready!',
+        });
+      } catch (error) {
+        console.error('Failed to parse demo prefill data:', error);
+        localStorage.removeItem('demo-prefill-data');
+      }
+    }
+  }, [setValue]);
 
   const onSubmit = async (data: PatientInput) => {
     // Use mutateAsync to maintain async flow, but don't catch errors

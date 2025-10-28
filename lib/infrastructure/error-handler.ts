@@ -55,10 +55,17 @@ export function handleError(error: unknown): NextResponse {
 
     // P2002: Unique constraint violation
     if (error.code === 'P2002') {
+      // Extract the field name from the error meta
+      const target = (error.meta?.target as string[]) || [];
+      const fieldName = target[0] || 'identifier';
+
+      // Create user-friendly field names
+      const fieldLabel = fieldName === 'mrn' ? 'MRN' : fieldName;
+
       return NextResponse.json(
         {
           success: false,
-          error: 'A record with this identifier already exists',
+          error: `${fieldLabel} already exists. Please use a different ${fieldLabel}.`,
           code: 'DUPLICATE_RECORD',
         },
         { status: 409 }

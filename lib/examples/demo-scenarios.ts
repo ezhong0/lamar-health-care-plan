@@ -3,6 +3,10 @@
  *
  * Curated patient data scenarios for demonstrating key features.
  * Each scenario aligns with E2E test cases and showcases specific functionality.
+ *
+ * Two modes:
+ * - "database": Load all patients into the database
+ * - "prefill": Load some patients to DB, then navigate to form with pre-filled data
  */
 
 export interface DemoScenario {
@@ -10,7 +14,9 @@ export interface DemoScenario {
   name: string;
   description: string;
   icon: string;
-  patients: DemoPatient[];
+  mode: 'database' | 'prefill';
+  patientsToLoad: DemoPatient[]; // Patients to insert into database
+  prefillData?: DemoPatient; // Patient data to pre-fill in the form
 }
 
 export interface DemoPatient {
@@ -38,34 +44,35 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'basic-workflow',
     name: 'Basic Workflow',
-    description: 'Simple patient with one medication order, perfect for testing care plan generation.',
+    description: 'Pre-fill form with a simple patient to test the complete workflow.',
     icon: '📋',
-    patients: [
-      {
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        mrn: 'MRN001234',
-        patientRecords: 'Patient presents with Type 2 Diabetes. Metformin initiated for glycemic control. Patient reports good medication adherence. No adverse effects reported.',
-        additionalDiagnoses: ['Hypertension'],
-        medicationHistory: ['Lisinopril 10mg daily'],
-        orders: [
-          {
-            medicationName: 'Metformin 500mg',
-            primaryDiagnosis: 'E11.9',
-            providerName: 'Dr. Emily Chen',
-            providerNpi: '1234567890',
-            status: 'pending',
-          },
-        ],
-      },
-    ],
+    mode: 'prefill',
+    patientsToLoad: [], // No patients pre-loaded
+    prefillData: {
+      firstName: 'Sarah',
+      lastName: 'Johnson',
+      mrn: 'MRN001234',
+      patientRecords: 'Patient presents with Type 2 Diabetes. Metformin initiated for glycemic control. Patient reports good medication adherence. No adverse effects reported.',
+      additionalDiagnoses: ['Hypertension'],
+      medicationHistory: ['Lisinopril 10mg daily'],
+      orders: [
+        {
+          medicationName: 'Metformin 500mg',
+          primaryDiagnosis: 'E11.9',
+          providerName: 'Dr. Emily Chen',
+          providerNpi: '1234567890',
+          status: 'pending',
+        },
+      ],
+    },
   },
   {
     id: 'duplicate-detection',
     name: 'Duplicate Detection',
-    description: 'Test fuzzy name matching and duplicate order warnings.',
+    description: 'Load one patient, then pre-fill form with similar name to see fuzzy matching warnings.',
     icon: '🔍',
-    patients: [
+    mode: 'prefill',
+    patientsToLoad: [
       {
         firstName: 'Michael',
         lastName: 'Smith',
@@ -81,91 +88,92 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
           },
         ],
       },
-      {
-        firstName: 'Mikey',
-        lastName: 'Smith',
-        mrn: 'MRN002346',
-        patientRecords: 'Similar name patient for testing duplicate detection.',
-        orders: [
-          {
-            medicationName: 'Ibuprofen 800mg',
-            primaryDiagnosis: 'M79.3',
-            providerName: 'Dr. Sarah Williams',
-            providerNpi: '3456789012',
-            status: 'pending',
-          },
-        ],
-      },
     ],
+    prefillData: {
+      firstName: 'Mikey',
+      lastName: 'Smith',
+      mrn: 'MRN002346',
+      patientRecords: 'Similar name patient for testing duplicate detection.',
+      orders: [
+        {
+          medicationName: 'Ibuprofen 800mg',
+          primaryDiagnosis: 'M79.3',
+          providerName: 'Dr. Sarah Williams',
+          providerNpi: '3456789012',
+          status: 'pending',
+        },
+      ],
+    },
   },
   {
     id: 'complex-care',
     name: 'Complex Care',
-    description: 'Patient with multiple medications and diagnoses for comprehensive care plans.',
+    description: 'Pre-fill form with complex patient (multiple medications) to test care plan generation.',
     icon: '⚕️',
-    patients: [
-      {
-        firstName: 'Elizabeth',
-        lastName: 'Anderson',
-        mrn: 'MRN003456',
-        patientRecords: 'Complex patient with multiple chronic conditions. Currently managing diabetes, hypertension, and hyperlipidemia. Patient shows good adherence to medication regimen. Recent A1C of 7.2%, BP controlled at 128/82.',
-        additionalDiagnoses: ['Type 2 Diabetes', 'Hypertension', 'Hyperlipidemia', 'Chronic Kidney Disease Stage 3'],
-        medicationHistory: ['Metformin 1000mg BID', 'Lisinopril 20mg daily', 'Atorvastatin 40mg daily'],
-        orders: [
-          {
-            medicationName: 'Metformin 1000mg',
-            primaryDiagnosis: 'E11.9',
-            providerName: 'Dr. James Thompson',
-            providerNpi: '4567890123',
-            status: 'pending',
-          },
-          {
-            medicationName: 'Lisinopril 20mg',
-            primaryDiagnosis: 'I10',
-            providerName: 'Dr. James Thompson',
-            providerNpi: '4567890123',
-            status: 'pending',
-          },
-          {
-            medicationName: 'Atorvastatin 40mg',
-            primaryDiagnosis: 'E78.5',
-            providerName: 'Dr. James Thompson',
-            providerNpi: '4567890123',
-            status: 'pending',
-          },
-        ],
-      },
-    ],
+    mode: 'prefill',
+    patientsToLoad: [],
+    prefillData: {
+      firstName: 'Elizabeth',
+      lastName: 'Anderson',
+      mrn: 'MRN003456',
+      patientRecords: 'Complex patient with multiple chronic conditions. Currently managing diabetes, hypertension, and hyperlipidemia. Patient shows good adherence to medication regimen. Recent A1C of 7.2%, BP controlled at 128/82.',
+      additionalDiagnoses: ['Type 2 Diabetes', 'Hypertension', 'Hyperlipidemia', 'Chronic Kidney Disease Stage 3'],
+      medicationHistory: ['Metformin 1000mg BID', 'Lisinopril 20mg daily', 'Atorvastatin 40mg daily'],
+      orders: [
+        {
+          medicationName: 'Metformin 1000mg',
+          primaryDiagnosis: 'E11.9',
+          providerName: 'Dr. James Thompson',
+          providerNpi: '4567890123',
+          status: 'pending',
+        },
+        {
+          medicationName: 'Lisinopril 20mg',
+          primaryDiagnosis: 'I10',
+          providerName: 'Dr. James Thompson',
+          providerNpi: '4567890123',
+          status: 'pending',
+        },
+        {
+          medicationName: 'Atorvastatin 40mg',
+          primaryDiagnosis: 'E78.5',
+          providerName: 'Dr. James Thompson',
+          providerNpi: '4567890123',
+          status: 'pending',
+        },
+      ],
+    },
   },
   {
     id: 'validation-test',
     name: 'Data Validation',
-    description: 'Test form validation with edge cases and special characters.',
+    description: 'Pre-fill form with edge cases and special characters to test validation.',
     icon: '✅',
-    patients: [
-      {
-        firstName: "Mary-Anne",
-        lastName: "O'Brien",
-        mrn: 'MRN-004567',
-        patientRecords: 'Patient with hyphenated first name and apostrophe in last name. Tests special character handling in the system.',
-        orders: [
-          {
-            medicationName: 'Vitamin D3 1000 IU',
-            primaryDiagnosis: 'E55.9',
-            providerName: "Dr. Patrick O'Connor",
-            providerNpi: '5678901234',
-            status: 'pending',
-          },
-        ],
-      },
-    ],
+    mode: 'prefill',
+    patientsToLoad: [],
+    prefillData: {
+      firstName: "Mary-Anne",
+      lastName: "O'Brien",
+      mrn: 'MRN-004567',
+      patientRecords: 'Patient with hyphenated first name and apostrophe in last name. Tests special character handling in the system.',
+      orders: [
+        {
+          medicationName: 'Vitamin D3 1000 IU',
+          primaryDiagnosis: 'E55.9',
+          providerName: "Dr. Patrick O'Connor",
+          providerNpi: '5678901234',
+          status: 'pending',
+        },
+      ],
+    },
   },
   {
     id: 'provider-variations',
     name: 'Provider Variations',
-    description: 'Same NPI with different name formats, tests provider deduplication.',
+    description: 'Load patients with same NPI, different provider names to test deduplication.',
     icon: '👥',
-    patients: [
+    mode: 'database',
+    patientsToLoad: [
       {
         firstName: 'David',
         lastName: 'Wilson',
@@ -201,9 +209,10 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'export-ready',
     name: 'Export Ready',
-    description: 'Multiple patients with complete data for testing export functionality.',
+    description: 'Load multiple patients with complete data for testing export functionality.',
     icon: '📊',
-    patients: [
+    mode: 'database',
+    patientsToLoad: [
       {
         firstName: 'Robert',
         lastName: 'Taylor',

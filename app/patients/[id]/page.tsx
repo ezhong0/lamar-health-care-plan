@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePatient, useGenerateCarePlan } from '@/lib/client/hooks';
@@ -22,6 +23,7 @@ import { ApiError } from '@/lib/client/errors';
 export default function PatientDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const patientId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -67,6 +69,10 @@ export default function PatientDetailPage() {
         id: toastId,
         description: `${patientName} and all associated data have been removed.`,
       });
+
+      // Invalidate React Query cache
+      await queryClient.invalidateQueries({ queryKey: ['patients'] });
+      await queryClient.invalidateQueries({ queryKey: ['patient', patientId] });
 
       // Redirect to patients list after successful deletion
       router.push('/patients');
