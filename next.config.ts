@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   // instrumentation.js is now available by default in Next.js 16
   // No need for experimental.instrumentationHook
 
-  // Vercel deployment: External packages for serverless compatibility
-  serverExternalPackages: ['@prisma/client', 'prisma'],
+  // Prisma bundling: Let Next.js bundle Prisma Client with query engine binaries
+  // DO NOT externalize Prisma - the binaries need to be included in serverless functions
 };
 
 export default nextConfig;
