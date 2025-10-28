@@ -154,7 +154,14 @@ Each provider card shows:
 - **Last Order:** Date of most recent order
 - **Added:** When provider was first created
 
-#### 2.4 Navigation
+#### 2.4 Provider Cleanup
+- **"Clear Orphaned Providers" button** in header
+- Deletes providers with no orders (orphaned after demo scenarios)
+- Confirmation dialog before deletion
+- Shows count of providers deleted
+- Automatically refreshes list after cleanup
+
+#### 2.5 Navigation
 - Click any provider card → Provider detail page
 
 ### API Query Parameters
@@ -196,6 +203,7 @@ Parameters:
 - See all providers at a glance
 - Identify active vs inactive providers
 - Find providers by name or NPI
+- Clean up orphaned providers (no orders)
 
 **2. Provider Analytics**
 - Most active providers (by order count)
@@ -206,6 +214,11 @@ Parameters:
 - Check for duplicate providers
 - Verify NPI consistency
 - Review provider name variations
+
+**4. Demo Data Cleanup**
+- Clear orphaned providers after loading demo scenarios
+- Prevent provider accumulation during testing
+- Keep provider list clean and relevant
 
 ---
 
@@ -321,6 +334,96 @@ Providers View:
 Patient View:
   → Click provider → Provider Detail → Back to Patients
 ```
+
+---
+
+## Provider Cleanup Functionality
+
+### Problem
+Demo scenarios create providers that persist even after demo patients are deleted. Over time, this leads to:
+- Accumulation of unused providers
+- Clutter in provider list
+- Difficulty identifying active vs test providers
+
+### Solution
+**Orphaned Provider Cleanup** - Automatically and manually remove providers with no orders.
+
+### How It Works
+
+#### Automatic Cleanup (During Demo Load)
+```typescript
+// When loading a demo scenario:
+1. Delete all demo patients (MRN starts with "00")
+2. CASCADE delete all their orders
+3. Automatically delete providers with no remaining orders
+4. Load new demo scenario
+```
+
+**Result:** Clean slate every time you load a demo scenario.
+
+#### Manual Cleanup (Providers Page)
+```typescript
+// "Clear Orphaned Providers" button:
+1. User clicks button on /providers page
+2. Confirmation dialog: "Delete all providers with no orders?"
+3. API finds providers where orders.count = 0
+4. Deletes orphaned providers
+5. Returns count deleted
+6. Refreshes provider list
+```
+
+**Use Case:** Clean up after testing without loading a new demo scenario.
+
+### API Endpoint
+
+```typescript
+DELETE /api/providers/cleanup
+
+// Logic
+const orphanedProviders = await prisma.provider.findMany({
+  where: {
+    orders: { none: {} }  // No orders
+  }
+});
+
+await prisma.provider.deleteMany({
+  where: {
+    orders: { none: {} }
+  }
+});
+
+// Response
+{
+  success: true,
+  data: {
+    deletedCount: 3,
+    deletedProviders: [
+      { name: "Dr. Test Provider", npi: "1234567890" }
+    ],
+    message: "Successfully deleted 3 orphaned providers"
+  }
+}
+```
+
+### Safety Features
+1. **Only deletes providers with zero orders** - Active providers are protected
+2. **Confirmation required** - User must confirm before deletion
+3. **Detailed logging** - All deletions logged with provider names and NPIs
+4. **No cascade to orders** - Orders must be deleted first (via patient deletion)
+5. **Atomic operation** - Uses Prisma transaction to ensure consistency
+
+### Business Logic
+**Why "orphaned"?**
+- Provider created during demo/test
+- All their orders were deleted (via patient cascade)
+- Provider remains but serves no purpose
+- Should be cleaned up to maintain data quality
+
+**Why not delete all demo providers?**
+- No reliable way to identify "demo" providers
+- Providers don't have MRN-like identifiers
+- Better to use order count as deletion criteria
+- Active providers (with orders) are always preserved
 
 ---
 
@@ -470,14 +573,16 @@ db.provider.findMany({
 1. `/app/api/orders/route.ts` - Orders API endpoint
 2. `/app/api/providers/route.ts` - Providers API endpoint
 3. `/app/api/providers/[id]/route.ts` - Provider detail API endpoint
-4. `/app/orders/page.tsx` - Orders list page
-5. `/app/providers/page.tsx` - Providers list page
-6. `/app/providers/[id]/page.tsx` - Provider detail page
-7. `/docs/ORDERS_PROVIDERS_VIEWS.md` - This documentation
+4. `/app/api/providers/cleanup/route.ts` - Provider cleanup API endpoint (DELETE orphaned providers)
+5. `/app/orders/page.tsx` - Orders list page
+6. `/app/providers/page.tsx` - Providers list page with cleanup button
+7. `/app/providers/[id]/page.tsx` - Provider detail page
+8. `/docs/ORDERS_PROVIDERS_VIEWS.md` - This documentation
 
 ### Modified Files
 1. `/app/layout.tsx` - Updated navigation to include Orders and Providers tabs
 2. `/app/page.tsx` - Added buttons for Orders and Providers views
+3. `/app/api/examples/scenario/route.ts` - Auto-cleanup orphaned providers when loading demos
 
 ---
 
@@ -502,6 +607,12 @@ db.provider.findMany({
 - [ ] Empty state displays correctly (no providers)
 - [ ] Loading states display
 - [ ] Error states display
+- [ ] "Clear Orphaned Providers" button appears
+- [ ] Cleanup shows confirmation dialog
+- [ ] Cleanup deletes providers with no orders
+- [ ] Cleanup preserves providers with orders
+- [ ] Cleanup shows success message with count
+- [ ] List refreshes after cleanup
 
 ### Provider Detail View
 - [ ] Provider information displays correctly

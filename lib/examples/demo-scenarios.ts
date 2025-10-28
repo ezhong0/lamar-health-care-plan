@@ -42,34 +42,9 @@ export interface DemoOrder {
  */
 export const DEMO_SCENARIOS: DemoScenario[] = [
   {
-    id: 'basic-workflow',
-    name: 'Basic Workflow',
-    description: 'Pre-fill form with a simple patient to test the complete workflow.',
-    icon: '📋',
-    mode: 'prefill',
-    patientsToLoad: [], // No patients pre-loaded
-    prefillData: {
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      mrn: '001234',
-      patientRecords: 'Patient presents with Type 2 Diabetes. Metformin initiated for glycemic control. Patient reports good medication adherence. No adverse effects reported.',
-      additionalDiagnoses: ['Hypertension'],
-      medicationHistory: ['Lisinopril 10mg daily'],
-      orders: [
-        {
-          medicationName: 'Metformin 500mg',
-          primaryDiagnosis: 'E11.9',
-          providerName: 'Dr. Emily Chen',
-          providerNpi: '1234567893',
-          status: 'pending',
-        },
-      ],
-    },
-  },
-  {
     id: 'duplicate-detection',
     name: 'Duplicate Detection',
-    description: 'Load one patient, then pre-fill form with similar name to see fuzzy matching warnings.',
+    description: 'Submit form to see "Similar Patient Found" warning. New patient will be created despite similarity.',
     icon: '🔍',
     mode: 'prefill',
     patientsToLoad: [
@@ -108,7 +83,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'duplicate-order',
     name: 'Duplicate Order (Flow 3)',
-    description: 'Load patient with IVIG, then pre-fill same patient + same medication to see duplicate order warning.',
+    description: 'Submit form to see "Duplicate Order" warning. Patient already has IVIG order - new order will still be created.',
     icon: '💊',
     mode: 'prefill',
     patientsToLoad: [
@@ -149,7 +124,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'provider-conflict',
     name: 'Provider Conflict (Flow 4)',
-    description: 'Load patient with Dr. Sarah Chen, then pre-fill with same NPI but different name to see conflict warning.',
+    description: 'Submit form to see "Provider Name Mismatch" warning. Existing provider will be linked despite name difference.',
     icon: '⚠️',
     mode: 'prefill',
     patientsToLoad: [
@@ -188,7 +163,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'complex-care',
     name: 'Complex Care',
-    description: 'Pre-fill form with complex patient (multiple medications) to test care plan generation.',
+    description: 'Submit to create patient with multiple medications. Generate comprehensive care plan to test LLM integration.',
     icon: '⚕️',
     mode: 'prefill',
     patientsToLoad: [],
@@ -227,7 +202,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
   {
     id: 'validation-test',
     name: 'Data Validation',
-    description: 'Pre-fill form with edge cases and special characters to test validation.',
+    description: 'Submit to test special character handling (hyphens, apostrophes). Patient will be created successfully.',
     icon: '✅',
     mode: 'prefill',
     patientsToLoad: [],
@@ -248,48 +223,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     },
   },
   {
-    id: 'provider-variations',
-    name: 'Provider Variations',
-    description: 'Load patients with same NPI, different provider names to test deduplication.',
-    icon: '👥',
-    mode: 'database',
-    patientsToLoad: [
-      {
-        firstName: 'David',
-        lastName: 'Wilson',
-        mrn: '005678',
-        patientRecords: 'First patient order from Dr. Smith.',
-        orders: [
-          {
-            medicationName: 'Levothyroxine 50mcg',
-            primaryDiagnosis: 'E03.9',
-            providerName: 'Dr. John Smith',
-            providerNpi: '6789012344',
-            status: 'pending',
-          },
-        ],
-      },
-      {
-        firstName: 'Jennifer',
-        lastName: 'Davis',
-        mrn: '005679',
-        patientRecords: 'Second patient order from same provider, different name format.',
-        orders: [
-          {
-            medicationName: 'Synthroid 75mcg',
-            primaryDiagnosis: 'E03.9',
-            providerName: 'John Smith, MD',
-            providerNpi: '6789012344',
-            status: 'pending',
-          },
-        ],
-      },
-    ],
-  },
-  {
     id: 'export-ready',
     name: 'Export Ready',
-    description: 'Load multiple patients with complete data for testing export functionality.',
+    description: 'Creates 3 patients with fulfilled orders. Navigate to Patients page to test CSV export functionality.',
     icon: '📊',
     mode: 'database',
     patientsToLoad: [

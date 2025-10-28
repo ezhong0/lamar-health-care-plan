@@ -50,6 +50,11 @@ function WarningItem({ warning }: { warning: Warning }) {
                 <span className="font-medium">Existing Patient:</span> {warning.existingPatient.name} (MRN:{' '}
                 {warning.existingPatient.mrn})
               </div>
+              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                <p className="text-xs text-blue-900 dark:text-blue-100">
+                  <span className="font-medium">If you proceed:</span> A new patient will be created with a separate record, despite the MRN match.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -82,6 +87,11 @@ function WarningItem({ warning }: { warning: Warning }) {
                 {' ('}
                 {new Date(warning.existingOrder.createdAt).toLocaleDateString()}
                 {')'}
+              </div>
+              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                <p className="text-xs text-blue-900 dark:text-blue-100">
+                  <span className="font-medium">If you proceed:</span> A new order will be created for the same medication. The patient will have multiple orders for {warning.existingOrder.medicationName}.
+                </p>
               </div>
             </div>
           </div>
@@ -121,6 +131,11 @@ function WarningItem({ warning }: { warning: Warning }) {
                   <span className="font-medium">Provided:</span> {warning.actualName}
                 </div>
               </div>
+              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                <p className="text-xs text-blue-900 dark:text-blue-100">
+                  <span className="font-medium">If you proceed:</span> The existing provider "{warning.expectedName}" will be linked to this order. The name you entered will not be saved.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -154,10 +169,16 @@ function WarningItem({ warning }: { warning: Warning }) {
                 <span className="font-medium">Similar Patient:</span> {warning.similarPatient.name} (MRN:{' '}
                 {warning.similarPatient.mrn}) - {Math.round(warning.similarityScore * 100)}% match
               </div>
-              {warning.canLinkToExisting && (
+              {warning.canLinkToExisting ? (
                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
                   <p className="text-xs text-blue-900 dark:text-blue-100">
-                    <span className="font-medium">Tip:</span> You can add this order to the existing patient instead of creating a new one.
+                    <span className="font-medium">Options:</span> You can add this order to the existing patient, or create a new patient with a separate record.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
+                  <p className="text-xs text-blue-900 dark:text-blue-100">
+                    <span className="font-medium">If you proceed:</span> A new patient will be created with a separate record, despite the name similarity.
                   </p>
                 </div>
               )}

@@ -154,6 +154,16 @@ export default function ProvidersPage() {
               Showing {providers.length} of {total} total providers
             </p>
           </div>
+          <div>
+            <Button
+              onClick={handleCleanup}
+              disabled={cleaningUp || loading}
+              variant="outline"
+              className="text-sm"
+            >
+              {cleaningUp ? 'Cleaning...' : 'Clear Orphaned Providers'}
+            </Button>
+          </div>
         </motion.div>
 
         {/* Search */}

@@ -64,6 +64,21 @@ export async function POST(req: NextRequest) {
 
     logger.info('Cleared existing demo data', { requestId, scenarioId });
 
+    // Clean up orphaned providers (providers with no orders after patient deletion)
+    const orphanedProvidersDeleted = await prisma.provider.deleteMany({
+      where: {
+        orders: {
+          none: {},
+        },
+      },
+    });
+
+    logger.info('Cleaned up orphaned providers', {
+      requestId,
+      scenarioId,
+      providersDeleted: orphanedProvidersDeleted.count,
+    });
+
     // Load scenario patients into database
     const createdPatients = [];
 
