@@ -146,7 +146,7 @@ C. Follow-up — 2 weeks post-course
 Date: 2025-10-30
 
 Clinical status: Subjective improvement in speech and proximal strength; fewer fatigability episodes. No thrombotic events or renal issues reported. Next neurology follow-up in 4 weeks to consider repeat course vs. thymectomy timing.`,
-        additionalDiagnoses: ['Hypertension', 'GERD'],
+        additionalDiagnoses: ['I10', 'K21.9'],
         orders: [
           {
             medicationName: 'IVIG (Privigen)',
@@ -217,7 +217,7 @@ C. Follow-up — 2 weeks post-course
 Date: 2025-10-30
 
 Clinical status: Subjective improvement in speech and proximal strength; fewer fatigability episodes. No thrombotic events or renal issues reported. Patient is now requesting repeat course due to symptoms returning.`,
-      additionalDiagnoses: ['Hypertension', 'GERD'],
+      additionalDiagnoses: ['I10', 'K21.9'],
       orders: [
         {
           medicationName: 'IVIG (Privigen)',
@@ -316,7 +316,7 @@ Exam: Alert and oriented, no acute distress. Cardiovascular: Regular rate and rh
 Labs: A1C 9.1% (goal <7.5% for this patient); Fasting glucose 198 mg/dL; Random glucose 245 mg/dL; BMP: Na 139, K 4.0, Cl 103, HCO3 24, BUN 22, SCr 1.28, eGFR 52 mL/min/1.73m² (CKD 3a); Lipid panel: Total cholesterol 178, LDL 92, HDL 48, Triglycerides 188; Urine albumin/creatinine ratio 28 mg/g (normal); CBC WNL; TSH 2.1 mIU/L (normal).
 
 Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist or basal insulin - endocrinology recommends adding second-line agent. Patient education on hypoglycemia recognition and management. Continue Lisinopril for renal protection and BP control. Continue Atorvastatin for cardiovascular risk reduction. Nephrology follow-up in 6 months for CKD management. Endocrinology referral for diabetes optimization. Podiatry referral for neuropathy management.`,
-      additionalDiagnoses: ['Essential Hypertension', 'Hyperlipidemia', 'Chronic Kidney Disease Stage 3a', 'Peripheral Neuropathy'],
+      additionalDiagnoses: ['I10', 'E78.5', 'N18.31', 'G62.9'],
       medicationHistory: ['Metformin 1000mg BID', 'Lisinopril 20mg daily', 'Atorvastatin 40mg daily', 'Aspirin 81mg daily'],
       orders: [
         {
@@ -378,7 +378,7 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
         lastName: 'Taylor',
         mrn: '006789',
         patientRecords: 'Patient with hypertension and Type 2 diabetes. Well-controlled on current medication regimen.',
-        additionalDiagnoses: ['Hypertension', 'Type 2 Diabetes'],
+        additionalDiagnoses: ['I10', 'E11.9'],
         orders: [
           {
             medicationName: 'Amlodipine 10mg',
@@ -401,7 +401,7 @@ Plan: Metformin at maximum tolerated dose (2000 mg/day total). Add GLP-1 agonist
         lastName: 'Martinez',
         mrn: '006790',
         patientRecords: 'Patient with COPD, currently stable on bronchodilator therapy.',
-        additionalDiagnoses: ['COPD'],
+        additionalDiagnoses: ['J44.9'],
         orders: [
           {
             medicationName: 'Albuterol Inhaler',
