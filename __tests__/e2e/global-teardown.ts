@@ -23,7 +23,7 @@ async function globalTeardown(config: FullConfig) {
           const data = await response.json();
           console.log(`✅ Cleaned up ${data.deletedCount || 0} test patients`);
         }
-      } catch (error) {
+      } catch {
         console.warn('⚠️  Could not cleanup test data');
       }
     }

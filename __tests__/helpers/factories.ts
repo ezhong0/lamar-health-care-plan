@@ -11,9 +11,9 @@
  * - Unique identifiers to prevent collisions
  */
 
-import type { Patient, Provider, Order, CarePlan, PatientId, ProviderId, OrderId, CarePlanId } from '@/lib/domain/types';
+import type { Patient, Provider, Order, CarePlan } from '@/lib/domain/types';
 import { toPatientId, toProviderId, toOrderId, toCarePlanId } from '@/lib/domain/types';
-import type { Warning, SimilarPatientWarning, DuplicateOrderWarning, ProviderConflictWarning } from '@/lib/domain/warnings';
+import type { SimilarPatientWarning, DuplicateOrderWarning, ProviderConflictWarning } from '@/lib/domain/warnings';
 
 let mrnCounter = 100000;
 let npiCounter = 1234567890;
@@ -194,7 +194,7 @@ export function createProviderConflictWarning(overrides?: Partial<ProviderConfli
 /**
  * Patient input factory (for API requests)
  */
-export function createPatientInput(overrides?: Partial<any>) {
+export function createPatientInput(overrides?: Partial<ReturnType<typeof createPatientInput>>) {
   return {
     firstName: 'John',
     lastName: 'Doe',

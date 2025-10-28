@@ -28,7 +28,7 @@ async function globalSetup(config: FullConfig) {
           console.log('✅ Dev server is ready');
           break;
         }
-      } catch (error) {
+      } catch {
         attempts++;
         if (attempts >= maxAttempts) {
           throw new Error('Dev server did not start in time');
@@ -46,7 +46,7 @@ async function globalSetup(config: FullConfig) {
           const data = await response.json();
           console.log(`✅ Cleaned up ${data.deletedCount || 0} test patients`);
         }
-      } catch (error) {
+      } catch {
         console.warn('⚠️  Could not cleanup test data (this is okay for first run)');
       }
     }

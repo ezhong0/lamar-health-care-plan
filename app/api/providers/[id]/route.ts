@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
 import { logger } from '@/lib/infrastructure/logger';
+import { handleError } from '@/lib/infrastructure/error-handler';
 
 export async function GET(
   request: Request,
@@ -66,13 +67,6 @@ export async function GET(
   } catch (error) {
     const { id } = await params;
     logger.error('Failed to fetch provider', { error, providerId: id });
-
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch provider',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return handleError(error);
   }
 }

@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
 import { logger } from '@/lib/infrastructure/logger';
+import { handleError } from '@/lib/infrastructure/error-handler';
 
 export async function DELETE() {
   try {
@@ -65,16 +66,6 @@ export async function DELETE() {
     });
   } catch (error) {
     logger.error('Failed to cleanup providers', { error });
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to cleanup providers',
-          details: error instanceof Error ? error.message : 'Unknown error',
-        },
-      },
-      { status: 500 }
-    );
+    return handleError(error);
   }
 }

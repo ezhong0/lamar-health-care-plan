@@ -21,7 +21,6 @@ import type { PrismaClient, Prisma } from '@prisma/client';
 import type { Provider, ProviderId } from '@/lib/domain/types';
 import type { ProviderConflictWarning } from '@/lib/domain/warnings';
 import { toProviderId } from '@/lib/domain/types';
-import { ProviderConflictError } from '@/lib/domain/errors';
 import { logger } from '@/lib/infrastructure/logger';
 
 export interface ProviderInput {

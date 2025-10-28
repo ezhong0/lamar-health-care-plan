@@ -12,12 +12,6 @@
 import type { Page } from '@playwright/test';
 
 /**
- * Global counter for generating unique test data within a test run
- * This ensures tests don't conflict even when run in parallel
- */
-let testDataCounter = 0;
-
-/**
  * Generate a unique NPI for testing
  * Uses crypto-random to ensure uniqueness across all test runs
  * Still maintains valid Luhn checksum
@@ -163,7 +157,7 @@ export async function createPatientViaUI(
           if (json.success && json.data?.patient?.id) {
             createdPatientId = json.data.patient.id;
           }
-        } catch (e) {
+        } catch {
           // Ignore JSON parse errors
         }
       }

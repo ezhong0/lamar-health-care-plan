@@ -13,7 +13,6 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { PatientInputSchema, type PatientInput } from '@/lib/validation/schemas';
-import { z } from 'zod';
 
 /**
  * LLM generation result type

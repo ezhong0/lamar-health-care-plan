@@ -19,8 +19,6 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Result } from '@/lib/domain/result';
 import { PatientService } from './patient-service';
-import { ProviderService } from './provider-service';
-import { DuplicateDetector } from './duplicate-detector';
 import { logger } from '@/lib/infrastructure/logger';
 
 /**

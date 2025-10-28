@@ -76,9 +76,18 @@ export const mockCarePlan = {
  * This mock intercepts care plan creation and stores it in memory
  * so subsequent patient fetches can include the generated care plan
  */
+
+interface MockCarePlan {
+  id: string;
+  patientId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function mockCarePlanAPI(page: Page) {
   // Store generated care plans in memory keyed by patient ID
-  const generatedCarePlans = new Map<string, any>();
+  const generatedCarePlans = new Map<string, MockCarePlan>();
 
   // Mock care plan creation
   await page.route('**/api/care-plans', async (route: Route) => {

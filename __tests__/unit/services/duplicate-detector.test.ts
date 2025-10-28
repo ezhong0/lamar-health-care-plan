@@ -2,12 +2,13 @@
  * Unit Tests: DuplicateDetector Service
  *
  * Tests fuzzy matching algorithm for patient similarity detection.
- * Includes Jaccard similarity, trigram generation, and weighted scoring.
+ * Includes Jaro-Winkler similarity, name matching, and weighted scoring.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { DuplicateDetector } from '@/lib/services/duplicate-detector';
 import { testDb, setupTestDb, teardownTestDb } from '../../helpers/test-db';
+import { toPatientId } from '@/lib/domain/types';
 
 describe('DuplicateDetector', () => {
   let detector: DuplicateDetector;
@@ -48,8 +49,8 @@ describe('DuplicateDetector', () => {
       expect(warnings).toHaveLength(1);
       expect(warnings[0].type).toBe('SIMILAR_PATIENT');
       // Exact name match but completely different MRN
-      // Score = 100% firstName (30%) + 100% lastName (50%) + 0% MRN (20%) = 80%
-      expect(warnings[0].similarityScore).toBeCloseTo(0.8, 1);
+      // With Jaro-Winkler prefix bonus: slightly higher than raw weighted score
+      expect(warnings[0].similarityScore).toBeCloseTo(0.88, 1);
     });
 
     it('should find fuzzy name match', async () => {
@@ -284,7 +285,7 @@ describe('DuplicateDetector', () => {
       // Check for duplicate (should find 1 existing order and warn)
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient.id as any,
+          patientId: toPatientId(patient.id),
           medicationName: 'IVIG',
         },
         testDb
@@ -327,7 +328,7 @@ describe('DuplicateDetector', () => {
       // Check with lowercase - should find the uppercase order due to case-insensitive matching
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient.id as any,
+          patientId: toPatientId(patient.id),
           medicationName: 'ivig', // Lowercase
         },
         testDb
@@ -367,7 +368,7 @@ describe('DuplicateDetector', () => {
 
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient.id as any,
+          patientId: toPatientId(patient.id),
           medicationName: 'Omalizumab', // Different medication
         },
         testDb
@@ -418,7 +419,7 @@ describe('DuplicateDetector', () => {
 
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient2.id as any, // Different patient
+          patientId: toPatientId(patient2.id), // Different patient
           medicationName: 'IVIG',
         },
         testDb
@@ -463,7 +464,7 @@ describe('DuplicateDetector', () => {
 
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient.id as any,
+          patientId: toPatientId(patient.id),
           medicationName: 'IVIG',
         },
         testDb
@@ -514,7 +515,7 @@ describe('DuplicateDetector', () => {
 
       const warnings = await detector.findDuplicateOrders(
         {
-          patientId: patient.id as any,
+          patientId: toPatientId(patient.id),
           medicationName: 'IVIG',
         },
         testDb
@@ -524,64 +525,105 @@ describe('DuplicateDetector', () => {
     });
   });
 
-  describe('Jaccard Similarity Algorithm', () => {
+  describe('Jaro-Winkler Algorithm', () => {
     it('should return 1.0 for identical strings', () => {
       // Access private method via type assertion for testing
-      const similarity = (detector as any).jaccardSimilarity('test', 'test');
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('test', 'test');
       expect(similarity).toBe(1.0);
     });
 
-    it('should return 0.0 for completely different strings', () => {
-      const similarity = (detector as any).jaccardSimilarity('abc', 'xyz');
+    it('should return 0.0 for completely different strings with no matches', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('abc', 'xyz');
       expect(similarity).toBe(0.0);
     });
 
     it('should return value between 0 and 1 for similar strings', () => {
-      const similarity = (detector as any).jaccardSimilarity('test', 'text');
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('test', 'text');
       expect(similarity).toBeGreaterThan(0);
       expect(similarity).toBeLessThan(1);
     });
 
+    it('should handle single character difference (nickname)', () => {
+      // Jaro-Winkler is great for nicknames: "john" vs "jon"
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('john', 'jon');
+      // Jaro-Winkler gives high score for short names with matching prefix
+      expect(similarity).toBeGreaterThan(0.9); // Very similar due to prefix bonus
+    });
+
+    it('should handle typos well', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('smith', 'smyth');
+      // Jaro-Winkler handles typos well (i vs y) - score is ~0.89
+      expect(similarity).toBeGreaterThan(0.89);
+    });
+
+    it('should handle transpositions', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('martha', 'marhta');
+      // Jaro algorithm is designed to handle transpositions
+      expect(similarity).toBeGreaterThan(0.9);
+    });
+
+    it('should give bonus to matching prefixes', () => {
+      // Jaro-Winkler gives bonus to strings with common prefix
+      const withPrefix = (detector as any).jaroWinkler('michael', 'mikey');
+      const withoutPrefix = (detector as any).jaroWinkler('michael', 'liam');
+
+      expect(withPrefix).toBeGreaterThan(withoutPrefix);
+    });
+
+    it('should handle empty strings', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('', '');
+      expect(similarity).toBe(0.0);
+    });
+
+    it('should handle one empty string', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler('test', '');
+      expect(similarity).toBe(0.0);
+    });
+
     it('should be case-sensitive', () => {
-      const similarity1 = (detector as any).jaccardSimilarity('test', 'TEST');
-      const similarity2 = (detector as any).jaccardSimilarity('test', 'test');
+      const similarity1 = (detector as any).jaroWinkler('test', 'TEST');
+      const similarity2 = (detector as any).jaroWinkler('test', 'test');
 
       expect(similarity1).toBeLessThan(similarity2);
     });
 
-    it('should handle single character difference', () => {
-      const similarity = (detector as any).jaccardSimilarity('john', 'jon');
-      // "john" vs "jon": 3 common trigrams out of 8 total = 0.375
-      // Note: Even one character difference significantly affects trigram overlap
-      expect(similarity).toBeCloseTo(0.375, 2);
-    });
+    it('should handle common name variations', () => {
+      const cases = [
+        { s1: 'michael', s2: 'mike', expectedMin: 0.7 },
+        { s1: 'william', s2: 'will', expectedMin: 0.7 },
+        { s1: 'robert', s2: 'rob', expectedMin: 0.7 },
+        { s1: 'katherine', s2: 'kate', expectedMin: 0.6 },
+      ];
 
-    it('should handle empty strings', () => {
-      const similarity = (detector as any).jaccardSimilarity('', '');
-      expect(similarity).toBe(0.0); // Convention: empty strings are not similar
+      cases.forEach(({ s1, s2, expectedMin }) => {
+        const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler(s1, s2);
+        expect(similarity).toBeGreaterThan(expectedMin);
+      });
     });
   });
 
-  describe('Trigram Generation', () => {
-    it('should generate correct trigrams for short string', () => {
-      const trigrams = (detector as any).getTrigrams('cat');
-      expect(trigrams).toEqual(['  c', ' ca', 'cat', 'at ', 't  ']);
+  describe('Jaro Similarity (Base Algorithm)', () => {
+    it('should calculate Jaro similarity correctly', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroSimilarity('martha', 'marhta');
+      // Jaro similarity should be high for transpositions
+      expect(similarity).toBeGreaterThan(0.9);
     });
 
-    it('should generate correct trigrams with padding', () => {
-      const trigrams = (detector as any).getTrigrams('ab');
-      expect(trigrams.length).toBeGreaterThan(0);
+    it('should handle no matches', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroSimilarity('abc', 'xyz');
+      expect(similarity).toBe(0.0);
     });
 
-    it('should handle empty string', () => {
-      const trigrams = (detector as any).getTrigrams('');
-      expect(trigrams).toBeDefined();
+    it('should return 1.0 for identical strings', () => {
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroSimilarity('test', 'test');
+      expect(similarity).toBe(1.0);
     });
 
-    it('should generate overlapping trigrams', () => {
-      const trigrams = (detector as any).getTrigrams('test');
-      // Should have overlapping windows
-      expect(trigrams.length).toBeGreaterThan(3);
+    it('should calculate match distance correctly', () => {
+      // For strings of length 5 and 5: match distance = floor(5/2) - 1 = 1
+      // So chars must be within 1 position to match
+      const similarity = (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroSimilarity('hello', 'hallo');
+      expect(similarity).toBeGreaterThan(0.8);
     });
   });
 

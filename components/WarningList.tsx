@@ -143,7 +143,7 @@ function WarningItem({ warning }: { warning: Warning }) {
               </div>
               <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
                 <p className="text-xs text-blue-900 dark:text-blue-100">
-                  <span className="font-medium">If you proceed:</span> The existing provider "{warning.expectedName}" will be linked to this order. The name you entered will not be saved.
+                  <span className="font-medium">If you proceed:</span> The existing provider &ldquo;{warning.expectedName}&rdquo; will be linked to this order. The name you entered will not be saved.
                 </p>
               </div>
             </div>

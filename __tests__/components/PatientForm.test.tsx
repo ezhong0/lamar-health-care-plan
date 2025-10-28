@@ -26,6 +26,28 @@ vi.mock('@/lib/client/hooks', () => ({
 // Import after mocking
 import { useCreatePatient } from '@/lib/client/hooks';
 
+// Helper to create mock mutation result with proper types
+type MockMutationResult = ReturnType<typeof useCreatePatient>;
+const createMockMutation = (overrides: Partial<MockMutationResult> = {}): MockMutationResult => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+  isError: false,
+  error: null,
+  data: undefined,
+  isSuccess: false,
+  reset: vi.fn(),
+  mutate: vi.fn(),
+  failureCount: 0,
+  failureReason: null,
+  isIdle: false,
+  isPaused: false,
+  status: 'idle',
+  variables: undefined,
+  submittedAt: 0,
+  context: undefined,
+  ...overrides,
+});
+
 describe('PatientForm', () => {
   let queryClient: QueryClient;
   const mockPush = vi.fn();
@@ -46,14 +68,11 @@ describe('PatientForm', () => {
       back: vi.fn(),
       forward: vi.fn(),
       prefetch: vi.fn(),
-    } as any);
+    } as ReturnType<typeof useRouter>);
 
-    vi.mocked(useCreatePatient).mockReturnValue({
+    vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
       mutateAsync: mockMutateAsync,
-      isPending: false,
-      isError: false,
-      error: null,
-    } as any);
+    }));
   });
 
   const renderForm = () => {
@@ -230,12 +249,10 @@ describe('PatientForm', () => {
 
 
     it('disables submit button while pending', () => {
-      vi.mocked(useCreatePatient).mockReturnValue({
+      vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
         mutateAsync: mockMutateAsync,
         isPending: true,
-        isError: false,
-        error: null,
-      } as any);
+      }));
 
       renderForm();
 
@@ -244,12 +261,10 @@ describe('PatientForm', () => {
     });
 
     it('shows "Creating..." text while pending', () => {
-      vi.mocked(useCreatePatient).mockReturnValue({
+      vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
         mutateAsync: mockMutateAsync,
         isPending: true,
-        isError: false,
-        error: null,
-      } as any);
+      }));
 
       renderForm();
 
@@ -264,12 +279,11 @@ describe('PatientForm', () => {
         'DUPLICATE_PATIENT'
       );
 
-      vi.mocked(useCreatePatient).mockReturnValue({
+      vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
         mutateAsync: mockMutateAsync,
-        isPending: false,
         isError: true,
         error: mockError,
-      } as any);
+      }));
 
       renderForm();
 
@@ -281,12 +295,11 @@ describe('PatientForm', () => {
     it('displays generic error for non-API errors', () => {
       const mockError = new Error('Network error');
 
-      vi.mocked(useCreatePatient).mockReturnValue({
+      vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
         mutateAsync: mockMutateAsync,
-        isPending: false,
         isError: true,
         error: mockError,
-      } as any);
+      }));
 
       renderForm();
 
@@ -294,12 +307,11 @@ describe('PatientForm', () => {
     });
 
     it('displays fallback error message for unknown errors', () => {
-      vi.mocked(useCreatePatient).mockReturnValue({
+      vi.mocked(useCreatePatient).mockReturnValue(createMockMutation({
         mutateAsync: mockMutateAsync,
-        isPending: false,
         isError: true,
-        error: 'Unknown error',
-      } as any);
+        error: 'Unknown error' as unknown as Error,
+      }));
 
       renderForm();
 

@@ -8,7 +8,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createTestPatient, createPatientViaUI, createPatientViaAPI, TEST_PATIENTS } from './helpers/test-data';
+import { createPatientViaAPI } from './helpers/test-data';
 import { mockCarePlanAPI, mockCarePlanAPIError } from './fixtures/api-mocks';
 
 test.describe('Care Plan Generation', () => {

@@ -6,8 +6,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createPatientViaUI, createPatientViaAPI, createTestPatient } from './helpers/test-data';
-import { mockExportAPI, setupCommonMocks } from './fixtures/api-mocks';
+import { createPatientViaUI, createTestPatient } from './helpers/test-data';
+import { setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Export Functionality', () => {
   test.beforeEach(async ({ page }) => {
