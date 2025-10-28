@@ -22,6 +22,7 @@ test.describe('Care Plan Generation', () => {
     const patient = createTestPatient({
       ...TEST_PATIENTS.carePlan,
       mrn: '900001', // Unique MRN for this test run
+      // Use auto-generated unique NPI to avoid conflicts
     });
 
     const patientId = await createPatientViaUI(page, patient);
@@ -29,8 +30,8 @@ test.describe('Care Plan Generation', () => {
     // Should be on patient detail page
     await expect(page).toHaveURL(`/patients/${patientId}`);
 
-    // Should see patient information
-    await expect(page.getByText(`${patient.firstName} ${patient.lastName}`)).toBeVisible();
+    // Should see patient information (use heading to avoid strict mode violation)
+    await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
 
     // Should see "Generate Care Plan" button
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });

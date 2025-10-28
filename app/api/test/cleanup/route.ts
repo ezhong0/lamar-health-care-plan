@@ -26,10 +26,12 @@ export async function DELETE(request: NextRequest) {
     // We'll delete all patients created in the last hour with numeric MRNs > 100000
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
-    const result = await prisma.patient.deleteMany({
+    // First, find all providers associated with test patients before deleting them
+    // Providers are linked through orders, not directly on patients
+    const testPatientIds = await prisma.patient.findMany({
       where: {
         OR: [
-          // Delete recently created patients with high MRN numbers (test data)
+          // Recently created patients with high MRN numbers (test data)
           {
             mrn: {
               gte: '100000', // Test MRNs start at 100000
@@ -38,7 +40,48 @@ export async function DELETE(request: NextRequest) {
               gte: oneHourAgo,
             },
           },
-          // Also delete patients with specific test prefixes
+          // Patients with specific test prefixes
+          {
+            firstName: {
+              in: ['Test', 'TestDuplicate', 'CarePlan', 'Duplicate'],
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const patientIds = testPatientIds.map((p) => p.id);
+
+    // Find provider IDs through orders
+    const testOrders = await prisma.order.findMany({
+      where: {
+        patientId: {
+          in: patientIds,
+        },
+      },
+      select: {
+        providerId: true,
+      },
+      distinct: ['providerId'],
+    });
+
+    const providerIds = testOrders.map((o) => o.providerId);
+
+    // Delete test patients
+    const patientResult = await prisma.patient.deleteMany({
+      where: {
+        OR: [
+          {
+            mrn: {
+              gte: '100000',
+            },
+            createdAt: {
+              gte: oneHourAgo,
+            },
+          },
           {
             firstName: {
               in: ['Test', 'TestDuplicate', 'CarePlan', 'Duplicate'],
@@ -48,10 +91,38 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
+    // Delete orphaned provider records (providers with no remaining orders)
+    let providerResult = { count: 0 };
+    if (providerIds.length > 0) {
+      providerResult = await prisma.provider.deleteMany({
+        where: {
+          id: {
+            in: providerIds,
+          },
+          // Only delete if no orders reference this provider
+          orders: {
+            none: {},
+          },
+        },
+      });
+    }
+
+    // Also delete test providers with NPIs starting with "100000" that have no orders
+    const testProviderResult = await prisma.provider.deleteMany({
+      where: {
+        npi: {
+          startsWith: '100000',
+        },
+        orders: {
+          none: {},
+        },
+      },
+    });
+
     return NextResponse.json({
       success: true,
-      deletedCount: result.count,
-      message: `Deleted ${result.count} test patients`,
+      deletedCount: patientResult.count + providerResult.count + testProviderResult.count,
+      message: `Deleted ${patientResult.count} test patients and ${providerResult.count + testProviderResult.count} orphaned providers`,
     });
   } catch (error) {
     console.error('Error cleaning up test data:', error);

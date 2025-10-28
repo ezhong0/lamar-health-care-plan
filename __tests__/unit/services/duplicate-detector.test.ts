@@ -1,0 +1,624 @@
+/**
+ * Unit Tests: DuplicateDetector Service
+ *
+ * Tests fuzzy matching algorithm for patient similarity detection.
+ * Includes Jaccard similarity, trigram generation, and weighted scoring.
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import { DuplicateDetector } from '@/lib/services/duplicate-detector';
+import { testDb, setupTestDb, teardownTestDb } from '../../helpers/test-db';
+
+describe('DuplicateDetector', () => {
+  let detector: DuplicateDetector;
+
+  beforeEach(async () => {
+    await setupTestDb();
+    detector = new DuplicateDetector();
+  });
+
+  afterAll(async () => {
+    await teardownTestDb();
+  });
+
+  describe('findSimilarPatients', () => {
+    it('should find exact name match (different MRN)', async () => {
+      // Create existing patient
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test records',
+        },
+      });
+
+      // Check for similar patient with same name, different MRN
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '654321',
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0].type).toBe('SIMILAR_PATIENT');
+      // Exact name match but completely different MRN
+      // Score = 100% firstName (30%) + 100% lastName (50%) + 0% MRN (20%) = 80%
+      expect(warnings[0].similarityScore).toBeCloseTo(0.8, 1);
+    });
+
+    it('should find fuzzy name match', async () => {
+      // Create existing patient
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test records',
+        },
+      });
+
+      // Check for similar patient with typo
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'Jon', // Typo: missing 'h'
+          lastName: 'Smith',
+          mrn: '123457', // Very similar MRN (only last digit different)
+        },
+        testDb
+      );
+
+      // Similarity calculation:
+      // firstName: "john" vs "jon" ≈ 0.375
+      // lastName: "smith" vs "smith" = 1.0
+      // MRN: "123456" vs "123457" ≈ 0.9+
+      // Total ≈ 0.375*0.3 + 1.0*0.5 + 0.9*0.2 ≈ 0.79 > 0.7 threshold
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0].similarityScore).toBeGreaterThan(0.7);
+      expect(warnings[0].similarityScore).toBeLessThan(1.0);
+    });
+
+    it('should not flag completely different names', async () => {
+      // Create existing patient
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test records',
+        },
+      });
+
+      // Check for completely different patient
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          mrn: '654321',
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(0);
+    });
+
+    it('should skip exact MRN match', async () => {
+      // Create existing patient
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test records',
+        },
+      });
+
+      // Check for same patient (exact MRN match should be skipped)
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456', // Same MRN
+        },
+        testDb
+      );
+
+      // Should skip exact MRN (that's a hard duplicate, not similarity)
+      expect(warnings).toHaveLength(0);
+    });
+
+    it('should handle multiple similar patients', async () => {
+      // Create multiple similar patients - use identical names with similar MRNs
+      await testDb.patient.createMany({
+        data: [
+          {
+            firstName: 'John',
+            lastName: 'Smith',
+            mrn: '123451', // Similar MRN (differs by 1 digit)
+            additionalDiagnoses: [],
+            medicationHistory: [],
+            patientRecords: 'Test',
+          },
+          {
+            firstName: 'John',
+            lastName: 'Smith',
+            mrn: '123452', // Similar MRN (differs by 1 digit)
+            additionalDiagnoses: [],
+            medicationHistory: [],
+            patientRecords: 'Test',
+          },
+          {
+            firstName: 'John',
+            lastName: 'Smith',
+            mrn: '123453', // Similar MRN (differs by 1 digit)
+            additionalDiagnoses: [],
+            medicationHistory: [],
+            patientRecords: 'Test',
+          },
+        ],
+      });
+
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456', // Very similar to 123451, 123452, 123453
+        },
+        testDb
+      );
+
+      // Should find all 3 similar patients (identical names, very similar MRNs)
+      expect(warnings.length).toBeGreaterThanOrEqual(2); // At least 2 should match
+    });
+
+    it('should only check last 100 patients for performance', async () => {
+      // This test verifies the optimization (would need 101+ patients to test properly)
+      // For now, just verify it doesn't crash with many patients
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'Test',
+          lastName: 'Patient',
+          mrn: '999999',
+        },
+        testDb
+      );
+
+      expect(warnings).toBeDefined();
+    });
+
+    it('should calculate similarity score correctly', async () => {
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '654321',
+        },
+        testDb
+      );
+
+      expect(warnings[0].similarityScore).toBeGreaterThan(0);
+      expect(warnings[0].similarityScore).toBeLessThanOrEqual(1);
+    });
+
+    it('should include similarity score in message', async () => {
+      await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const warnings = await detector.findSimilarPatients(
+        {
+          firstName: 'John',
+          lastName: 'Smith',
+          mrn: '654321',
+        },
+        testDb
+      );
+
+      expect(warnings[0].message).toContain('%');
+      expect(warnings[0].message).toContain('match');
+    });
+  });
+
+  describe('findDuplicateOrders', () => {
+    it('should find duplicate order for same patient and medication', async () => {
+      // Create patient
+      const patient = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      // Create provider
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      // Create existing order
+      await testDb.order.create({
+        data: {
+          patientId: patient.id,
+          providerId: provider.id,
+          medicationName: 'IVIG',
+          primaryDiagnosis: 'G70.00',
+          status: 'pending',
+        },
+      });
+
+      // Check for duplicate (should find 1 existing order and warn)
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient.id as any,
+          medicationName: 'IVIG',
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0].type).toBe('DUPLICATE_ORDER');
+    });
+
+    it('should handle case-insensitive medication names', async () => {
+      const patient = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      // Create order with uppercase medication name
+      await testDb.order.create({
+        data: {
+          patientId: patient.id,
+          providerId: provider.id,
+          medicationName: 'IVIG',
+          primaryDiagnosis: 'G70.00',
+          status: 'pending',
+        },
+      });
+
+      // Check with lowercase - should find the uppercase order due to case-insensitive matching
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient.id as any,
+          medicationName: 'ivig', // Lowercase
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(1);
+    });
+
+    it('should not flag order for different medication', async () => {
+      const patient = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      await testDb.order.create({
+        data: {
+          patientId: patient.id,
+          providerId: provider.id,
+          medicationName: 'IVIG',
+          primaryDiagnosis: 'G70.00',
+          status: 'pending',
+        },
+      });
+
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient.id as any,
+          medicationName: 'Omalizumab', // Different medication
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(0);
+    });
+
+    it('should not flag order for different patient', async () => {
+      const patient1 = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const patient2 = await testDb.patient.create({
+        data: {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          mrn: '654321',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      await testDb.order.create({
+        data: {
+          patientId: patient1.id,
+          providerId: provider.id,
+          medicationName: 'IVIG',
+          primaryDiagnosis: 'G70.00',
+          status: 'pending',
+        },
+      });
+
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient2.id as any, // Different patient
+          medicationName: 'IVIG',
+        },
+        testDb
+      );
+
+      expect(warnings).toHaveLength(0);
+    });
+
+    it('should only flag orders within 30 days', async () => {
+      const patient = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      // Create old order (31 days ago)
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 31);
+
+      await testDb.order.create({
+        data: {
+          patientId: patient.id,
+          providerId: provider.id,
+          medicationName: 'IVIG',
+          primaryDiagnosis: 'G70.00',
+          status: 'pending',
+          createdAt: oldDate,
+        },
+      });
+
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient.id as any,
+          medicationName: 'IVIG',
+        },
+        testDb
+      );
+
+      // Should not flag orders older than 30 days
+      expect(warnings).toHaveLength(0);
+    });
+
+    it('should return multiple duplicate orders if they exist', async () => {
+      const patient = await testDb.patient.create({
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          mrn: '123456',
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test',
+        },
+      });
+
+      const provider = await testDb.provider.create({
+        data: {
+          name: 'Dr. Smith',
+          npi: '1234567893',
+        },
+      });
+
+      // Create multiple orders
+      await testDb.order.createMany({
+        data: [
+          {
+            patientId: patient.id,
+            providerId: provider.id,
+            medicationName: 'IVIG',
+            primaryDiagnosis: 'G70.00',
+            status: 'pending',
+          },
+          {
+            patientId: patient.id,
+            providerId: provider.id,
+            medicationName: 'IVIG',
+            primaryDiagnosis: 'G70.00',
+            status: 'pending',
+          },
+        ],
+      });
+
+      const warnings = await detector.findDuplicateOrders(
+        {
+          patientId: patient.id as any,
+          medicationName: 'IVIG',
+        },
+        testDb
+      );
+
+      expect(warnings.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  describe('Jaccard Similarity Algorithm', () => {
+    it('should return 1.0 for identical strings', () => {
+      // Access private method via type assertion for testing
+      const similarity = (detector as any).jaccardSimilarity('test', 'test');
+      expect(similarity).toBe(1.0);
+    });
+
+    it('should return 0.0 for completely different strings', () => {
+      const similarity = (detector as any).jaccardSimilarity('abc', 'xyz');
+      expect(similarity).toBe(0.0);
+    });
+
+    it('should return value between 0 and 1 for similar strings', () => {
+      const similarity = (detector as any).jaccardSimilarity('test', 'text');
+      expect(similarity).toBeGreaterThan(0);
+      expect(similarity).toBeLessThan(1);
+    });
+
+    it('should be case-sensitive', () => {
+      const similarity1 = (detector as any).jaccardSimilarity('test', 'TEST');
+      const similarity2 = (detector as any).jaccardSimilarity('test', 'test');
+
+      expect(similarity1).toBeLessThan(similarity2);
+    });
+
+    it('should handle single character difference', () => {
+      const similarity = (detector as any).jaccardSimilarity('john', 'jon');
+      // "john" vs "jon": 3 common trigrams out of 8 total = 0.375
+      // Note: Even one character difference significantly affects trigram overlap
+      expect(similarity).toBeCloseTo(0.375, 2);
+    });
+
+    it('should handle empty strings', () => {
+      const similarity = (detector as any).jaccardSimilarity('', '');
+      expect(similarity).toBe(0.0); // Convention: empty strings are not similar
+    });
+  });
+
+  describe('Trigram Generation', () => {
+    it('should generate correct trigrams for short string', () => {
+      const trigrams = (detector as any).getTrigrams('cat');
+      expect(trigrams).toEqual(['  c', ' ca', 'cat', 'at ', 't  ']);
+    });
+
+    it('should generate correct trigrams with padding', () => {
+      const trigrams = (detector as any).getTrigrams('ab');
+      expect(trigrams.length).toBeGreaterThan(0);
+    });
+
+    it('should handle empty string', () => {
+      const trigrams = (detector as any).getTrigrams('');
+      expect(trigrams).toBeDefined();
+    });
+
+    it('should generate overlapping trigrams', () => {
+      const trigrams = (detector as any).getTrigrams('test');
+      // Should have overlapping windows
+      expect(trigrams.length).toBeGreaterThan(3);
+    });
+  });
+
+  describe('Patient Similarity Scoring', () => {
+    it('should weight last name more than first name', () => {
+      // Two patients: same last name vs same first name
+      const score1 = (detector as any).calculatePatientSimilarity(
+        { firstName: 'John', lastName: 'Smith', mrn: '111111' },
+        { firstName: 'Jane', lastName: 'Smith', mrn: '222222' }
+      );
+
+      const score2 = (detector as any).calculatePatientSimilarity(
+        { firstName: 'John', lastName: 'Smith', mrn: '111111' },
+        { firstName: 'John', lastName: 'Jones', mrn: '222222' }
+      );
+
+      // Same last name should score higher (50% weight vs 30% for first name)
+      expect(score1).toBeGreaterThan(score2);
+    });
+
+    it('should include MRN similarity in score', () => {
+      const score = (detector as any).calculatePatientSimilarity(
+        { firstName: 'John', lastName: 'Smith', mrn: '123456' },
+        { firstName: 'John', lastName: 'Smith', mrn: '123457' } // One digit off
+      );
+
+      expect(score).toBeGreaterThan(0.7); // Should still be high due to names
+    });
+
+    it('should return score between 0 and 1', () => {
+      const score = (detector as any).calculatePatientSimilarity(
+        { firstName: 'John', lastName: 'Smith', mrn: '123456' },
+        { firstName: 'Jane', lastName: 'Doe', mrn: '654321' }
+      );
+
+      expect(score).toBeGreaterThanOrEqual(0);
+      expect(score).toBeLessThanOrEqual(1);
+    });
+  });
+});

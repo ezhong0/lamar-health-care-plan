@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import { WarningList } from './WarningList';
 import type { Warning } from '@/lib/domain/warnings';
 import { ApiError } from '@/lib/client/errors';
+import { PATIENT_EXAMPLES, type PatientExample } from '@/lib/examples/patient-examples';
 
 export function PatientForm() {
   const router = useRouter();
@@ -29,6 +30,9 @@ export function PatientForm() {
   const [warnings, setWarnings] = useState<Warning[]>([]);
   const [showWarnings, setShowWarnings] = useState(false);
   const [createdPatientId, setCreatedPatientId] = useState<string | null>(null);
+  const [selectedExample, setSelectedExample] = useState<string>('');
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
 
   const {
     register,
@@ -40,38 +44,24 @@ export function PatientForm() {
   });
 
   const onSubmit = async (data: PatientInput) => {
-    try {
-      const result = await createPatient.mutateAsync(data);
+    // Use mutateAsync to maintain async flow, but don't catch errors
+    // This allows React Query to properly set error state while maintaining form sync
+    const result = await createPatient.mutateAsync(data);
 
-      if (result.success && result.data) {
-        const patientId = result.data.patient.id;
+    if (result.success && result.data) {
+      const patientId = result.data.patient.id;
 
-        // Store patient ID for navigation after warnings are dismissed
-        setCreatedPatientId(patientId);
+      // Store patient ID for navigation after warnings are dismissed
+      setCreatedPatientId(patientId);
 
-        // Check if there are warnings
-        if (result.data.warnings && result.data.warnings.length > 0) {
-          setWarnings(result.data.warnings);
-          setShowWarnings(true);
-        } else {
-          // No warnings, navigate to patient detail immediately
-          router.push(`/patients/${patientId}`);
-        }
-      }
-    } catch (error: unknown) {
-      // Type-safe error handling
-      if (error instanceof ApiError) {
-        console.error('API error creating patient:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-        });
-      } else if (error instanceof Error) {
-        console.error('Error creating patient:', error.message);
+      // Check if there are warnings
+      if (result.data.warnings && result.data.warnings.length > 0) {
+        setWarnings(result.data.warnings);
+        setShowWarnings(true);
       } else {
-        console.error('Unknown error creating patient:', error);
+        // No warnings, navigate to patient detail immediately
+        router.push(`/patients/${patientId}`);
       }
-      // Error state will be handled by React Query (createPatient.isError)
     }
   };
 
@@ -79,6 +69,8 @@ export function PatientForm() {
     // Patient was successfully created, navigate to detail page
     // Both "Proceed" and "Cancel" navigate since creation succeeded
     if (createdPatientId) {
+      // Use Next.js router for client-side navigation (no page reload)
+      // This preserves React Query state and ensures smooth page transitions
       router.push(`/patients/${createdPatientId}`);
     } else {
       // Fallback: return to form (shouldn't happen in normal flow)
@@ -86,64 +78,85 @@ export function PatientForm() {
     }
   };
 
-  const loadExampleData = () => {
-    // Example patient from project description (A.B. - IVIG for Myasthenia Gravis)
-    const examplePatientRecords = `Patient: A.B. (Age 46, Female, 72 kg)
-DOB: 1979-06-08
-Allergies: None known to medications (no IgA deficiency)
+  /**
+   * Load a curated example patient
+   */
+  const loadCuratedExample = (exampleId: string) => {
+    const example = PATIENT_EXAMPLES.find((ex) => ex.id === exampleId);
+    if (!example) return;
 
-PRIMARY DIAGNOSIS: Generalized myasthenia gravis (AChR antibody positive), MGFA class IIb
-SECONDARY DIAGNOSES: Hypertension (well controlled), GERD
+    // Clear any previous AI generation errors
+    setAiGenerationError(null);
 
-HOME MEDICATIONS:
-- Pyridostigmine 60 mg PO q6h PRN (current avg 3-4 doses/day)
-- Prednisone 10 mg PO daily
-- Lisinopril 10 mg PO daily
-- Omeprazole 20 mg PO daily
-
-RECENT HISTORY:
-Progressive proximal muscle weakness and ptosis over 2 weeks with worsening speech and swallowing fatigue. Neurology recommends IVIG for rapid symptomatic control (planned course prior to planned thymectomy). Baseline respiratory status: no stridor; baseline FVC 2.8 L (predicted 4.0 L; ~70% predicted). No current myasthenic crisis but declining strength.
-
-BASELINE CLINIC NOTE (Pre-Infusion) - 2025-10-15:
-Vitals: BP 128/78, HR 78, RR 16, SpO2 98% RA, Temp 36.7°C
-Exam: Ptosis bilateral, fatigable proximal weakness (4/5), speech slurred after repeated counting, no respiratory distress
-
-LABS:
-- CBC WNL
-- BMP: Na 138, K 4.1, Cl 101, HCO3 24, BUN 12, SCr 0.78, eGFR >90 mL/min/1.73m²
-- IgG baseline: 10 g/L
-
-PLAN:
-IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient infusion center. Premedicate with acetaminophen + diphenhydramine. Monitor vitals and FVC daily. Continue pyridostigmine and prednisone.`;
-
-    setValue('firstName', 'Alice');
-    setValue('lastName', 'Bennet');
-    setValue('mrn', '123456');
-    setValue('referringProvider', 'Dr. Sarah Chen');
-    setValue('referringProviderNPI', '1234567893');
-    setValue('primaryDiagnosis', 'G70.00');
-    setValue('medicationName', 'IVIG (Privigen)');
-    setValue('patientRecords', examplePatientRecords);
+    // Load all form fields
+    setValue('firstName', example.data.firstName);
+    setValue('lastName', example.data.lastName);
+    setValue('mrn', example.data.mrn);
+    setValue('referringProvider', example.data.referringProvider);
+    setValue('referringProviderNPI', example.data.referringProviderNPI);
+    setValue('primaryDiagnosis', example.data.primaryDiagnosis);
+    setValue('medicationName', example.data.medicationName);
+    setValue('patientRecords', example.data.patientRecords);
   };
 
-  if (showWarnings && warnings.length > 0) {
-    return (
-      <WarningList
-        warnings={warnings}
-        onProceed={handleDismissWarnings}
-        onCancel={handleDismissWarnings}
-      />
-    );
-  }
+  /**
+   * Generate a new patient example using AI
+   */
+  const generateAIExample = async () => {
+    setIsGeneratingAI(true);
+    setAiGenerationError(null);
 
+    try {
+      const response = await fetch('/api/examples/generate', {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Load the generated data into the form
+        const data = result.data as PatientInput;
+        setValue('firstName', data.firstName);
+        setValue('lastName', data.lastName);
+        setValue('mrn', data.mrn);
+        setValue('referringProvider', data.referringProvider);
+        setValue('referringProviderNPI', data.referringProviderNPI);
+        setValue('primaryDiagnosis', data.primaryDiagnosis);
+        setValue('medicationName', data.medicationName);
+        setValue('patientRecords', data.patientRecords);
+
+        // Clear the selector since this is an AI-generated example
+        setSelectedExample('');
+      } else {
+        setAiGenerationError(result.error || 'Failed to generate AI example');
+      }
+    } catch (error) {
+      setAiGenerationError(
+        error instanceof Error ? error.message : 'Failed to generate AI example'
+      );
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  // Use conditional rendering instead of early return to maintain React hydration
+  // Early returns cause component unmounting/mounting which breaks event handlers in Next.js
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <>
+      {showWarnings && warnings.length > 0 ? (
+        <WarningList
+          warnings={warnings}
+          onProceed={handleDismissWarnings}
+          onCancel={handleDismissWarnings}
+        />
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* Error Alert */}
       {createPatient.isError && (
         <Alert variant="destructive">
           <AlertDescription>
             {createPatient.error instanceof ApiError
-              ? createPatient.error.getUserMessage()
+              ? createPatient.error.message
               : createPatient.error instanceof Error
                 ? createPatient.error.message
                 : 'Failed to create patient. Please try again.'}
@@ -151,25 +164,115 @@ IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient
         </Alert>
       )}
 
-      {/* Example Data Helper */}
-      <Card className="p-6 bg-neutral-50 dark:bg-neutral-900/50 border-dashed">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
+      {/* Example Data Selector - Sophisticated Multi-Example System */}
+      <Card className="p-6 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-900/30 border-dashed">
+        <div className="space-y-4">
+          <div>
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">
               Try with Example Data
             </h3>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Load a sample patient (A.B. - IVIG for Myasthenia Gravis) from the project documentation to explore the application features.
+              Load curated patient scenarios or generate a new example with AI to explore the application.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={loadExampleData}
-            className="shrink-0"
-          >
-            Load Example
-          </Button>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Curated Examples Selector */}
+            <div className="flex-1">
+              <select
+                value={selectedExample}
+                onChange={(e) => {
+                  setSelectedExample(e.target.value);
+                  if (e.target.value) {
+                    loadCuratedExample(e.target.value);
+                  }
+                }}
+                className="w-full h-10 px-3 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+              >
+                <option value="">Select a curated example...</option>
+                {PATIENT_EXAMPLES.map((example) => (
+                  <option key={example.id} value={example.id}>
+                    {example.name} • {example.complexity} • {example.description}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* AI Generation Button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={generateAIExample}
+              disabled={isGeneratingAI}
+              className="shrink-0 min-w-[160px] font-medium"
+            >
+              {isGeneratingAI ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                  Generate with AI
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* AI Generation Error */}
+          {aiGenerationError && (
+            <Alert variant="destructive" className="mt-3">
+              <AlertDescription className="text-sm">{aiGenerationError}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Example Legend */}
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <span>Simple</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <div className="h-2 w-2 rounded-full bg-yellow-500" />
+              <span>Moderate</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <div className="h-2 w-2 rounded-full bg-red-500" />
+              <span>Complex</span>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -300,6 +403,8 @@ IVIG 2 g/kg total (144 g for 72 kg) given as 0.4 g/kg/day x 5 days in outpatient
           {createPatient.isPending ? 'Creating...' : 'Create Patient'}
         </Button>
       </div>
-    </form>
+        </form>
+      )}
+    </>
   );
 }

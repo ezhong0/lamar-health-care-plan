@@ -98,7 +98,7 @@ test.describe('Form Validation', () => {
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
     // Should show ICD-10 validation error
-    await expect(page.getByText(/Invalid ICD-10 code format/i)).toBeVisible();
+    await expect(page.getByText(/ICD-10 code must be in format/i)).toBeVisible();
   });
 
   test('should clear errors when fields are corrected', async ({ page }) => {

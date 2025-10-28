@@ -7,6 +7,16 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Import custom matchers
+import '../__tests__/helpers/matchers';
+
+// Set test environment variables
+process.env.NODE_ENV = 'test';
+process.env.VITEST = 'true';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/lamar_health_test';
+process.env.ANTHROPIC_API_KEY = 'sk-ant-test-key-for-testing';
+process.env.LOG_LEVEL = 'error'; // Suppress logs during tests
+
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: () => ({

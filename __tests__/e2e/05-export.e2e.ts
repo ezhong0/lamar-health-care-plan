@@ -19,28 +19,24 @@ test.describe('Export Functionality', () => {
     const patient = createTestPatient({ mrn: '700001' });
     await createPatientViaUI(page, patient);
 
-    // Navigate to the export API endpoint and capture response
-    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
-    await page.goto('/api/export');
-    const response = await responsePromise;
+    // Use page.request to fetch the export directly (avoids download dialog)
+    const response = await page.request.get('/api/export');
 
     // Get the response body
     const content = await response.text();
 
-    // Verify CSV headers are present
-    expect(content).toContain('firstName');
-    expect(content).toContain('lastName');
-    expect(content).toContain('mrn');
+    // Verify CSV headers are present (title case)
+    expect(content).toContain('First Name');
+    expect(content).toContain('Last Name');
+    expect(content).toContain('MRN');
 
     // Verify content is not empty
     expect(content.length).toBeGreaterThan(50);
   });
 
   test('should export data with correct CSV format and headers', async ({ page }) => {
-    // Navigate and capture the response
-    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
-    await page.goto('/api/export');
-    const response = await responsePromise;
+    // Use page.request to fetch the export directly
+    const response = await page.request.get('/api/export');
 
     // Should be CSV content type
     const contentType = response.headers()['content-type'];
@@ -49,10 +45,10 @@ test.describe('Export Functionality', () => {
     // Get content
     const content = await response.text();
 
-    // Should contain CSV headers
-    expect(content).toContain('firstName');
-    expect(content).toContain('lastName');
-    expect(content).toContain('mrn');
+    // Should contain CSV headers (title case)
+    expect(content).toContain('First Name');
+    expect(content).toContain('Last Name');
+    expect(content).toContain('MRN');
 
     // Should have at least header row
     const lines = content.split('\n').filter((line) => line.trim());
@@ -64,10 +60,8 @@ test.describe('Export Functionality', () => {
     const patient = createTestPatient({ mrn: '700004' });
     await createPatientViaUI(page, patient);
 
-    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
-    await page.goto('/api/export');
-    const response = await responsePromise;
-
+    // Use page.request to fetch the export
+    const response = await page.request.get('/api/export');
     const content = await response.text();
 
     // Should contain the patient's MRN in the export
@@ -82,10 +76,8 @@ test.describe('Export Functionality', () => {
     await createPatientViaUI(page, patient1);
     await createPatientViaUI(page, patient2);
 
-    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
-    await page.goto('/api/export');
-    const response = await responsePromise;
-
+    // Use page.request to fetch the export
+    const response = await page.request.get('/api/export');
     const content = await response.text();
 
     // Should contain both patients

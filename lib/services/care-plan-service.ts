@@ -34,8 +34,8 @@ import type { CarePlan, PatientId } from '@/lib/domain/types';
 import { toCarePlanId } from '@/lib/domain/types';
 import { PatientNotFoundError, CarePlanGenerationError } from '@/lib/domain/errors';
 import { logger } from '@/lib/infrastructure/logger';
-import { retry } from '@/lib/infrastructure/retry';
 import { sanitizeForLLM } from '@/lib/utils/sanitize-llm';
+import { CARE_PLAN } from '@/lib/config/constants';
 
 export interface GenerateCarePlanInput {
   patientId: PatientId;
@@ -49,8 +49,8 @@ export interface GenerateCarePlanInput {
 export class CarePlanService {
   private readonly anthropic: Anthropic;
   private readonly model: string = 'claude-haiku-4-5-20251001';
-  private readonly maxTokens: number = 1500; // Reduced for faster generation
-  private readonly timeout: number = 25000; // 25 seconds - Haiku should be done in 10-15s
+  private readonly maxTokens: number = CARE_PLAN.MAX_TOKENS;
+  private readonly timeout: number = CARE_PLAN.TIMEOUT_MS;
 
   constructor(
     private readonly db: PrismaClient,
@@ -97,7 +97,7 @@ export class CarePlanService {
         include: {
           orders: {
             orderBy: { createdAt: 'desc' },
-            take: 10, // Limit to recent orders
+            take: CARE_PLAN.MAX_ORDERS_IN_PROMPT,
             include: {
               provider: true,
             },

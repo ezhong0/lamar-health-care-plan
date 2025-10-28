@@ -64,10 +64,11 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     // Throw structured ApiError instead of generic Error
+    // data.error is an object with {message, code, details}, not a string
     throw new ApiError(
-      data.error || 'API request failed',
-      data.code,
-      data.details
+      data.error?.message || 'API request failed',
+      data.error?.code,
+      data.error?.details
     );
   }
 

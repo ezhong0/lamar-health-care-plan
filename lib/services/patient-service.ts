@@ -32,6 +32,7 @@ import type { Patient, PatientId, Order } from '@/lib/domain/types';
 import type { Warning } from '@/lib/domain/warnings';
 import { toPatientId, toOrderId, toProviderId } from '@/lib/domain/types';
 import { DuplicatePatientError } from '@/lib/domain/errors';
+import { PAGINATION } from '@/lib/config/constants';
 import { logger } from '@/lib/infrastructure/logger';
 import { ProviderService } from './provider-service';
 import { DuplicateDetector } from './duplicate-detector';
@@ -141,8 +142,8 @@ export class PatientService {
         );
 
         // Step 3: Upsert referring provider
-        // This may throw ProviderConflictError (same NPI, different name)
-        const provider = await this.providerService.upsertProvider(
+        // This may return ProviderConflictWarning (same NPI, different name)
+        const { provider, warnings: providerWarnings } = await this.providerService.upsertProvider(
           {
             name: input.referringProvider,
             npi: input.referringProviderNPI,
@@ -154,6 +155,7 @@ export class PatientService {
           providerId: provider.id,
           providerName: provider.name,
           npi: provider.npi,
+          warningCount: providerWarnings.length,
         });
 
         // Step 4: Create patient
@@ -201,6 +203,7 @@ export class PatientService {
         // Combine all warnings
         const allWarnings: Warning[] = [
           ...similarPatientWarnings,
+          ...providerWarnings,
           ...duplicateOrderWarnings,
         ];
 
@@ -327,7 +330,7 @@ export class PatientService {
    * @param limit - Maximum number of patients to return
    * @returns Array of patients, most recent first
    */
-  async listRecentPatients(limit: number = 50): Promise<Patient[]> {
+  async listRecentPatients(limit: number = PAGINATION.DEFAULT_PATIENT_LIMIT): Promise<Patient[]> {
     const patients = await this.db.patient.findMany({
       take: limit,
       orderBy: { createdAt: 'desc' },

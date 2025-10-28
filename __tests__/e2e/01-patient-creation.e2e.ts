@@ -37,24 +37,37 @@ test.describe('Patient Creation - Happy Path', () => {
     // Should show loading state
     await expect(page.getByRole('button', { name: 'Creating...' })).toBeVisible();
 
+    // Wait for page response
+    await page.waitForTimeout(1000);
+
+    // Handle warnings page if it appears
+    const warningsHeading = page.getByRole('heading', { name: /Review Warnings/i });
+    const warningsVisible = await warningsHeading.isVisible().catch(() => false);
+
+    if (warningsVisible) {
+      // Warnings appeared - click "Proceed Anyway"
+      await page.waitForTimeout(500);
+      const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
+      await proceedButton.click();
+    }
+
     // Should redirect to patient detail page
     await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
 
-    // Should show patient name
-    await expect(page.getByText(`${patient.firstName} ${patient.lastName}`)).toBeVisible();
+    // Should show patient name in heading
+    await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
 
     // Should show MRN
-    await expect(page.getByText(patient.mrn)).toBeVisible();
+    await expect(page.getByText(`MRN: ${patient.mrn}`)).toBeVisible();
   });
 
   test('should navigate to patients list and see newly created patient', async ({ page }) => {
-    // Create patient using helper
+    // Create patient using helper - use auto-generated unique NPI to avoid conflicts
     const patient = createTestPatient({
       firstName: 'Alice',
       lastName: 'Smith',
       medicationName: 'Omalizumab',
       primaryDiagnosis: 'J45.50',
-      referringProviderNPI: '1245319599',
       clinicalNotes: 'Severe asthma patient.',
     });
 
@@ -67,9 +80,8 @@ test.describe('Patient Creation - Happy Path', () => {
     // Navigate to patients list
     await page.goto('/patients');
 
-    // Should see the patient in the list
-    await expect(page.getByText(`${patient.firstName} ${patient.lastName}`)).toBeVisible();
-    await expect(page.getByText(patient.mrn)).toBeVisible();
+    // Should see the patient in the list - use link that contains both name and MRN for uniqueness
+    await expect(page.getByRole('link', { name: new RegExp(`${patient.firstName} ${patient.lastName}.*${patient.mrn}`) })).toBeVisible();
   });
 
   test('should show all form fields with correct labels', async ({ page }) => {

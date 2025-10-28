@@ -1,0 +1,1135 @@
+
+> lamar-health-temp@0.1.0 test:e2e
+> playwright test --config config/playwright.config.ts
+
+[1A[2K[2m[WebServer] [22m
+[2m[WebServer] [22m> lamar-health-temp@0.1.0 dev
+[2m[WebServer] [22m> next dev
+[2m[WebServer] [22m
+
+[1A[2K[2m[WebServer] [22m   [1m[38;2;173;127;168m▲ Next.js 16.0.0[39m[22m (Turbopack)
+
+[1A[2K[2m[WebServer] [22m   - Local:        http://localhost:3000
+[2m[WebServer] [22m   - Network:      http://192.168.1.71:3000
+[2m[WebServer] [22m   - Environments: .env
+[2m[WebServer] [22m
+
+[1A[2K[2m[WebServer] [22m [32m[1m✓[22m[39m Starting...
+
+[1A[2K[2m[WebServer] [22m✅ Environment validation passed
+
+[1A[2K[2m[WebServer] [22m✅ Application startup checks complete
+[2m[WebServer] [22m
+
+[1A[2K[2m[WebServer] [22m [32m[1m✓[22m[39m Ready in 1552ms
+
+🧪 Starting E2E test environment setup...
+[1A[2K[2m[WebServer] [22m GET / [32m200[39m in 1868ms[2m (compile: 1761ms, render: 107ms)[22m
+
+⏳ Waiting for dev server...
+[1A[2K[2m[WebServer] [22m GET / [32m200[39m in 26ms[2m (compile: 1903µs, render: 24ms)[22m
+
+✅ Dev server is ready
+🧹 Cleaning up test data...
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id" FROM "public"."patients" WHERE (("public"."patients"."mrn" >= $1 AND "public"."patients"."created_at" >= $2) OR "public"."patients"."first_name" IN ($3,$4,$5,$6)) OFFSET $7
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."provider_id" FROM "public"."orders" WHERE 1=0 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m DELETE FROM "public"."patients" WHERE (("public"."patients"."mrn" >= $1 AND "public"."patients"."created_at" >= $2) OR "public"."patients"."first_name" IN ($3,$4,$5,$6))
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m DELETE FROM "public"."providers" WHERE ("public"."providers"."npi"::text LIKE $1 AND NOT EXISTS(SELECT "t0"."provider_id" FROM "public"."orders" AS "t0" WHERE (1=1 AND ("public"."providers"."id") = ("t0"."provider_id") AND "t0"."provider_id" IS NOT NULL)))
+
+[1A[2K[2m[WebServer] [22m DELETE /api/test/cleanup [32m200[39m in 360ms[2m (compile: 275ms, render: 85ms)[22m
+
+✅ Cleaned up 0 test patients
+✅ E2E test environment ready
+
+Running 32 tests using 1 worker
+
+[1A[2K[1/32] [chromium] › __tests__/e2e/01-patient-creation.e2e.ts:17:7 › Patient Creation - Happy Path › should create a new patient with valid data
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 416ms[2m (compile: 356ms, render: 60ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.466Z","level":"info","message":"Patient creation request received","requestId":"12f8d240-876a-41b0-afcd-26707970ae92"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.469Z","level":"info","message":"Creating patient","mrn":"545646","firstName":"John","lastName":"Doe"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.479Z","level":"info","message":"Creating new provider","npi":"1000002299","name":"Dr. Test Provider 1761660545646"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.484Z","level":"info","message":"Provider created","providerId":"cmhan7d8100008cjjevkq2mti","npi":"1000002299"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.491Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7d8500018cjjsijmsuzt","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.518Z","level":"info","message":"Patient created successfully","patientId":"cmhan7d8500018cjjsijmsuzt","orderId":"cmhan7d8700038cjjlekp60g1","mrn":"545646","warningCount":3,"duration":49}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:06.518Z","level":"info","message":"Patient created successfully via API","requestId":"12f8d240-876a-41b0-afcd-26707970ae92","patientId":"cmhan7d8500018cjjsijmsuzt","orderId":"cmhan7d8700038cjjlekp60g1","warningCount":3}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 139ms[2m (compile: 77ms, render: 63ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/cmhan7d8500018cjjsijmsuzt [32m200[39m in 785ms[2m (compile: 774ms, render: 11ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:09.225Z","level":"info","message":"Get patient request received","patientId":"cmhan7d8500018cjjsijmsuzt"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1) ORDER BY "public"."orders"."created_at" DESC OFFSET $2
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id", "public"."care_plans"."content", "public"."care_plans"."generated_by", "public"."care_plans"."created_at" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1) ORDER BY "public"."care_plans"."created_at" DESC OFFSET $2
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:09.239Z","level":"info","message":"Patient retrieved successfully","patientId":"cmhan7d8500018cjjsijmsuzt","orderCount":1,"carePlanCount":0}
+
+[1A[2K[2m[WebServer] [22m GET /api/patients/cmhan7d8500018cjjsijmsuzt [32m200[39m in 467ms[2m (compile: 450ms, render: 17ms)[22m
+
+[1A[2K[2/32] [chromium] › __tests__/e2e/01-patient-creation.e2e.ts:64:7 › Patient Creation - Happy Path › should navigate to patients list and see newly created patient
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 28ms[2m (compile: 1438µs, render: 27ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.192Z","level":"info","message":"Patient creation request received","requestId":"832f97e8-238d-4c31-bfaa-bfb7d61a865a"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.192Z","level":"info","message":"Creating patient","mrn":"549921","firstName":"Alice","lastName":"Smith"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.198Z","level":"info","message":"Creating new provider","npi":"1000007231","name":"Dr. Test Provider 1761660549921"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.201Z","level":"info","message":"Provider created","providerId":"cmhan7g3b00048cjjh1w044za","npi":"1000007231"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.205Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7g3d00058cjjw17ayiqr","medicationName":"Omalizumab","count":1}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.207Z","level":"info","message":"Patient created successfully","patientId":"cmhan7g3d00058cjjw17ayiqr","orderId":"cmhan7g3e00078cjjp5nec7qa","mrn":"549921","warningCount":5,"duration":15}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.207Z","level":"info","message":"Patient created successfully via API","requestId":"832f97e8-238d-4c31-bfaa-bfb7d61a865a","patientId":"cmhan7g3d00058cjjw17ayiqr","orderId":"cmhan7g3e00078cjjp5nec7qa","warningCount":5}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 19ms[2m (compile: 1754µs, render: 18ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m GET /patients [32m200[39m in 234ms[2m (compile: 201ms, render: 34ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:10.498Z","level":"info","message":"List patients request received"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC LIMIT $1 OFFSET $2
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8) ORDER BY "public"."orders"."created_at" DESC OFFSET $9
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6) OFFSET $7
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8) OFFSET $9
+
+[1A[2K[2m[WebServer] [22m GET /api/patients [32m200[39m in 13ms[2m (compile: 1474µs, render: 12ms)[22m
+
+[1A[2K[3/32] [chromium] › __tests__/e2e/01-patient-creation.e2e.ts:87:7 › Patient Creation - Happy Path › should show all form fields with correct labels
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 30ms[2m (compile: 953µs, render: 29ms)[22m
+
+[1A[2K[4/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:18:7 › Form Validation › should show validation errors for empty required fields
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 28ms[2m (compile: 1008µs, render: 27ms)[22m
+
+[1A[2K[5/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:28:7 › Form Validation › should show error for invalid MRN (not 6 digits)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 32ms[2m (compile: 1421µs, render: 31ms)[22m
+
+[1A[2K[6/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:47:7 › Form Validation › should show error for invalid NPI (not 10 digits)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 31ms[2m (compile: 1300µs, render: 29ms)[22m
+
+[1A[2K[7/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:66:7 › Form Validation › should show error for invalid NPI checksum (Luhn algorithm)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 33ms[2m (compile: 1360µs, render: 32ms)[22m
+
+[1A[2K[8/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:85:7 › Form Validation › should show error for invalid ICD-10 format
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 39ms[2m (compile: 1094µs, render: 38ms)[22m
+
+[1A[2K[9/32] [chromium] › __tests__/e2e/02-form-validation.e2e.ts:104:7 › Form Validation › should clear errors when fields are corrected
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 25ms[2m (compile: 1265µs, render: 24ms)[22m
+
+[1A[2K[10/32] [chromium] › __tests__/e2e/03-duplicate-detection.e2e.ts:20:7 › Duplicate Detection › should block duplicate MRN (blocking error)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 30ms[2m (compile: 920µs, render: 29ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.558Z","level":"info","message":"Patient creation request received","requestId":"300547e7-6cf2-43d8-93a8-f31febf03d2f"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.559Z","level":"info","message":"Creating patient","mrn":"800001","firstName":"Robert","lastName":"Johnson"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.580Z","level":"info","message":"Creating new provider","npi":"1000004584","name":"Dr. Test Provider 1761660553289"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 21ms[2m (compile: 828µs, render: 21ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.581Z","level":"info","message":"Provider created","providerId":"cmhan7ip800088cjjiymgwzyi","npi":"1000004584"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.584Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7ip900098cjjvru9jf8n","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.586Z","level":"info","message":"Patient created successfully","patientId":"cmhan7ip900098cjjvru9jf8n","orderId":"cmhan7ipa000b8cjjlws8z03a","mrn":"800001","warningCount":1,"duration":27}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.586Z","level":"info","message":"Patient created successfully via API","requestId":"300547e7-6cf2-43d8-93a8-f31febf03d2f","patientId":"cmhan7ip900098cjjvru9jf8n","orderId":"cmhan7ipa000b8cjjlws8z03a","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 31ms[2m (compile: 1151µs, render: 30ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.738Z","level":"info","message":"Patient creation request received","requestId":"e824ceef-bea3-436b-829e-0bad42fb157f"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.738Z","level":"info","message":"Creating patient","mrn":"800001","firstName":"Different","lastName":"Person"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.742Z","level":"warn","message":"Duplicate patient detected","mrn":"800001","existingPatientId":"cmhan7ip900098cjjvru9jf8n"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m ROLLBACK
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.743Z","level":"warn","message":"Patient creation failed","error":"Patient with MRN 800001 already exists: Robert Johnson","duration":5}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:13.743Z","level":"warn","message":"Patient with MRN 800001 already exists: Robert Johnson","code":"DUPLICATE_PATIENT","details":{"existingPatient":{"mrn":"800001","firstName":"Robert","lastName":"Johnson"}}}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [33m409[39m in 8ms[2m (compile: 1397µs, render: 7ms)[22m
+
+[1A[2K[11/32] [chromium] › __tests__/e2e/03-duplicate-detection.e2e.ts:51:7 › Duplicate Detection › should warn about similar patient name (fuzzy match)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 26ms[2m (compile: 1107µs, render: 25ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.142Z","level":"info","message":"Patient creation request received","requestId":"9b7c5079-69cb-4c17-8701-769664254e97"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.142Z","level":"info","message":"Creating patient","mrn":"800002","firstName":"Catherine","lastName":"Martinez"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.161Z","level":"info","message":"Creating new provider","npi":"1000002901","name":"Dr. Test Provider 1761660553903"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 19ms[2m (compile: 696µs, render: 18ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.162Z","level":"info","message":"Provider created","providerId":"cmhan7j5d000c8cjjkwegya77","npi":"1000002901"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.165Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7j5e000d8cjje6yerj2t","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.166Z","level":"info","message":"Patient created successfully","patientId":"cmhan7j5e000d8cjje6yerj2t","orderId":"cmhan7j5f000f8cjjnqg07tps","mrn":"800002","warningCount":1,"duration":24}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.166Z","level":"info","message":"Patient created successfully via API","requestId":"9b7c5079-69cb-4c17-8701-769664254e97","patientId":"cmhan7j5e000d8cjje6yerj2t","orderId":"cmhan7j5f000f8cjjnqg07tps","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 27ms[2m (compile: 1234µs, render: 26ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.356Z","level":"info","message":"Patient creation request received","requestId":"571da0a9-f1d2-4ee5-9432-6fd799eacfe4"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.356Z","level":"info","message":"Creating patient","mrn":"800003","firstName":"Katherine","lastName":"Martinez"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.363Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7jaw000g8cjjkeay58re","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.364Z","level":"info","message":"Patient created successfully","patientId":"cmhan7jaw000g8cjjkeay58re","orderId":"cmhan7jax000i8cjj7gqfoy62","mrn":"800003","warningCount":2,"duration":8}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.364Z","level":"info","message":"Patient created successfully via API","requestId":"571da0a9-f1d2-4ee5-9432-6fd799eacfe4","patientId":"cmhan7jaw000g8cjjkeay58re","orderId":"cmhan7jax000i8cjj7gqfoy62","warningCount":2}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 13ms[2m (compile: 1049µs, render: 12ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m GET /patients/cmhan7jaw000g8cjjkeay58re [32m200[39m in 14ms[2m (compile: 3ms, render: 11ms)[22m
+
+[1A[2K[12/32] [chromium] › __tests__/e2e/03-duplicate-detection.e2e.ts:91:7 › Duplicate Detection › should warn about duplicate order (same patient + medication)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 32ms[2m (compile: 931µs, render: 31ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.863Z","level":"info","message":"Patient creation request received","requestId":"3d93c4fe-bfb1-4de9-8f9d-cf50300981fa"}
+[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.864Z","level":"info","message":"Creating patient","mrn":"999004","firstName":"TestDuplicate","lastName":"OrderPatient"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 27ms[2m (compile: 2ms, render: 25ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.894Z","level":"info","message":"Creating new provider","npi":"1000004493","name":"Dr. Test Provider 1761660554584"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.897Z","level":"info","message":"Provider created","providerId":"cmhan7jpq000j8cjjp7qng5ae","npi":"1000004493"}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m200[39m in 39ms[2m (compile: 1402µs, render: 38ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.923Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7jpt000k8cjj0la8vwge","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.930Z","level":"info","message":"Patient created successfully","patientId":"cmhan7jpt000k8cjj0la8vwge","orderId":"cmhan7jq3000m8cjjf15eq29u","mrn":"999004","warningCount":1,"duration":66}
+[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:14.931Z","level":"info","message":"Patient created successfully via API","requestId":"3d93c4fe-bfb1-4de9-8f9d-cf50300981fa","patientId":"cmhan7jpt000k8cjj0la8vwge","orderId":"cmhan7jq3000m8cjjf15eq29u","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.074Z","level":"info","message":"Patient creation request received","requestId":"f91a896c-3876-4402-871e-9dd04cd1a782"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.075Z","level":"info","message":"Creating patient","mrn":"999005","firstName":"TestDuplicate","lastName":"OrderPatient"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.086Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7juz000n8cjjzlfigwgh","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.088Z","level":"info","message":"Patient created successfully","patientId":"cmhan7juz000n8cjjzlfigwgh","orderId":"cmhan7jv0000p8cjjrdddo4oe","mrn":"999005","warningCount":2,"duration":13}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.088Z","level":"info","message":"Patient created successfully via API","requestId":"f91a896c-3876-4402-871e-9dd04cd1a782","patientId":"cmhan7juz000n8cjjzlfigwgh","orderId":"cmhan7jv0000p8cjjrdddo4oe","warningCount":2}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 19ms[2m (compile: 1737µs, render: 17ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/cmhan7juz000n8cjjzlfigwgh [32m200[39m in 12ms[2m (compile: 3ms, render: 9ms)[22m
+
+[1A[2K[13/32] [chromium] › __tests__/e2e/03-duplicate-detection.e2e.ts:131:7 › Duplicate Detection › should warn about provider conflict (same NPI, different name)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 33ms[2m (compile: 1450µs, render: 31ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.574Z","level":"info","message":"Patient creation request received","requestId":"b034999b-1903-458f-a90a-2e3b351d298a"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.574Z","level":"info","message":"Creating patient","mrn":"999006","firstName":"PatientOne","lastName":"ForProviderTest"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.595Z","level":"info","message":"Creating new provider","npi":"1000002489","name":"Dr. Shared Provider"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 21ms[2m (compile: 1022µs, render: 20ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.596Z","level":"info","message":"Provider created","providerId":"cmhan7k97000q8cjjkqri54gy","npi":"1000002489"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.599Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7k99000r8cjjnb7o5lah","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.600Z","level":"info","message":"Patient created successfully","patientId":"cmhan7k99000r8cjjnb7o5lah","orderId":"cmhan7k99000t8cjj3tes8bpo","mrn":"999006","warningCount":1,"duration":26}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.600Z","level":"info","message":"Patient created successfully via API","requestId":"b034999b-1903-458f-a90a-2e3b351d298a","patientId":"cmhan7k99000r8cjjnb7o5lah","orderId":"cmhan7k99000t8cjj3tes8bpo","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 29ms[2m (compile: 952µs, render: 28ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.755Z","level":"info","message":"Patient creation request received","requestId":"a95e32d4-a8bd-4481-85dd-e81f5bb3d0fc"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.756Z","level":"info","message":"Creating patient","mrn":"999007","firstName":"PatientTwo","lastName":"ForProviderTest"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.759Z","level":"warn","message":"Provider NPI conflict detected","npi":"1000002489","existingName":"Dr. Shared Provider","inputName":"Dr. Different Provider"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.762Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7kdr000u8cjjpd7aeoyq","medicationName":"Prednisone","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.764Z","level":"info","message":"Patient created successfully","patientId":"cmhan7kdr000u8cjjpd7aeoyq","orderId":"cmhan7kds000w8cjj31uv8rcn","mrn":"999007","warningCount":3,"duration":8}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:15.764Z","level":"info","message":"Patient created successfully via API","requestId":"a95e32d4-a8bd-4481-85dd-e81f5bb3d0fc","patientId":"cmhan7kdr000u8cjjpd7aeoyq","orderId":"cmhan7kds000w8cjj31uv8rcn","warningCount":3}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 11ms[2m (compile: 890µs, render: 10ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/cmhan7kdr000u8cjjpd7aeoyq [32m200[39m in 12ms[2m (compile: 4ms, render: 8ms)[22m
+
+[1A[2K[14/32] [chromium] › __tests__/e2e/03-duplicate-detection.e2e.ts:170:7 › Duplicate Detection › should be able to cancel from warning page
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 33ms[2m (compile: 1280µs, render: 32ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.275Z","level":"info","message":"Patient creation request received","requestId":"8e225668-6840-4d5c-af73-9f87a71f7d4a"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.276Z","level":"info","message":"Creating patient","mrn":"999008","firstName":"TestWarning","lastName":"CancelTest"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.305Z","level":"info","message":"Creating new provider","npi":"1000005045","name":"Dr. Test Provider 1761660556009"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.307Z","level":"info","message":"Provider created","providerId":"cmhan7ksy000x8cjjfouk03vw","npi":"1000005045"}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m200[39m in 36ms[2m (compile: 1427µs, render: 35ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 38ms[2m (compile: 1452µs, render: 37ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.323Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7kt0000y8cjjm43gk6lv","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.327Z","level":"info","message":"Patient created successfully","patientId":"cmhan7kt0000y8cjjm43gk6lv","orderId":"cmhan7kt400108cjjwjli155k","mrn":"999008","warningCount":1,"duration":51}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.327Z","level":"info","message":"Patient created successfully via API","requestId":"8e225668-6840-4d5c-af73-9f87a71f7d4a","patientId":"cmhan7kt0000y8cjjm43gk6lv","orderId":"cmhan7kt400108cjjwjli155k","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.500Z","level":"info","message":"Patient creation request received","requestId":"7cccbca7-e91f-45e2-bdab-5658144b7000"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.501Z","level":"info","message":"Creating patient","mrn":"999009","firstName":"TestWarning","lastName":"CancelTest"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.515Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7kym00118cjjkcs6flpp","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.517Z","level":"info","message":"Patient created successfully","patientId":"cmhan7kym00118cjjkcs6flpp","orderId":"cmhan7kyo00138cjj6dxop5ik","mrn":"999009","warningCount":2,"duration":16}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:16.517Z","level":"info","message":"Patient created successfully via API","requestId":"7cccbca7-e91f-45e2-bdab-5658144b7000","patientId":"cmhan7kym00118cjjkcs6flpp","orderId":"cmhan7kyo00138cjj6dxop5ik","warningCount":2}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 26ms[2m (compile: 5ms, render: 21ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/cmhan7kym00118cjjkcs6flpp [32m200[39m in 20ms[2m (compile: 3ms, render: 17ms)[22m
+
+[1A[2K[15/32] [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:20:7 › Care Plan Generation › should generate care plan for a patient
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 62ms[2m (compile: 3ms, render: 59ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.226Z","level":"info","message":"Patient creation request received","requestId":"c563e64f-8ece-47b3-bf0a-4111139eb3e4"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.227Z","level":"info","message":"Creating patient","mrn":"900001","firstName":"CarePlan","lastName":"TestPatient"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m BEGIN
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."mrn" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn" FROM "public"."patients" WHERE 1=1 OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE ("public"."providers"."npi" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.236Z","level":"info","message":"Creating new provider","npi":"1000005490","name":"Dr. Sarah Mitchell"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."providers" ("id","name","npi","created_at","updated_at") VALUES ($1,$2,$3,$4,$5) RETURNING "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at"
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.238Z","level":"info","message":"Provider created","providerId":"cmhan7lis00148cjjyzpjafr5","npi":"1000005490"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."patients" ("id","first_name","last_name","mrn","additional_diagnoses","medication_history","patient_records","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m INSERT INTO "public"."orders" ("id","patient_id","provider_id","medication_name","primary_diagnosis","status","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at"
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE ("public"."orders"."patient_id" = $1 AND "public"."orders"."medication_name" ILIKE $2 AND "public"."orders"."created_at" >= $3) ORDER BY "public"."orders"."created_at" DESC OFFSET $4
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.241Z","level":"info","message":"Duplicate orders detected","patientId":"cmhan7liu00158cjj70q8yw6v","medicationName":"IVIG","count":1}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m COMMIT
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.243Z","level":"info","message":"Patient created successfully","patientId":"cmhan7liu00158cjj70q8yw6v","orderId":"cmhan7liv00178cjjdwsdjx70","mrn":"900001","warningCount":1,"duration":16}
+[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:17.243Z","level":"info","message":"Patient created successfully via API","requestId":"c563e64f-8ece-47b3-bf0a-4111139eb3e4","patientId":"cmhan7liu00158cjj70q8yw6v","orderId":"cmhan7liv00178cjjdwsdjx70","warningCount":1}
+
+[1A[2K[2m[WebServer] [22m POST /api/patients [32m201[39m in 21ms[2m (compile: 1444µs, render: 20ms)[22m
+
+[1A[2K  1) [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:20:7 › Care Plan Generation › should generate care plan for a patient 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('heading', { name: 'CarePlan TestPatient' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'CarePlan TestPatient' })[22m
+
+
+      32 |
+      33 |     // Should see patient information (use heading to avoid strict mode violation)
+    > 34 |     await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
+         |                                                                                                   ^
+      35 |
+      36 |     // Should see "Generate Care Plan" button
+      37 |     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/04-care-plan-generation.e2e.ts:34:99
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-f7289-ate-care-plan-for-a-patient-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-f7289-ate-care-plan-for-a-patient-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-care-plan-generation.e2-f7289-ate-care-plan-for-a-patient-chromium/error-context.md
+
+
+[1A[2K[16/32] [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:58:7 › Care Plan Generation › should display existing care plan when returning to patient page
+[1A[2K[2m[WebServer] [22m GET /patients [32m200[39m in 82ms[2m (compile: 12ms, render: 70ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:23.259Z","level":"info","message":"List patients request received"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT 1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC LIMIT $1 OFFSET $2
+
+[1A[2K[2m[WebServer] [22m GET /api/patients [32m200[39m in 48ms[2m (compile: 11ms, render: 37ms)[22m
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) OFFSET $19
+
+[1A[2K[17/32] [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:85:7 › Care Plan Generation › should download care plan as markdown file
+[1A[2K[2m[WebServer] [22m GET /patients [32m200[39m in 28ms[2m (compile: 1389µs, render: 26ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:23.562Z","level":"info","message":"List patients request received"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC LIMIT $1 OFFSET $2
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) OFFSET $19
+
+[1A[2K[2m[WebServer] [22m GET /api/patients [32m200[39m in 7ms[2m (compile: 724µs, render: 7ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 10ms[2m (compile: 3ms, render: 7ms)[22m
+
+[1A[2K  2) [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:85:7 › Care Plan Generation › should download care plan as markdown file 
+
+    Error: locator.isVisible: Error: strict mode violation: getByText(/Care Plan/i) resolved to 21 elements:
+        1) <p class="text-neutral-600 dark:text-neutral-400">View and manage patient records and care plans</p> aka getByText('View and manage patient')
+        2) <p class="text-sm text-neutral-600 dark:text-neutral-400">With Care Plans</p> aka getByText('With Care Plans')
+        3) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'CarePlan TestPatient MRN:' })
+        4) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'TestWarning CancelTest MRN: 999009 Medication: IVIG Diagnosis: J45.50 Provider' })
+        5) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'TestWarning CancelTest MRN: 999008 Medication: IVIG Diagnosis: J45.50 Provider' })
+        6) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'PatientTwo ForProviderTest' })
+        7) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'PatientOne ForProviderTest' })
+        8) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'TestDuplicate OrderPatient MRN: 999005 Medication: IVIG Diagnosis: J45.50' })
+        9) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'TestDuplicate OrderPatient MRN: 999004 Medication: IVIG Diagnosis: J45.50' })
+        10) <span class="text-sm text-neutral-500 dark:text-neutral-500">No care plans yet</span> aka getByRole('link', { name: 'Katherine Martinez MRN:' })
+        ...
+
+    Call log:
+    [2m    - checking visibility of getByText(/Care Plan/i)[22m
+
+
+      93 |
+      94 |       // Check if care plan exists
+    > 95 |       const hasCarePlan = await page.getByText(/Care Plan/i).isVisible();
+         |                                                              ^
+      96 |
+      97 |       if (!hasCarePlan) {
+      98 |         // Generate one first
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/04-care-plan-generation.e2e.ts:95:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-a3206--care-plan-as-markdown-file-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-a3206--care-plan-as-markdown-file-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-care-plan-generation.e2-a3206--care-plan-as-markdown-file-chromium/error-context.md
+
+
+[1A[2K[18/32] [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:123:7 › Care Plan Generation › should handle care plan generation error gracefully
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 23ms[2m (compile: 835µs, render: 23ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 17ms[2m (compile: 1060µs, render: 16ms)[22m
+
+[1A[2K  3) [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:123:7 › Care Plan Generation › should handle care plan generation error gracefully 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: /Generate Care Plan/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: /Generate Care Plan/i })[22m
+
+
+      134 |     // Try to generate care plan
+      135 |     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+    > 136 |     await expect(generateButton).toBeVisible();
+          |                                  ^
+      137 |     await generateButton.click();
+      138 |
+      139 |     // Should show error message
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/04-care-plan-generation.e2e.ts:136:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-52b16-generation-error-gracefully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/04-care-plan-generation.e2-52b16-generation-error-gracefully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/04-care-plan-generation.e2-52b16-generation-error-gracefully-chromium/error-context.md
+
+
+[1A[2K[19/32] [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:146:7 › Care Plan Generation › should not allow generating care plan twice
+[1A[2K[2m[WebServer] [22m GET /patients [32m200[39m in 51ms[2m (compile: 6ms, render: 45ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:30.305Z","level":"info","message":"List patients request received"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC LIMIT $1 OFFSET $2
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) OFFSET $19
+
+[1A[2K[2m[WebServer] [22m GET /api/patients [32m200[39m in 11ms[2m (compile: 965µs, render: 10ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 23ms[2m (compile: 14ms, render: 9ms)[22m
+
+[1A[2K[20/32] [chromium] › __tests__/e2e/05-export.e2e.ts:17:7 › Export Functionality › should export patient data via API endpoint
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 28ms[2m (compile: 1616µs, render: 26ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:30.913Z","level":"info","message":"Patient export request received","requestId":"2cb74db5-0c90-4305-9edc-829863319c39"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:30.913Z","level":"info","message":"Starting patient export to CSV"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id", "public"."care_plans"."content", "public"."care_plans"."generated_by", "public"."care_plans"."created_at" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."care_plans"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:30.920Z","level":"info","message":"Patient export completed","patientCount":18,"csvLength":2032,"duration":7}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:30.920Z","level":"info","message":"Patient export succeeded","requestId":"2cb74db5-0c90-4305-9edc-829863319c39","csvLength":2032,"filename":"lamar-health-patients-2025-10-28.csv"}
+
+[1A[2K[2m[WebServer] [22m GET /api/export [32m200[39m in 169ms[2m (compile: 159ms, render: 10ms)[22m
+
+[1A[2K[21/32] [chromium] › __tests__/e2e/05-export.e2e.ts:37:7 › Export Functionality › should export data with correct CSV format and headers
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.132Z","level":"info","message":"Patient export request received","requestId":"77032252-991a-438b-8a3d-1a61ddc140fa"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.132Z","level":"info","message":"Starting patient export to CSV"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id", "public"."care_plans"."content", "public"."care_plans"."generated_by", "public"."care_plans"."created_at" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."care_plans"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.136Z","level":"info","message":"Patient export completed","patientCount":18,"csvLength":2032,"duration":4}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.137Z","level":"info","message":"Patient export succeeded","requestId":"77032252-991a-438b-8a3d-1a61ddc140fa","csvLength":2032,"filename":"lamar-health-patients-2025-10-28.csv"}
+
+[1A[2K[2m[WebServer] [22m GET /api/export [32m200[39m in 10ms[2m (compile: 3ms, render: 7ms)[22m
+
+[1A[2K[22/32] [chromium] › __tests__/e2e/05-export.e2e.ts:58:7 › Export Functionality › should include patient data in export
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 34ms[2m (compile: 4ms, render: 30ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.525Z","level":"info","message":"Patient export request received","requestId":"90ed2687-0413-4975-a5ce-2e989abf1ae7"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.525Z","level":"info","message":"Starting patient export to CSV"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id", "public"."care_plans"."content", "public"."care_plans"."generated_by", "public"."care_plans"."created_at" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."care_plans"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.534Z","level":"info","message":"Patient export completed","patientCount":18,"csvLength":2032,"duration":9}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:31.535Z","level":"info","message":"Patient export succeeded","requestId":"90ed2687-0413-4975-a5ce-2e989abf1ae7","csvLength":2032,"filename":"lamar-health-patients-2025-10-28.csv"}
+
+[1A[2K[2m[WebServer] [22m GET /api/export [32m200[39m in 12ms[2m (compile: 828µs, render: 11ms)[22m
+
+[1A[2K  4) [chromium] › __tests__/e2e/05-export.e2e.ts:58:7 › Export Functionality › should include patient data in export 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"700004"[39m
+    Received string:    [31m"MRN,First Name,Last Name,Medication,Primary Diagnosis,Additional Diagnoses,Referring Provider,Provider NPI,Care Plan Generated,Care Plan Date,Care Plan Summary,Created Date[39m
+    [31m900001,CarePlan,TestPatient,IVIG,G70.00,None,Dr. Sarah Mitchell,1000005490,No,N/A,N/A,2025-10-28[39m
+    [31m999009,TestWarning,CancelTest,IVIG,J45.50,None,Dr. Test Provider 1761660556009,1000005045,No,N/A,N/A,2025-10-28[39m
+    [31m999008,TestWarning,CancelTest,IVIG,J45.50,None,Dr. Test Provider 1761660556009,1000005045,No,N/A,N/A,2025-10-28[39m
+    [31m999007,PatientTwo,ForProviderTest,Prednisone,G70.00,None,Dr. Shared Provider,1000002489,No,N/A,N/A,2025-10-28[39m
+    [31m999006,PatientOne,ForProviderTest,IVIG,J45.50,None,Dr. Shared Provider,1000002489,No,N/A,N/A,2025-10-28[39m
+    [31m999005,TestDuplicate,OrderPatient,IVIG,J45.50,None,Dr. Test Provider 1761660554584,1000004493,No,N/A,N/A,2025-10-28[39m
+    [31m999004,TestDuplicate,OrderPatient,IVIG,J45.50,None,Dr. Test Provider 1761660554584,1000004493,No,N/A,N/A,2025-10-28[39m
+    [31m800003,Katherine,Martinez,IVIG,G70.00,None,Dr. Test Provider 1761660553903,1000002901,No,N/A,N/A,2025-10-28[39m
+    [31m800002,Catherine,Martinez,IVIG,G70.00,None,Dr. Test Provider 1761660553903,1000002901,No,N/A,N/A,2025-10-28[39m
+    [31m800001,Robert,Johnson,IVIG,G70.00,None,Dr. Test Provider 1761660553289,1000004584,No,N/A,N/A,2025-10-28[39m
+    [31m549921,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider 1761660549921,1000007231,No,N/A,N/A,2025-10-28[39m
+    [31m545646,John,Doe,IVIG,G70.00,None,Dr. Test Provider 1761660545646,1000002299,No,N/A,N/A,2025-10-28[39m
+    [31m063543,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider 1761636063543,1000000434,No,N/A,N/A,2025-10-28[39m
+    [31m059302,John,Doe,IVIG,G70.00,None,Dr. Test Provider 1761636059302,1000000327,No,N/A,N/A,2025-10-28[39m
+    [31m027206,John,Doe,IVIG,G70.00,None,Dr. Test Provider,1234567893,No,N/A,N/A,2025-10-28[39m
+    [31m039811,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28[39m
+    [31m098597,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28[39m
+    [31m048170,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28"[39m
+
+      66 |
+      67 |     // Should contain the patient's MRN in the export
+    > 68 |     expect(content).toContain(patient.mrn);
+         |                     ^
+      69 |   });
+      70 |
+      71 |   test('should export multiple patients if they exist', async ({ page }) => {
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/05-export.e2e.ts:68:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/05-export.e2e.ts-Export-Fu-3927b-lude-patient-data-in-export-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/05-export.e2e.ts-Export-Fu-3927b-lude-patient-data-in-export-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/05-export.e2e.ts-Export-Fu-3927b-lude-patient-data-in-export-chromium/error-context.md
+
+
+[1A[2K[23/32] [chromium] › __tests__/e2e/05-export.e2e.ts:71:7 › Export Functionality › should export multiple patients if they exist
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 97ms[2m (compile: 960µs, render: 96ms)[22m
+
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 56ms[2m (compile: 2ms, render: 54ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:32.868Z","level":"info","message":"Patient export request received","requestId":"66892ade-79f8-426c-b965-930a65938037"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:32.869Z","level":"info","message":"Starting patient export to CSV"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE 1=1 ORDER BY "public"."patients"."created_at" DESC OFFSET $1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."patient_id", "public"."orders"."provider_id", "public"."orders"."medication_name", "public"."orders"."primary_diagnosis", "public"."orders"."status", "public"."orders"."created_at" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."orders"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."providers"."id", "public"."providers"."name", "public"."providers"."npi", "public"."providers"."created_at", "public"."providers"."updated_at" FROM "public"."providers" WHERE "public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."care_plans"."id", "public"."care_plans"."patient_id", "public"."care_plans"."content", "public"."care_plans"."generated_by", "public"."care_plans"."created_at" FROM "public"."care_plans" WHERE "public"."care_plans"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."care_plans"."created_at" DESC OFFSET $19
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:32.879Z","level":"info","message":"Patient export completed","patientCount":18,"csvLength":2032,"duration":10}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:09:32.880Z","level":"info","message":"Patient export succeeded","requestId":"66892ade-79f8-426c-b965-930a65938037","csvLength":2032,"filename":"lamar-health-patients-2025-10-28.csv"}
+
+[1A[2K[2m[WebServer] [22m GET /api/export [32m200[39m in 17ms[2m (compile: 1632µs, render: 16ms)[22m
+
+[1A[2K  5) [chromium] › __tests__/e2e/05-export.e2e.ts:71:7 › Export Functionality › should export multiple patients if they exist 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"700002"[39m
+    Received string:    [31m"MRN,First Name,Last Name,Medication,Primary Diagnosis,Additional Diagnoses,Referring Provider,Provider NPI,Care Plan Generated,Care Plan Date,Care Plan Summary,Created Date[39m
+    [31m900001,CarePlan,TestPatient,IVIG,G70.00,None,Dr. Sarah Mitchell,1000005490,No,N/A,N/A,2025-10-28[39m
+    [31m999009,TestWarning,CancelTest,IVIG,J45.50,None,Dr. Test Provider 1761660556009,1000005045,No,N/A,N/A,2025-10-28[39m
+    [31m999008,TestWarning,CancelTest,IVIG,J45.50,None,Dr. Test Provider 1761660556009,1000005045,No,N/A,N/A,2025-10-28[39m
+    [31m999007,PatientTwo,ForProviderTest,Prednisone,G70.00,None,Dr. Shared Provider,1000002489,No,N/A,N/A,2025-10-28[39m
+    [31m999006,PatientOne,ForProviderTest,IVIG,J45.50,None,Dr. Shared Provider,1000002489,No,N/A,N/A,2025-10-28[39m
+    [31m999005,TestDuplicate,OrderPatient,IVIG,J45.50,None,Dr. Test Provider 1761660554584,1000004493,No,N/A,N/A,2025-10-28[39m
+    [31m999004,TestDuplicate,OrderPatient,IVIG,J45.50,None,Dr. Test Provider 1761660554584,1000004493,No,N/A,N/A,2025-10-28[39m
+    [31m800003,Katherine,Martinez,IVIG,G70.00,None,Dr. Test Provider 1761660553903,1000002901,No,N/A,N/A,2025-10-28[39m
+    [31m800002,Catherine,Martinez,IVIG,G70.00,None,Dr. Test Provider 1761660553903,1000002901,No,N/A,N/A,2025-10-28[39m
+    [31m800001,Robert,Johnson,IVIG,G70.00,None,Dr. Test Provider 1761660553289,1000004584,No,N/A,N/A,2025-10-28[39m
+    [31m549921,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider 1761660549921,1000007231,No,N/A,N/A,2025-10-28[39m
+    [31m545646,John,Doe,IVIG,G70.00,None,Dr. Test Provider 1761660545646,1000002299,No,N/A,N/A,2025-10-28[39m
+    [31m063543,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider 1761636063543,1000000434,No,N/A,N/A,2025-10-28[39m
+    [31m059302,John,Doe,IVIG,G70.00,None,Dr. Test Provider 1761636059302,1000000327,No,N/A,N/A,2025-10-28[39m
+    [31m027206,John,Doe,IVIG,G70.00,None,Dr. Test Provider,1234567893,No,N/A,N/A,2025-10-28[39m
+    [31m039811,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28[39m
+    [31m098597,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28[39m
+    [31m048170,Alice,Smith,Omalizumab,J45.50,None,Dr. Test Provider,1245319599,No,N/A,N/A,2025-10-28"[39m
+
+      82 |
+      83 |     // Should contain both patients
+    > 84 |     expect(content).toContain(patient1.mrn);
+         |                     ^
+      85 |     expect(content).toContain(patient2.mrn);
+      86 |   });
+      87 | });
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/05-export.e2e.ts:84:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/05-export.e2e.ts-Export-Fu-7d8ba-iple-patients-if-they-exist-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/05-export.e2e.ts-Export-Fu-7d8ba-iple-patients-if-they-exist-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/05-export.e2e.ts-Export-Fu-7d8ba-iple-patients-if-they-exist-chromium/error-context.md
+
+
+[1A[2K[24/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:20:7 › Error Scenarios › should handle API error gracefully during patient creation
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 27ms[2m (compile: 976µs, render: 26ms)[22m
+
+[1A[2K  6) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:20:7 › Error Scenarios › should handle API error gracefully during patient creation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/failed.*create.*patient/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/failed.*create.*patient/i)[22m
+
+
+      29 |
+      30 |     // Should show error message to user
+    > 31 |     await expect(page.getByText(/failed.*create.*patient/i)).toBeVisible({ timeout: 5000 });
+         |                                                              ^
+      32 |
+      33 |     // Should remain on form page
+      34 |     await expect(page).toHaveURL('/patients/new');
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:31:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--446bd-lly-during-patient-creation-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--446bd-lly-during-patient-creation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/06-error-scenarios.e2e.ts--446bd-lly-during-patient-creation-chromium/error-context.md
+
+
+[1A[2K[25/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:40:7 › Error Scenarios › should handle network timeout gracefully
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 84ms[2m (compile: 15ms, render: 70ms)[22m
+
+[1A[2K  7) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:40:7 › Error Scenarios › should handle network timeout gracefully 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/error|failed|timeout/i)
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 20000ms[22m
+    [2m  - waiting for getByText(/error|failed|timeout/i)[22m
+
+
+      54 |     // Should show timeout or error message
+      55 |     // Note: This might take up to action timeout (15s)
+    > 56 |     await expect(page.getByText(/error|failed|timeout/i)).toBeVisible({ timeout: 20000 });
+         |                                                           ^
+      57 |   });
+      58 |
+      59 |   test('should prevent double submission with rapid clicks', async ({ page }) => {
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:56:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--3ae8a--network-timeout-gracefully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--3ae8a--network-timeout-gracefully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/06-error-scenarios.e2e.ts--3ae8a--network-timeout-gracefully-chromium/error-context.md
+
+
+[1A[2K[26/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:59:7 › Error Scenarios › should prevent double submission with rapid clicks
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 62ms[2m (compile: 8ms, render: 53ms)[22m
+
+[1A[2K  8) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:59:7 › Error Scenarios › should prevent double submission with rapid clicks 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeDisabled[2m([22m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Create Patient' })
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeDisabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Create Patient' })[22m
+    [2m    9 × locator resolved to <button type="submit" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-f…>Create Patient</button>[22m
+    [2m      - unexpected value "enabled"[22m
+
+
+      71 |
+      72 |     // Button should be disabled during submission
+    > 73 |     await expect(submitButton).toBeDisabled();
+         |                                ^
+      74 |
+      75 |     // Should show loading state
+      76 |     await expect(page.getByRole('button', { name: 'Creating...' })).toBeVisible();
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:73:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--f2c52-ubmission-with-rapid-clicks-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--f2c52-ubmission-with-rapid-clicks-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/06-error-scenarios.e2e.ts--f2c52-ubmission-with-rapid-clicks-chromium/error-context.md
+
+
+[1A[2K[27/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:85:7 › Error Scenarios › should handle browser back button after successful submission
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 29ms[2m (compile: 980µs, render: 28ms)[22m
+
+[1A[2K  9) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:85:7 › Error Scenarios › should handle browser back button after successful submission 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected: [32m"http://localhost:3000/patients/new"[39m
+    Received: [31m"about:blank"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 5000ms[22m
+    [2m    9 × unexpected value "about:blank"[22m
+
+
+       97 |
+       98 |     // Should return to form page
+    >  99 |     await expect(page).toHaveURL('/patients/new');
+          |                        ^
+      100 |
+      101 |     // Form should be empty (fresh state, not the submitted data)
+      102 |     const firstNameInput = page.getByLabel('First Name');
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:99:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--3d5b0-after-successful-submission-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--3d5b0-after-successful-submission-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K[28/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:107:7 › Error Scenarios › should handle invalid patient ID in URL
+[1A[2K[2m[WebServer] [22m GET /patients/invalid-id-12345 [32m200[39m in 444ms[2m (compile: 4ms, render: 439ms)[22m
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:10:12.534Z","level":"info","message":"Get patient request received","patientId":"invalid-id-12345"}
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT 1
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id", "public"."patients"."first_name", "public"."patients"."last_name", "public"."patients"."mrn", "public"."patients"."additional_diagnoses", "public"."patients"."medication_history", "public"."patients"."patient_records", "public"."patients"."created_at", "public"."patients"."updated_at" FROM "public"."patients" WHERE ("public"."patients"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:10:12.539Z","level":"warn","message":"Patient not found","patientId":"invalid-id-12345"}
+
+[1A[2K[2m[WebServer] [22m{"timestamp":"2025-10-28T14:10:12.539Z","level":"warn","message":"Patient not found","patientId":"invalid-id-12345"}
+
+[1A[2K[2m[WebServer] [22m GET /api/patients/invalid-id-12345 [33m404[39m in 13ms[2m (compile: 3ms, render: 10ms)[22m
+
+[1A[2K  10) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:107:7 › Error Scenarios › should handle invalid patient ID in URL 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      113 |     const hasError = await page.getByText(/error|patient.*not.*found/i).isVisible();
+      114 |
+    > 115 |     expect(has404 || hasError).toBe(true);
+          |                                ^
+      116 |   });
+      117 |
+      118 |   test('should validate required fields on blur (client-side)', async ({ page }) => {
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:115:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--6575e-e-invalid-patient-ID-in-URL-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--6575e-e-invalid-patient-ID-in-URL-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/06-error-scenarios.e2e.ts--6575e-e-invalid-patient-ID-in-URL-chromium/error-context.md
+
+
+[1A[2K[29/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:118:7 › Error Scenarios › should validate required fields on blur (client-side)
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 27ms[2m (compile: 1169µs, render: 25ms)[22m
+
+[1A[2K[30/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:141:7 › Error Scenarios › should handle long clinical notes without crashing
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 34ms[2m (compile: 885µs, render: 33ms)[22m
+
+[1A[2K  11) [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:141:7 › Error Scenarios › should handle long clinical notes without crashing 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      157 |
+      158 |     // One or the other should be true
+    > 159 |     expect(didNavigate || hasError).toBe(true);
+          |                                     ^
+      160 |   });
+      161 |
+      162 |   test('should sanitize XSS attempts in form inputs', async ({ page }) => {
+        at /Users/edwardzhong/Projects/lamar health/__tests__/e2e/06-error-scenarios.e2e.ts:159:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--8dd4e-ical-notes-without-crashing-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/06-error-scenarios.e2e.ts--8dd4e-ical-notes-without-crashing-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/06-error-scenarios.e2e.ts--8dd4e-ical-notes-without-crashing-chromium/error-context.md
+
+
+[1A[2K[31/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:162:7 › Error Scenarios › should sanitize XSS attempts in form inputs
+[1A[2K[2m[WebServer] [22m GET /patients/new [32m200[39m in 25ms[2m (compile: 837µs, render: 24ms)[22m
+
+[1A[2K[32/32] [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:188:7 › Error Scenarios › should handle missing API routes gracefully
+[1A[2K[2m[WebServer] [22m GET /api/nonexistent-endpoint [33m404[39m in 168ms[2m (compile: 147ms, render: 21ms)[22m
+
+🧹 Cleaning up after E2E tests...
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."patients"."id" FROM "public"."patients" WHERE (("public"."patients"."mrn" >= $1 AND "public"."patients"."created_at" >= $2) OR "public"."patients"."first_name" IN ($3,$4,$5,$6)) OFFSET $7
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m SELECT "public"."orders"."id", "public"."orders"."provider_id" FROM "public"."orders" WHERE "public"."orders"."patient_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) OFFSET $13
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m DELETE FROM "public"."patients" WHERE (("public"."patients"."mrn" >= $1 AND "public"."patients"."created_at" >= $2) OR "public"."patients"."first_name" IN ($3,$4,$5,$6))
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m DELETE FROM "public"."providers" WHERE ("public"."providers"."id" IN ($1,$2,$3,$4,$5,$6,$7,$8) AND NOT EXISTS(SELECT "t0"."provider_id" FROM "public"."orders" AS "t0" WHERE (1=1 AND ("public"."providers"."id") = ("t0"."provider_id") AND "t0"."provider_id" IS NOT NULL)))
+
+[1A[2K[2m[WebServer] [22m[34mprisma:query[39m DELETE FROM "public"."providers" WHERE ("public"."providers"."npi"::text LIKE $1 AND NOT EXISTS(SELECT "t0"."provider_id" FROM "public"."orders" AS "t0" WHERE (1=1 AND ("public"."providers"."id") = ("t0"."provider_id") AND "t0"."provider_id" IS NOT NULL)))
+
+[1A[2K[2m[WebServer] [22m DELETE /api/test/cleanup [32m200[39m in 18ms[2m (compile: 1232µs, render: 16ms)[22m
+
+✅ Cleaned up 20 test patients
+✅ E2E test cleanup complete
+[1A[2K  11 failed
+    [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:20:7 › Care Plan Generation › should generate care plan for a patient 
+    [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:85:7 › Care Plan Generation › should download care plan as markdown file 
+    [chromium] › __tests__/e2e/04-care-plan-generation.e2e.ts:123:7 › Care Plan Generation › should handle care plan generation error gracefully 
+    [chromium] › __tests__/e2e/05-export.e2e.ts:58:7 › Export Functionality › should include patient data in export 
+    [chromium] › __tests__/e2e/05-export.e2e.ts:71:7 › Export Functionality › should export multiple patients if they exist 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:20:7 › Error Scenarios › should handle API error gracefully during patient creation 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:40:7 › Error Scenarios › should handle network timeout gracefully 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:59:7 › Error Scenarios › should prevent double submission with rapid clicks 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:85:7 › Error Scenarios › should handle browser back button after successful submission 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:107:7 › Error Scenarios › should handle invalid patient ID in URL 
+    [chromium] › __tests__/e2e/06-error-scenarios.e2e.ts:141:7 › Error Scenarios › should handle long clinical notes without crashing 
+  21 passed (1.3m)
+
+[36m  Serving HTML report at http://localhost:51976. Press Ctrl+C to quit.[39m

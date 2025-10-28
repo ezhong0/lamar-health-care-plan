@@ -34,6 +34,7 @@ import type { Prisma } from '@prisma/client';
 import type { PatientId, OrderId } from '@/lib/domain/types';
 import type { SimilarPatientWarning, DuplicateOrderWarning } from '@/lib/domain/warnings';
 import { logger } from '@/lib/infrastructure/logger';
+import { DUPLICATE_DETECTION } from '@/lib/config/constants';
 
 export interface PatientMatchInput {
   firstName: string;
@@ -61,7 +62,7 @@ export class DuplicateDetector {
    *
    * Tune based on false positive/negative rate in production.
    */
-  private static readonly SIMILARITY_THRESHOLD = 0.7;
+  private static readonly SIMILARITY_THRESHOLD = DUPLICATE_DETECTION.SIMILARITY_THRESHOLD;
 
   /**
    * Find similar patients using fuzzy name matching
@@ -109,7 +110,7 @@ export class DuplicateDetector {
         mrn: true,
       },
       orderBy: { createdAt: 'desc' },
-      take: 100, // Only check last 100 patients
+      take: DUPLICATE_DETECTION.MAX_PATIENTS_TO_CHECK,
     });
 
     const warnings: SimilarPatientWarning[] = [];
@@ -176,8 +177,8 @@ export class DuplicateDetector {
     input: OrderMatchInput,
     tx: Prisma.TransactionClient
   ): Promise<DuplicateOrderWarning[]> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const orderWindowStart = new Date();
+    orderWindowStart.setDate(orderWindowStart.getDate() - DUPLICATE_DETECTION.DUPLICATE_ORDER_WINDOW_DAYS);
 
     logger.debug('Checking for duplicate orders', {
       patientId: input.patientId,
@@ -193,7 +194,7 @@ export class DuplicateDetector {
           mode: 'insensitive', // Case-insensitive match
         },
         createdAt: {
-          gte: thirtyDaysAgo,
+          gte: orderWindowStart,
         },
       },
       orderBy: {
@@ -253,9 +254,9 @@ export class DuplicateDetector {
     p2: PatientMatchInput
   ): number {
     // Weight factors (must sum to 1.0)
-    const FIRST_NAME_WEIGHT = 0.3;
-    const LAST_NAME_WEIGHT = 0.5;
-    const MRN_WEIGHT = 0.2;
+    const FIRST_NAME_WEIGHT = DUPLICATE_DETECTION.NAME_WEIGHTS.FIRST_NAME;
+    const LAST_NAME_WEIGHT = DUPLICATE_DETECTION.NAME_WEIGHTS.LAST_NAME;
+    const MRN_WEIGHT = DUPLICATE_DETECTION.NAME_WEIGHTS.MRN_PREFIX;
 
     const firstNameScore = this.jaccardSimilarity(
       p1.firstName.toLowerCase(),
@@ -305,8 +306,8 @@ export class DuplicateDetector {
    * jaccardSimilarity('test', 'test')   // 1.0 (identical)
    */
   private jaccardSimilarity(s1: string, s2: string): number {
-    // Handle edge cases - check equality FIRST (includes '', '' case)
-    if (s1 === s2) return 1.0;
+    // Handle edge cases - check equality FIRST (includes empty string case)
+    if (s1 === s2) return 1.0; // Identical strings (including '', '') = perfect match
     if (s1.length === 0 || s2.length === 0) return 0.0;
 
     const trigrams1 = this.getTrigrams(s1);
