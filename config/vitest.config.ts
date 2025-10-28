@@ -12,6 +12,7 @@ export default defineConfig({
     setupFiles: ['./config/vitest.setup.ts'],
     // Run tests sequentially to avoid database conflicts
     pool: 'forks',
+    // @ts-expect-error - poolOptions is valid in Vitest 4.x but types may not be updated
     poolOptions: {
       forks: {
         singleFork: true, // Run all tests in single fork for database isolation

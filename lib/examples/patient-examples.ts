@@ -385,6 +385,8 @@ const duplicatePatientDemo1: PatientExample = {
     referringProviderNPI: '1234567893',
     primaryDiagnosis: 'G70.00',
     medicationName: 'IVIG (Privigen)',
+    additionalDiagnoses: [],
+    medicationHistory: [],
     patientRecords: `Patient: C.B. (Age 45, Female, 68 kg)
 DOB: 1980-03-15
 Allergies: None known
@@ -418,6 +420,8 @@ const duplicatePatientDemo2: PatientExample = {
     referringProviderNPI: '1234567893',  // Same provider (avoid NPI conflict)
     primaryDiagnosis: 'J45.50',
     medicationName: 'Dupilumab',
+    additionalDiagnoses: [],
+    medicationHistory: [],
     patientRecords: `Patient: K.B. (Age 45, Female, 65 kg)
 DOB: 1980-03-15
 Allergies: None known
@@ -451,6 +455,8 @@ const duplicateOrderDemo: PatientExample = {
     referringProviderNPI: '1234567893',
     primaryDiagnosis: 'G70.00',
     medicationName: 'IVIG (Privigen)',  // Same medication - will trigger warning
+    additionalDiagnoses: [],
+    medicationHistory: [],
     patientRecords: `Patient: A.B. (Age 46, Female, 72 kg)
 DOB: 1979-06-08
 Allergies: None known
@@ -483,6 +489,8 @@ const providerConflictDemo: PatientExample = {
     referringProviderNPI: '1234567893',  // Same NPI as Dr. Sarah Chen above
     primaryDiagnosis: 'J45.50',
     medicationName: 'Omalizumab',
+    additionalDiagnoses: [],
+    medicationHistory: [],
     patientRecords: `Patient: M.T. (Age 32, Male, 78 kg)
 DOB: 1993-05-20
 Allergies: None known

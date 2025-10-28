@@ -11,10 +11,15 @@ import { vi } from 'vitest';
 import '../__tests__/helpers/matchers';
 
 // Set test environment variables
+// @ts-ignore - Setting environment variables in test setup
 process.env.NODE_ENV = 'test';
+// @ts-ignore - Setting environment variables in test setup
 process.env.VITEST = 'true';
+// @ts-ignore - Setting environment variables in test setup
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/lamar_health_test';
+// @ts-ignore - Setting environment variables in test setup
 process.env.ANTHROPIC_API_KEY = 'sk-ant-test-key-for-testing';
+// @ts-ignore - Setting environment variables in test setup
 process.env.LOG_LEVEL = 'error'; // Suppress logs during tests
 
 // Mock Next.js router
