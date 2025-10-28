@@ -114,8 +114,7 @@ export function PatientForm() {
     // Patient was successfully created, navigate to detail page
     // Both "Proceed" and "Cancel" navigate since creation succeeded
     if (createdPatientId) {
-      // Use Next.js router for client-side navigation (no page reload)
-      // This preserves React Query state and ensures smooth page transitions
+      // Use router.push for client-side navigation
       router.push(`/patients/${createdPatientId}`);
     } else {
       // Fallback: return to form (shouldn't happen in normal flow)

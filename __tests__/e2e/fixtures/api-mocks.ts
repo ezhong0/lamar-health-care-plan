@@ -74,7 +74,7 @@ export const mockCarePlan = {
  * Setup API route mocking for care plan generation
  */
 export async function mockCarePlanAPI(page: Page) {
-  await page.route('**/api/care-plan', async (route: Route) => {
+  await page.route('**/api/care-plans', async (route: Route) => {
     const request = route.request();
 
     if (request.method() === 'POST') {
@@ -82,12 +82,18 @@ export async function mockCarePlanAPI(page: Page) {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       await route.fulfill({
-        status: 200,
+        status: 201,
         contentType: 'application/json',
         body: JSON.stringify({
           success: true,
           data: {
-            carePlan: mockCarePlan.content,
+            carePlan: {
+              id: 'mock-care-plan-id',
+              patientId: 'mock-patient-id',
+              content: mockCarePlan.content,
+              generatedBy: 'claude-3-5-sonnet-20241022',
+              createdAt: new Date().toISOString(),
+            },
           },
         }),
       });
@@ -101,16 +107,15 @@ export async function mockCarePlanAPI(page: Page) {
  * Mock care plan generation error
  */
 export async function mockCarePlanAPIError(page: Page, errorMessage = 'AI service unavailable') {
-  await page.route('**/api/care-plan', async (route: Route) => {
+  await page.route('**/api/care-plans', async (route: Route) => {
     await route.fulfill({
       status: 500,
       contentType: 'application/json',
       body: JSON.stringify({
         success: false,
         error: {
-          code: 'AI_SERVICE_ERROR',
           message: errorMessage,
-          userMessage: 'Failed to generate care plan. Please try again later.',
+          code: 'AI_SERVICE_ERROR',
         },
       }),
     });
@@ -182,14 +187,13 @@ export async function mockPatientCreationError(page: Page, errorCode = 'DUPLICAT
 
     if (request.method() === 'POST') {
       await route.fulfill({
-        status: 400,
+        status: 409,
         contentType: 'application/json',
         body: JSON.stringify({
           success: false,
           error: {
+            message: 'Failed to create patient. Please try again.',
             code: errorCode,
-            message: 'Patient with this MRN already exists',
-            userMessage: 'A patient with MRN already exists in the system.',
           },
         }),
       });

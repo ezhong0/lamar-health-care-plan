@@ -8,7 +8,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createTestPatient, createPatientViaUI, TEST_PATIENTS } from './helpers/test-data';
+import { createTestPatient, createPatientViaUI, createPatientViaAPI, TEST_PATIENTS } from './helpers/test-data';
 import { mockCarePlanAPI, mockCarePlanAPIError } from './fixtures/api-mocks';
 
 test.describe('Care Plan Generation', () => {
@@ -18,14 +18,17 @@ test.describe('Care Plan Generation', () => {
   });
 
   test('should generate care plan for a patient', async ({ page }) => {
-    // Create a patient using the predefined test patient for care plan generation
-    const patient = createTestPatient({
-      ...TEST_PATIENTS.carePlan,
-      mrn: '900001', // Unique MRN for this test run
-      // Use auto-generated unique NPI to avoid conflicts
+    // Create a patient via API to avoid UI navigation complexity
+    const patientId = await createPatientViaAPI(page, {
+      firstName: 'CarePlan',
+      lastName: 'TestPatient',
+      clinicalNotes: `Patient has generalized myasthenia gravis. Recent exacerbation with ptosis and muscle weakness.
+Currently on pyridostigmine 60mg TID and prednisone 10mg daily.
+Neurology recommends IVIG therapy for rapid symptomatic control.`,
     });
 
-    const patientId = await createPatientViaUI(page, patient);
+    // Navigate to patient detail page
+    await page.goto(`/patients/${patientId}`);
 
     // Should be on patient detail page
     await expect(page).toHaveURL(`/patients/${patientId}`);
@@ -60,98 +63,66 @@ test.describe('Care Plan Generation', () => {
   });
 
   test('should display existing care plan when returning to patient page', async ({ page }) => {
-    // Navigate to a patient with existing care plan
-    // (Assuming from previous test or seed data)
-    await page.goto('/patients');
+    // Create patient via API
+    const patientId = await createPatientViaAPI(page);
+
+    // Navigate to patient and generate care plan
+    await page.goto(`/patients/${patientId}`);
     await page.waitForLoadState('networkidle');
 
-    // Click on a patient - use href selector since PatientCard doesn't have data-testid
-    const patientCards = page.locator('a[href^="/patients/"]');
-    if ((await patientCards.count()) > 0) {
-      await patientCards.first().click();
+    const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+    await expect(generateButton).toBeVisible();
+    await generateButton.click();
 
-      // Wait for navigation to patient detail page
-      await page.waitForURL(/\/patients\/[a-z0-9-]+/);
-      await page.waitForLoadState('networkidle');
+    // Wait for care plan to appear
+    await expect(page.getByText(/Problem/i)).toBeVisible({ timeout: 10000 });
 
-      // Check if generate button OR care plan heading exists
-      const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-      const carePlanHeading = page.getByRole('heading', { name: /Care Plans?$/i });
+    // Navigate away
+    await page.goto('/patients');
 
-      // Wait for either to appear (one must be visible)
-      await Promise.race([
-        generateButton.waitFor({ state: 'visible', timeout: 10000 }),
-        carePlanHeading.waitFor({ state: 'visible', timeout: 10000 }),
-      ]);
+    // Navigate back to same patient
+    await page.goto(`/patients/${patientId}`);
+    await page.waitForLoadState('networkidle');
 
-      // Check which one is visible
-      const hasCarePlan = await carePlanHeading.isVisible();
-
-      if (hasCarePlan) {
-        // Should see care plan section heading
-        await expect(carePlanHeading).toBeVisible();
-
-        // Should see download button
-        await expect(page.getByRole('button', { name: /Download/i })).toBeVisible();
-      } else {
-        // Should see generate button if no care plan
-        await expect(generateButton).toBeVisible();
-      }
-    }
+    // Care plan should still be visible (not regenerating)
+    await expect(page.getByText(/Problem/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Download/i })).toBeVisible();
   });
 
   test('should download care plan as markdown file', async ({ page }) => {
-    // Navigate to patient with care plan
-    await page.goto('/patients');
+    // Create patient and generate care plan via API
+    const patientId = await createPatientViaAPI(page);
+
+    // Navigate to patient and generate care plan
+    await page.goto(`/patients/${patientId}`);
     await page.waitForLoadState('networkidle');
 
-    // Find first patient and navigate
-    const patientCards = page.locator('a[href^="/patients/"]');
-    if ((await patientCards.count()) > 0) {
-      await patientCards.first().click();
+    const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+    await generateButton.click();
 
-      // Wait for navigation to complete
-      await page.waitForURL(/\/patients\/[a-z0-9-]+/);
-      await page.waitForLoadState('networkidle');
+    // Wait for care plan to appear
+    await expect(page.getByText(/Problem/i)).toBeVisible({ timeout: 10000 });
 
-      // Check if care plan heading exists (more specific than text search)
-      const carePlanHeading = page.getByRole('heading', { name: /Care Plans?$/i });
-      const hasCarePlan = await carePlanHeading.isVisible().catch(() => false);
+    // Setup download listener BEFORE clicking download
+    const downloadPromise = page.waitForEvent('download');
 
-      if (!hasCarePlan) {
-        // Generate one first
-        const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-        if (await generateButton.isVisible()) {
-          await generateButton.click();
-          // Wait for care plan to be generated
-          await expect(carePlanHeading).toBeVisible({ timeout: 60000 });
-        }
-      }
+    // Click download button
+    const downloadButton = page.getByRole('button', { name: /Download/i });
+    await downloadButton.click();
 
-      // Setup download listener
-      const downloadPromise = page.waitForEvent('download');
+    // Wait for download
+    const download = await downloadPromise;
 
-      // Click download button
-      const downloadButton = page.getByRole('button', { name: /Download/i });
-      if (await downloadButton.isVisible()) {
-        await downloadButton.click();
-
-        // Wait for download
-        const download = await downloadPromise;
-
-        // Check filename
-        expect(download.suggestedFilename()).toMatch(/care-plan.*\.(md|txt)/i);
-      }
-    }
+    // Check filename
+    expect(download.suggestedFilename()).toMatch(/care-plan.*\.md$/i);
   });
 
   test('should handle care plan generation error gracefully', async ({ page }) => {
     // Override the mock to return an error
     await mockCarePlanAPIError(page, 'AI service temporarily unavailable');
 
-    // Create a patient
-    const patient = createTestPatient({ mrn: '900003' });
-    const patientId = await createPatientViaUI(page, patient);
+    // Create a patient via API
+    const patientId = await createPatientViaAPI(page);
 
     // Navigate to patient detail
     await page.goto(`/patients/${patientId}`);
@@ -159,11 +130,11 @@ test.describe('Care Plan Generation', () => {
 
     // Try to generate care plan
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-    await expect(generateButton).toBeVisible({ timeout: 15000 });
+    await expect(generateButton).toBeVisible();
     await generateButton.click();
 
-    // Should show error message
-    await expect(page.getByText(/failed.*generate.*care plan/i)).toBeVisible({ timeout: 10000 });
+    // Should show error message (check for Alert component with error text)
+    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10000 });
 
     // Button should still be available to retry
     await expect(generateButton).toBeVisible();

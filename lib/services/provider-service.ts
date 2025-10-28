@@ -112,8 +112,8 @@ export class ProviderService {
         severity: 'high',
         message: `NPI ${normalizedInput.npi} is registered to "${existing.name}". You entered "${normalizedInput.name}".`,
         npi: normalizedInput.npi,
-        expectedName: normalizedInput.name,
-        actualName: existing.name,
+        expectedName: existing.name,      // Expected = what's in DB (based on NPI)
+        actualName: normalizedInput.name, // Actual = what user just provided
       };
 
       return {

@@ -151,57 +151,114 @@ export async function createPatientViaUI(
 
   await page.goto('/patients/new');
   await fillPatientForm(page, patientData);
+
+  // Listen for API response to extract patient ID reliably
+  let createdPatientId: string | null = null;
+
+  page.on('response', async (response) => {
+    if (response.url().includes('/api/patients') && response.request().method() === 'POST') {
+      if (response.ok()) {
+        try {
+          const json = await response.json();
+          if (json.success && json.data?.patient?.id) {
+            createdPatientId = json.data.patient.id;
+          }
+        } catch (e) {
+          // Ignore JSON parse errors
+        }
+      }
+    }
+  });
+
   await page.getByRole('button', { name: 'Create Patient' }).click();
 
-  // Wait for one of two outcomes:
-  // 1. Direct navigation to patient detail page
-  // 2. Warnings page appears
-  await Promise.race([
-    page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 5000 }).catch(() => null),
-    page.waitForSelector('text=Review Warnings', { timeout: 5000 }).catch(() => null),
-  ]);
+  // Wait for API response
+  await page.waitForResponse(
+    (response) => response.url().includes('/api/patients') && response.request().method() === 'POST',
+    { timeout: 10000 }
+  );
 
-  // Check current state
-  const currentUrl = page.url();
+  // Wait a bit for React to process the response
+  await page.waitForTimeout(500);
 
-  // If already on patient detail page, we're done
-  if (/\/patients\/[a-z0-9]+/.test(currentUrl)) {
-    const match = currentUrl.match(/\/patients\/([a-z0-9]+)/);
-    if (match) return match[1];
-  }
+  // Check if we're on warnings page
+  const warningsVisible = await page.getByRole('heading', { name: /Review Warnings/i }).isVisible().catch(() => false);
 
-  // Otherwise, handle warnings page if present
-  // Check if we're on the warnings page by trying to find the heading
-  const warningsHeading = page.getByRole('heading', { name: /Review Warnings/i });
-
-  try {
-    // Wait for warnings heading to be visible (gives React time to render)
-    await warningsHeading.waitFor({ state: 'visible', timeout: 2000 });
-
-    // We're on the warnings page - click "Proceed Anyway" button
+  if (warningsVisible) {
+    // Click proceed button and wait for navigation
     const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
-    await proceedButton.waitFor({ state: 'visible', timeout: 5000 });
 
-    // Click the button - this should trigger window.location.href navigation
-    await proceedButton.click();
+    // Wait for navigation promise and click simultaneously
+    await Promise.all([
+      page.waitForURL(/\/patients\/[a-z0-9-]+$/, { timeout: 15000 }),
+      proceedButton.click()
+    ]);
 
-    // Wait for navigation to complete (full page reload with window.location.href)
-    // Use waitForURL with longer timeout to allow for the setTimeout(0) delay
-    await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
-  } catch (error) {
-    // If warnings page not found or navigation times out, continue to URL extraction
-    console.log('[Test Helper] Warning page handling error:', error);
+    // Wait for page to be ready
+    await page.waitForLoadState('domcontentloaded');
+  } else {
+    // Check if we're already on patient detail page
+    const currentUrl = page.url();
+    if (!/\/patients\/[a-z0-9-]+$/.test(currentUrl)) {
+      // Not on detail page yet, wait for navigation
+      await page.waitForURL(/\/patients\/[a-z0-9-]+$/, { timeout: 10000 });
+    }
   }
 
-  // Extract patient ID from final URL
-  const finalUrl = page.url();
-  const match = finalUrl.match(/\/patients\/([a-z0-9]+)/);
-
-  if (!match) {
-    throw new Error(`Failed to create patient. Final URL: ${finalUrl}`);
+  // Extract patient ID from URL if we didn't get it from API
+  if (!createdPatientId) {
+    const finalUrl = page.url();
+    const match = finalUrl.match(/\/patients\/([a-z0-9-]+)/);
+    if (match) {
+      createdPatientId = match[1];
+    }
   }
 
-  return match[1];
+  if (!createdPatientId) {
+    throw new Error(`Failed to create patient. Final URL: ${page.url()}`);
+  }
+
+  return createdPatientId;
+}
+
+/**
+ * Create a patient via API (bypasses UI entirely)
+ * Useful for setup where UI interaction isn't being tested
+ */
+export async function createPatientViaAPI(
+  page: Page,
+  data: Partial<TestPatientData> = {}
+): Promise<string> {
+  const patientData = createTestPatient(data);
+
+  // Map test data fields to API fields
+  const apiData = {
+    firstName: patientData.firstName,
+    lastName: patientData.lastName,
+    mrn: patientData.mrn,
+    referringProvider: patientData.referringProvider,
+    referringProviderNPI: patientData.referringProviderNPI,
+    medicationName: patientData.medicationName,
+    primaryDiagnosis: patientData.primaryDiagnosis,
+    patientRecords: patientData.clinicalNotes, // API field name is patientRecords
+  };
+
+  // Use page.request to make API call from Playwright context
+  const response = await page.request.post('http://localhost:3000/api/patients', {
+    data: apiData,
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create patient via API: ${response.status()} ${await response.text()}`);
+  }
+
+  const json = await response.json();
+
+  if (!json.success || !json.data?.patient?.id) {
+    throw new Error(`API returned unexpected format: ${JSON.stringify(json)}`);
+  }
+
+  return json.data.patient.id;
 }
 
 /**

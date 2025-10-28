@@ -18,7 +18,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1, // Single worker to avoid database race conditions
-  reporter: 'html',
+  reporter: [
+    ['html', { open: 'on-failure' }], // Auto-open browser on test failures
+    ['list'] // Also show progress in terminal
+  ],
 
   // Global setup and teardown
   globalSetup: require.resolve('../__tests__/e2e/global-setup.ts'),

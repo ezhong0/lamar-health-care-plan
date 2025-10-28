@@ -23,9 +23,11 @@ export function handleError(error: unknown): NextResponse {
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
-        code: error.code,
-        details: error.details,
+        error: {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+        },
       },
       { status: error.statusCode }
     );
@@ -38,12 +40,14 @@ export function handleError(error: unknown): NextResponse {
     return NextResponse.json(
       {
         success: false,
-        error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        details: error.issues.map((e) => ({
-          path: e.path.join('.'),
-          message: e.message,
-        })),
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: error.issues.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message,
+          })),
+        },
       },
       { status: 400 }
     );
@@ -65,8 +69,10 @@ export function handleError(error: unknown): NextResponse {
       return NextResponse.json(
         {
           success: false,
-          error: `${fieldLabel} already exists. Please use a different ${fieldLabel}.`,
-          code: 'DUPLICATE_RECORD',
+          error: {
+            message: `${fieldLabel} already exists. Please use a different ${fieldLabel}.`,
+            code: 'DUPLICATE_RECORD',
+          },
         },
         { status: 409 }
       );
@@ -77,8 +83,10 @@ export function handleError(error: unknown): NextResponse {
       return NextResponse.json(
         {
           success: false,
-          error: 'Record not found',
-          code: 'NOT_FOUND',
+          error: {
+            message: 'Record not found',
+            code: 'NOT_FOUND',
+          },
         },
         { status: 404 }
       );
@@ -87,8 +95,10 @@ export function handleError(error: unknown): NextResponse {
     return NextResponse.json(
       {
         success: false,
-        error: 'Database operation failed',
-        code: 'DATABASE_ERROR',
+        error: {
+          message: 'Database operation failed',
+          code: 'DATABASE_ERROR',
+        },
       },
       { status: 500 }
     );
@@ -103,8 +113,10 @@ export function handleError(error: unknown): NextResponse {
   return NextResponse.json(
     {
       success: false,
-      error: 'An unexpected error occurred',
-      code: 'INTERNAL_ERROR',
+      error: {
+        message: 'An unexpected error occurred',
+        code: 'INTERNAL_ERROR',
+      },
     },
     { status: 500 }
   );

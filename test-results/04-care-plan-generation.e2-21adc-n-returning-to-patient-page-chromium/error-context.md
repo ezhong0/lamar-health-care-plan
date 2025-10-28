@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - navigation [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - link "Lamar Health" [ref=e24] [cursor=pointer]:
+          - /url: /
+        - link "New Patient" [ref=e25] [cursor=pointer]:
+          - /url: /patients/new
+        - link "All Patients" [ref=e26] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e27]:
+        - link "GitHub" [ref=e28] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e29]
+          - text: GitHub
+        - button "Toggle theme" [ref=e31]:
+          - img [ref=e32]
+  - main [ref=e34]:
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - heading "Test Clark" [level=1] [ref=e40]
+          - paragraph [ref=e41]: "MRN: 419177"
+        - button "Delete Patient" [ref=e42]:
+          - img
+          - text: Delete Patient
+      - generic [ref=e43]:
+        - heading "Patient Information" [level=2] [ref=e44]
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: Name
+            - paragraph [ref=e48]: Test Clark
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: Medical Record Number
+            - paragraph [ref=e51]: "419177"
+          - generic [ref=e52]:
+            - paragraph [ref=e53]: Patient Records
+            - paragraph [ref=e54]: E2E test patient - auto-generated for testing purposes.
+      - generic [ref=e55]:
+        - heading "Orders" [level=2] [ref=e56]
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - paragraph [ref=e60]: IVIG
+            - paragraph [ref=e61]: "Diagnosis: G70.00"
+            - paragraph [ref=e62]: "Created: 10/28/2025"
+          - generic [ref=e64]: pending
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - heading "Care Plans" [level=2] [ref=e67]
+          - button "Generate Care Plan" [ref=e68]:
+            - img
+            - text: Generate Care Plan
+        - generic [ref=e70]:
+          - img [ref=e71]
+          - paragraph [ref=e73]: No care plans generated yet
+          - paragraph [ref=e74]: Click "Generate Care Plan" to create a new care plan for this patient
+  - contentinfo [ref=e75]:
+    - generic [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: Lamar Health Care Plan Generator
+          - generic [ref=e80]: ·
+          - generic [ref=e81]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e82] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e83]
+          - generic [ref=e86]: View on GitHub
+      - generic [ref=e88]:
+        - generic [ref=e89]: TypeScript
+        - generic [ref=e90]: React
+        - generic [ref=e91]: Next.js 16
+        - generic [ref=e92]: Prisma
+        - generic [ref=e93]: PostgreSQL
+        - generic [ref=e94]: Claude 3.5
+        - generic [ref=e95]: Tailwind CSS
+  - region "Notifications alt+T"
+  - alert [ref=e96]
+```
