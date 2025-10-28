@@ -117,6 +117,66 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Linear-inspired focus states */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-violet-500/20 ring-offset-2 ring-offset-background;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  /* Linear-inspired card elevations */
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+  .card-hover:hover {
+    @apply shadow-lg shadow-neutral-200/50 dark:shadow-neutral-900/50;
+    transform: translateY(-1px);
+  }
+
+  /* Refined borders */
+  .border-refined {
+    @apply border border-neutral-200/60 dark:border-neutral-800/60;
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    @apply bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl;
+  }
+
+  /* Subtle gradient backgrounds */
+  .gradient-subtle {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  }
+
+  /* Linear-inspired input styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  textarea,
+  select {
+    @apply transition-all duration-200;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    @apply border-violet-300 dark:border-violet-700 ring-4 ring-violet-500/10;
   }
 }

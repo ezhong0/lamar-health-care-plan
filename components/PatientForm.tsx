@@ -388,10 +388,10 @@ export function PatientForm() {
           />
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto space-y-6 py-8 px-4">
       {/* Error Alert */}
       {createPatient.isError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="rounded-xl border-red-200 dark:border-red-900/50">
           <AlertDescription>
             {createPatient.error instanceof ApiError
               ? createPatient.error.message
@@ -403,7 +403,7 @@ export function PatientForm() {
       )}
 
       {/* Example Data Generator */}
-      <Card className="p-6 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-900/30 border-dashed">
+      <Card className="p-6 bg-gradient-to-br from-violet-50/50 to-blue-50/50 dark:from-violet-950/10 dark:to-blue-950/10 border-dashed border-violet-200 dark:border-violet-900/30">
         <div className="space-y-4">
           <div>
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">
@@ -477,10 +477,10 @@ export function PatientForm() {
       </Card>
 
       {/* Patient Information */}
-      <Card className="p-6 space-y-6">
+      <Card className="p-8 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Patient Information</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Patient Information</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
             Enter the patient&apos;s basic information
           </p>
         </div>
@@ -518,10 +518,10 @@ export function PatientForm() {
       </Card>
 
       {/* Provider Information */}
-      <Card className="p-6 space-y-6">
+      <Card className="p-8 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Provider Information</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Provider Information</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
             Referring provider details
           </p>
         </div>
@@ -551,10 +551,10 @@ export function PatientForm() {
       </Card>
 
       {/* Medication & Diagnosis */}
-      <Card className="p-6 space-y-6">
+      <Card className="p-8 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Medication & Diagnosis</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Medication & Diagnosis</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
             Current medication and diagnoses
           </p>
         </div>
@@ -579,10 +579,10 @@ export function PatientForm() {
       </Card>
 
       {/* Patient Records */}
-      <Card className="p-6 space-y-6">
+      <Card className="p-8 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Patient Records</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Patient Records</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
             Clinical notes and relevant medical history
           </p>
         </div>
@@ -590,9 +590,26 @@ export function PatientForm() {
         <div className="space-y-2">
           <Label htmlFor="patientRecords">Clinical Notes *</Label>
           <textarea
-            ref={textareaRef}
             id="patientRecords"
-            {...register('patientRecords')}
+            {...(() => {
+              const { ref, ...rest } = register('patientRecords', {
+                onChange: () => {
+                  // Trigger resize on input
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto';
+                    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+                  }
+                },
+              });
+              return {
+                ...rest,
+                ref: (e: HTMLTextAreaElement | null) => {
+                  // Call both refs
+                  ref(e);
+                  textareaRef.current = e;
+                },
+              };
+            })()}
             className="flex min-h-[120px] w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-2 text-sm placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 dark:focus-visible:ring-neutral-300 disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-hidden"
             placeholder="Enter relevant clinical information, lab results, symptoms, etc."
           />
@@ -603,8 +620,13 @@ export function PatientForm() {
       </Card>
 
       {/* Submit */}
-      <div className="flex justify-end">
-        <Button type="submit" size="lg" disabled={createPatient.isPending}>
+      <div className="flex justify-end pt-2">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={createPatient.isPending}
+          className="min-w-[180px] shadow-lg hover:shadow-xl transition-all duration-200"
+        >
           {createPatient.isPending ? 'Creating...' : 'Create Patient'}
         </Button>
       </div>
