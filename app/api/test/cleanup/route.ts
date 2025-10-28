@@ -22,8 +22,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     // Delete patients created by E2E tests
-    // E2E tests use MRNs that are timestamps (6 digits)
-    // We'll delete all patients created in the last hour with numeric MRNs > 100000
+    // E2E tests use MRNs starting with specific patterns OR test-related first names
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     // First, find all providers associated with test patients before deleting them
@@ -31,19 +30,27 @@ export async function DELETE(request: NextRequest) {
     const testPatientIds = await prisma.patient.findMany({
       where: {
         OR: [
-          // Recently created patients with high MRN numbers (test data)
+          // All patients with high MRN numbers (test data) - no time restriction
+          // This catches hardcoded test MRNs like '800001', '999004', etc.
           {
             mrn: {
               gte: '100000', // Test MRNs start at 100000
             },
+          },
+          // Recently created patients (catch any stragglers)
+          {
             createdAt: {
               gte: oneHourAgo,
             },
           },
-          // Patients with specific test prefixes
+          // Patients with specific test prefixes or common test names
           {
             firstName: {
-              in: ['Test', 'TestDuplicate', 'CarePlan', 'Duplicate'],
+              in: [
+                'Test', 'TestDuplicate', 'TestWarning', 'TestEmail',
+                'CarePlan', 'Duplicate', 'PatientOne', 'PatientTwo',
+                'Robert', 'Catherine', 'Katherine', // Common test names
+              ],
             },
           },
         ],
@@ -70,21 +77,30 @@ export async function DELETE(request: NextRequest) {
 
     const providerIds = testOrders.map((o) => o.providerId);
 
-    // Delete test patients
+    // Delete test patients (using same criteria as above)
     const patientResult = await prisma.patient.deleteMany({
       where: {
         OR: [
+          // All patients with high MRN numbers (test data) - no time restriction
           {
             mrn: {
               gte: '100000',
             },
+          },
+          // Recently created patients (catch any stragglers)
+          {
             createdAt: {
               gte: oneHourAgo,
             },
           },
+          // Patients with specific test prefixes or common test names
           {
             firstName: {
-              in: ['Test', 'TestDuplicate', 'CarePlan', 'Duplicate'],
+              in: [
+                'Test', 'TestDuplicate', 'TestWarning', 'TestEmail',
+                'CarePlan', 'Duplicate', 'PatientOne', 'PatientTwo',
+                'Robert', 'Catherine', 'Katherine', // Common test names
+              ],
             },
           },
         ],

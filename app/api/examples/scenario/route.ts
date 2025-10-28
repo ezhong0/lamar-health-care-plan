@@ -9,9 +9,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/infrastructure/db';
 import { getScenarioById } from '@/lib/examples/demo-scenarios';
-import { logger } from '@/lib/services/logger';
+import { logger } from '@/lib/infrastructure/logger';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {

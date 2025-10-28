@@ -17,6 +17,8 @@ export default defineConfig({
         singleFork: true, // Run all tests in single fork for database isolation
       },
     },
+    // Run test files sequentially, not in parallel
+    fileParallelism: false,
     // Ensure tests don't run in parallel within same file
     sequence: {
       shuffle: false,

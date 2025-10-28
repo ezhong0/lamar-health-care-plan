@@ -30,21 +30,25 @@ test.describe('Care Plan Generation', () => {
     // Should be on patient detail page
     await expect(page).toHaveURL(`/patients/${patientId}`);
 
+    // Wait for page to fully load (React Query needs time to fetch)
+    await page.waitForLoadState('networkidle');
+
     // Should see patient information (use heading to avoid strict mode violation)
     await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
 
-    // Should see "Generate Care Plan" button
+    // Should see "Generate Care Plan" button - use specific heading context
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-    await expect(generateButton).toBeVisible();
+    await expect(generateButton).toBeVisible({ timeout: 10000 });
 
     // Click generate care plan button
     await generateButton.click();
 
     // Should show loading state
-    await expect(page.getByText(/Generating/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: /Generating/i })).toBeVisible({ timeout: 5000 });
 
     // Wait for care plan to be generated (mocked, so should be fast)
-    await expect(page.getByText(/Care Plan/i)).toBeVisible({ timeout: 10000 });
+    // Use heading instead of generic text to avoid strict mode
+    await expect(page.getByRole('heading', { name: /Care Plans?$/i })).toBeVisible({ timeout: 10000 });
 
     // Should see care plan content from our mock
     await expect(page.getByText(/Problem/i)).toBeVisible();
@@ -59,25 +63,39 @@ test.describe('Care Plan Generation', () => {
     // Navigate to a patient with existing care plan
     // (Assuming from previous test or seed data)
     await page.goto('/patients');
+    await page.waitForLoadState('networkidle');
 
-    // Click on a patient (find one with care plan)
-    // This depends on seed data or previous tests
-    const patientCard = page.locator('[data-testid="patient-card"]').first();
-    if ((await patientCard.count()) > 0) {
-      await patientCard.click();
+    // Click on a patient - use href selector since PatientCard doesn't have data-testid
+    const patientCards = page.locator('a[href^="/patients/"]');
+    if ((await patientCards.count()) > 0) {
+      await patientCards.first().click();
 
-      // If care plan exists, should see it
-      const hasCarePlan = await page.getByText(/Care Plan/i).isVisible();
+      // Wait for navigation to patient detail page
+      await page.waitForURL(/\/patients\/[a-z0-9-]+/);
+      await page.waitForLoadState('networkidle');
+
+      // Check if generate button OR care plan heading exists
+      const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+      const carePlanHeading = page.getByRole('heading', { name: /Care Plans?$/i });
+
+      // Wait for either to appear (one must be visible)
+      await Promise.race([
+        generateButton.waitFor({ state: 'visible', timeout: 10000 }),
+        carePlanHeading.waitFor({ state: 'visible', timeout: 10000 }),
+      ]);
+
+      // Check which one is visible
+      const hasCarePlan = await carePlanHeading.isVisible();
 
       if (hasCarePlan) {
-        // Should see care plan section
-        await expect(page.getByRole('heading', { name: /Care Plan/i })).toBeVisible();
+        // Should see care plan section heading
+        await expect(carePlanHeading).toBeVisible();
 
         // Should see download button
         await expect(page.getByRole('button', { name: /Download/i })).toBeVisible();
       } else {
         // Should see generate button if no care plan
-        await expect(page.getByRole('button', { name: /Generate Care Plan/i })).toBeVisible();
+        await expect(generateButton).toBeVisible();
       }
     }
   });
@@ -85,21 +103,28 @@ test.describe('Care Plan Generation', () => {
   test('should download care plan as markdown file', async ({ page }) => {
     // Navigate to patient with care plan
     await page.goto('/patients');
+    await page.waitForLoadState('networkidle');
 
     // Find first patient and navigate
     const patientCards = page.locator('a[href^="/patients/"]');
     if ((await patientCards.count()) > 0) {
       await patientCards.first().click();
 
-      // Check if care plan exists
-      const hasCarePlan = await page.getByText(/Care Plan/i).isVisible();
+      // Wait for navigation to complete
+      await page.waitForURL(/\/patients\/[a-z0-9-]+/);
+      await page.waitForLoadState('networkidle');
+
+      // Check if care plan heading exists (more specific than text search)
+      const carePlanHeading = page.getByRole('heading', { name: /Care Plans?$/i });
+      const hasCarePlan = await carePlanHeading.isVisible().catch(() => false);
 
       if (!hasCarePlan) {
         // Generate one first
         const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
         if (await generateButton.isVisible()) {
           await generateButton.click();
-          await expect(page.getByText(/Care Plan/i)).toBeVisible({ timeout: 60000 });
+          // Wait for care plan to be generated
+          await expect(carePlanHeading).toBeVisible({ timeout: 60000 });
         }
       }
 
@@ -130,10 +155,11 @@ test.describe('Care Plan Generation', () => {
 
     // Navigate to patient detail
     await page.goto(`/patients/${patientId}`);
+    await page.waitForLoadState('networkidle');
 
     // Try to generate care plan
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
-    await expect(generateButton).toBeVisible();
+    await expect(generateButton).toBeVisible({ timeout: 10000 });
     await generateButton.click();
 
     // Should show error message

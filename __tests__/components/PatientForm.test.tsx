@@ -274,7 +274,7 @@ describe('PatientForm', () => {
       renderForm();
 
       expect(
-        screen.getByText(/A patient with this information already exists/)
+        screen.getByText(/Patient with MRN .* already exists/)
       ).toBeInTheDocument();
     });
 

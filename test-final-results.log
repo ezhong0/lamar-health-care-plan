@@ -1,0 +1,294 @@
+
+> lamar-health-temp@0.1.0 test
+> vitest run --config config/vitest.config.ts
+
+[dotenv@17.2.3] injecting env (3) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+[1m[46m RUN [49m[22m [36mv4.0.4 [39m[90m/Users/edwardzhong/Projects/lamar health[39m
+
+[90mstdout[2m | __tests__/unit/services/care-plan-service.test.ts[2m > [22m[2mCarePlanService[2m > [22m[2mgenerateCarePlan[2m > [22m[2mshould return error if patient has no orders
+[22m[39m{"timestamp":"2025-10-28T16:12:45.126Z","level":"error","message":"Care plan generation failed - LLM error","patientId":"cmharmdhf00068c84os99g7x8","error":"Failed to generate care plan: Cannot generate care plan: patient has no medication orders","details":{"reason":"Cannot generate care plan: patient has no medication orders"},"duration":2}
+
+[90mstdout[2m | __tests__/unit/services/care-plan-service.test.ts[2m > [22m[2mCarePlanService[2m > [22m[2mgenerateCarePlan[2m > [22m[2mshould handle LLM API error
+[22m[39m{"timestamp":"2025-10-28T16:13:11.261Z","level":"error","message":"Care plan generation failed - unexpected error","patientId":"cmharmxmk000e8c842yl2a5ey","error":"Anthropic API error","stack":"Error: Anthropic API error\n    at Object.<anonymous> (/Users/edwardzhong/Projects/lamar health/__tests__/helpers/mocks.ts:100:17)\n    at Object.Mock [as create] (file:///Users/edwardzhong/Projects/lamar%20health/node_modules/@vitest/spy/dist/index.js:274:34)\n    at CarePlanService.callClaude (/Users/edwardzhong/Projects/lamar health/lib/services/care-plan-service.ts:267:54)\n    at CarePlanService.generateCarePlan (/Users/edwardzhong/Projects/lamar health/lib/services/care-plan-service.ts:129:34)\n    at /Users/edwardzhong/Projects/lamar health/__tests__/unit/services/care-plan-service.test.ts:256:22\n    at file:///Users/edwardzhong/Projects/lamar%20health/node_modules/@vitest/runner/dist/index.js:753:20","duration":9}
+
+[90mstdout[2m | __tests__/unit/services/care-plan-service.test.ts[2m > [22m[2mCarePlanService[2m > [22m[2mgenerateCarePlan[2m > [22m[2mshould validate response is not empty
+[22m[39m{"timestamp":"2025-10-28T16:13:11.445Z","level":"error","message":"Care plan generation failed - LLM error","patientId":"cmharmxsc000u8c84eec92r50","error":"Failed to generate care plan: LLM response too short or empty","details":{"reason":"LLM response too short or empty","cause":"Response length: 0"},"duration":5}
+
+[90mstdout[2m | __tests__/unit/services/care-plan-service.test.ts[2m > [22m[2mCarePlanService[2m > [22m[2mPrompt Construction[2m > [22m[2mshould build prompt with patient information
+[22m[39m{"timestamp":"2025-10-28T16:13:11.495Z","level":"error","message":"Care plan generation failed - LLM error","patientId":"cmharmxtr00178c84vjwtbawv","error":"Failed to generate care plan: LLM response too short or empty","details":{"reason":"LLM response too short or empty","cause":"Response length: 13"},"duration":3}
+
+ [31m❯[39m __tests__/unit/services/care-plan-service.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 26505[2mms[22m[39m
+       [32m✓[39m should generate care plan for valid patient[32m 112[2mms[22m[39m
+       [32m✓[39m should return error for non-existent patient[32m 6[2mms[22m[39m
+       [32m✓[39m should return error if patient has no orders[32m 6[2mms[22m[39m
+[31m       [31m×[31m should handle LLM timeout[39m[33m 26091[2mms[22m[39m
+       [32m✓[39m should handle LLM API error[32m 45[2mms[22m[39m
+       [32m✓[39m should save care plan to database[32m 141[2mms[22m[39m
+       [32m✓[39m should include model name in care plan[32m 21[2mms[22m[39m
+       [32m✓[39m should validate response is not empty[32m 21[2mms[22m[39m
+       [32m✓[39m should return care plans for patient[32m 11[2mms[22m[39m
+       [32m✓[39m should return empty array for patient with no care plans[32m 8[2mms[22m[39m
+       [32m✓[39m should return care plans in descending order by creation date[32m 16[2mms[22m[39m
+       [32m✓[39m should build prompt with patient information[32m 15[2mms[22m[39m
+ [31m❯[39m __tests__/components/PatientForm.test.tsx [2m([22m[2m19 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 684[2mms[22m[39m
+       [32m✓[39m renders all required form sections[32m 45[2mms[22m[39m
+       [32m✓[39m renders all input fields[32m 19[2mms[22m[39m
+       [32m✓[39m renders submit button[32m 70[2mms[22m[39m
+       [32m✓[39m has correct placeholders[32m 6[2mms[22m[39m
+       [32m✓[39m shows validation error for empty first name[32m 47[2mms[22m[39m
+       [32m✓[39m shows validation error for empty last name[32m 31[2mms[22m[39m
+       [32m✓[39m validates MRN is exactly 6 digits[32m 56[2mms[22m[39m
+       [32m✓[39m accepts valid 6-digit MRN[32m 85[2mms[22m[39m
+       [32m✓[39m validates NPI is exactly 10 digits[32m 51[2mms[22m[39m
+       [32m✓[39m accepts valid ICD-10 code[32m 25[2mms[22m[39m
+       [32m✓[39m navigates to patient detail on successful submission without warnings[32m 176[2mms[22m[39m
+       [32m✓[39m disables submit button while pending[32m 15[2mms[22m[39m
+       [32m✓[39m shows "Creating..." text while pending[32m 8[2mms[22m[39m
+[31m       [31m×[31m displays API error message[39m[32m 16[2mms[22m[39m
+       [32m✓[39m displays generic error for non-API errors[32m 8[2mms[22m[39m
+       [32m✓[39m displays fallback error message for unknown errors[32m 7[2mms[22m[39m
+       [32m✓[39m MRN input has maxLength of 6[32m 6[2mms[22m[39m
+       [32m✓[39m MRN input has numeric inputMode[32m 8[2mms[22m[39m
+       [32m✓[39m NPI input has maxLength of 10[32m 5[2mms[22m[39m
+ [31m❯[39m __tests__/services/duplicate-detector.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 106[2mms[22m[39m
+       [32m✓[39m does not crash when checking for similar patients[32m 39[2mms[22m[39m
+       [32m✓[39m finds similar patient with different spelling[32m 5[2mms[22m[39m
+       [32m✓[39m does not flag completely different names[32m 5[2mms[22m[39m
+       [32m✓[39m excludes exact MRN matches[32m 5[2mms[22m[39m
+       [32m✓[39m returns multiple warnings for multiple similar patients[32m 3[2mms[22m[39m
+       [32m✓[39m handles strings with repeated characters correctly[32m 1[2mms[22m[39m
+       [32m✓[39m returns 1.0 for identical strings[32m 1[2mms[22m[39m
+       [32m✓[39m returns 0.0 for completely different strings[32m 1[2mms[22m[39m
+[31m       [31m×[31m handles empty strings gracefully[39m[32m 4[2mms[22m[39m
+       [32m✓[39m calculates similarity for names with common patterns[32m 1[2mms[22m[39m
+       [32m✓[39m detects duplicate order within 30 days[32m 30[2mms[22m[39m
+       [32m✓[39m handles case-insensitive medication matching[32m 6[2mms[22m[39m
+       [32m✓[39m does not flag different medications[32m 3[2mms[22m[39m
+       [32m✓[39m returns no warnings for new patient with no orders[32m 2[2mms[22m[39m
+ [32m✓[39m __tests__/infrastructure/error-handler.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m __tests__/utils/sanitize.test.ts [2m([22m[2m37 tests[22m[2m)[22m[33m 342[2mms[22m[39m
+       [33m[2m✓[22m[39m handles very long content [33m 313[2mms[22m[39m
+ [32m✓[39m __tests__/services/seed-service.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+ [32m✓[39m __tests__/components/WarningList.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m __tests__/integration/api/patients.integration.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 163[2mms[22m[39m
+ [32m✓[39m __tests__/components/CarePlanView.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+ [32m✓[39m __tests__/services/patient-service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32m✓[39m __tests__/components/PatientCard.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32m✓[39m __tests__/infrastructure/production-readiness.test.ts [2m([22m[2m16 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m __tests__/unit/services/duplicate-detector.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+ [32m✓[39m __tests__/services/provider-service.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m __tests__/services/export-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m __tests__/api/health.test.ts [2m([22m[2m6 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | __tests__/unit/infrastructure/retry.test.ts[2m > [22m[2mRetry Utility[2m > [22m[2mReal-world scenarios[2m > [22m[2mshould handle network timeout simulation
+[22m[39mRetry attempt 1: Network timeout
+
+[90mstdout[2m | __tests__/unit/infrastructure/retry.test.ts[2m > [22m[2mRetry Utility[2m > [22m[2mReal-world scenarios[2m > [22m[2mshould handle network timeout simulation
+[22m[39mRetry attempt 2: Network timeout
+
+ [32m✓[39m __tests__/unit/infrastructure/retry.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m __tests__/unit/validation/icd10-validator.test.ts [2m([22m[2m44 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m __tests__/validation/schemas.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m __tests__/infrastructure/retry.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m __tests__/domain/errors.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m __tests__/infrastructure/logger.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m __tests__/unit/domain/errors.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m __tests__/unit/validation/npi-validator.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m __tests__/infrastructure/env.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m __tests__/validation/icd10-validator.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m __tests__/unit/domain/result.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m __tests__/validation/npi-validator.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m __tests__/domain/result.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [2m[90m↓[39m[22m __tests__/integration/api-client.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m __tests__/components/PatientForm.test.tsx[2m > [22mPatientForm[2m > [22merror handling[2m > [22mdisplays API error message
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /A patient with this information already exists/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<form[39m
+      [33mclass[39m=[32m"space-y-8"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90"[39m
+        [33mdata-slot[39m=[32m"alert"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed"[39m
+          [33mdata-slot[39m=[32m"alert-description"[39m
+        [36m>[39m
+          [0mPatient with MRN 123456 already exists[0m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm p-6 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-900/30 border-dashed"[39m
+        [33mdata-slot[39m=[32m"card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-sm font-semibold text-neutral-900 dark:text-white mb-1"[39m
+            [36m>[39m
+              [0mTry with Example Data[0m
+            [36m</h3>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-sm text-neutral-600 dark:text-neutral-400"[39m
+            [36m>[39m
+              [0mLoad curated patient scenarios or generate a new example with AI to explore the application.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col sm:flex-row gap-3"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex-1"[39m
+            [36m>[39m
+              [36m<select[39m
+                [33mclass[39m=[32m"w-full h-10 px-3 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"[39m
+              [36m>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m>[39m
+                  [0mSelect a curated example...[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"myasthenia-gravis"[39m
+                [36m>[39m
+                  [0mMyasthenia Gravis (IVIG)[0m
+                  [0m • [0m
+                  [0mmoderate[0m
+                  [0m • [0m
+                  [0m46yo female with generalized MG, declining strength, scheduled for thymectomy[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"severe-asthma"[39m
+                [36m>[39m
+                  [0mSevere Asthma (Biologic)[0m
+                  [0m • [0m
+                  [0mmoderate[0m
+                  [0m • [0m
+                  [0m34yo male with severe eosinophilic asthma despite high-dose ICS/LABA[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"rheumatoid-arthritis"[39m
+                [36m>[39m
+                  [0mRheumatoid Arthritis (Infliximab)[0m
+                  [0m • [0m
+                  [0mmoderate[0m
+                  [0m • [0m
+                  [0m52yo female with active RA, inadequate MTX response, starting biologic[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"cidp"[39m
+                [36m>[39m
+                  [0mCIDP (Immune Globulin)[0m
+                  [0m • [0m
+                  [0mcomplex[0m
+                  [0m • [0m
+                  [0m61yo male with chronic inflammatory demyelinating polyneuropathy, progressive weakness[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"complex-multi-system"[39m
+                [36m>[39m
+                  [0mComplex Multi-System (Rituximab)[0m
+                  [0m • [0m
+                  [0mcomplex[0m
+                  [0m • [0m
+                  [0m58yo female with dermatomyositis, ILD, refractory to standard therapy[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"simple-case"[39m
+                [36m>[39m
+                  [0mSimple Case (Omalizumab)[0m
+                  [0m • [0m
+                  [0msimple[0m
+                  [0m • [0m
+                  [0m28yo female with allergic asthma, good candidate for biologic therapy[0m
+                [36m</option>[39m
+              [36m</select>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 shrink-0 min-w-[160px] font-medium"[39m
+              [33mdata-slot[39m=[32m"button"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"mr-2 h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M13 10V3L4 14h7v7l9-11h-7z"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mGenerate with AI[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-wrap gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400"[39m
+            [36m>[39m
+         ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m __tests__/components/PatientForm.test.tsx:[2m277:16[22m[39m
+    [90m275| [39m
+    [90m276| [39m      [34mexpect[39m(
+    [90m277| [39m        screen.getByText(/A patient with this information already exis…
+    [90m   | [39m               [31m^[39m
+    [90m278| [39m      )[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m279| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m __tests__/services/duplicate-detector.test.ts[2m > [22mDuplicateDetector[2m > [22mJaccard similarity algorithm[2m > [22mhandles empty strings gracefully
+[31m[1mAssertionError[22m: expected +0 to be 1 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m __tests__/services/duplicate-detector.test.ts:[2m223:20[22m[39m
+    [90m221| [39m      [34mexpect[39m(sim2)[33m.[39m[34mtoBe[39m([34m0.0[39m)[33m;[39m
+    [90m222| [39m      [90m// Empty strings are considered identical[39m
+    [90m223| [39m      [34mexpect[39m(sim3)[33m.[39m[34mtoBe[39m([34m1.0[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m224| [39m    })[33m;[39m
+    [90m225| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m __tests__/unit/services/care-plan-service.test.ts[2m > [22mCarePlanService[2m > [22mgenerateCarePlan[2m > [22mshould handle LLM timeout
+[31m[1mError[22m: Expected result to be failure, but it was success[39m
+[36m [2m❯[22m __tests__/unit/services/care-plan-service.test.ts:[2m216:22[22m[39m
+    [90m214| [39m      })[33m;[39m
+    [90m215| [39m
+    [90m216| [39m      [34mexpect[39m(result)[33m.[39m[34mtoBeFailure[39m()[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m217| [39m    }, 35000); // Increase test timeout to 35s (above service timeout …
+    [90m218| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (30)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m467 passed[39m[22m[2m | [22m[33m9 skipped[39m[90m (479)[39m
+[2m   Start at [22m 09:12:44
+[2m   Duration [22m 41.39s[2m (transform 613ms, setup 908ms, collect 1.58s, tests 29.06s, environment 7.74s, prepare 123ms)[22m
+

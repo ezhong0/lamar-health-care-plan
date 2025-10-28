@@ -15,16 +15,23 @@ import {
 } from '@/lib/domain/errors';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import { logger } from '@/lib/infrastructure/logger';
 
 describe('handleError', () => {
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    // Set logger level to allow all logs during tests
+    // @ts-expect-error - accessing private property for testing
+    logger.level = 'debug';
   });
 
   afterEach(() => {
     consoleLogSpy.mockRestore();
+    // Restore logger level
+    // @ts-expect-error - accessing private property for testing
+    logger.level = 'error';
   });
 
   describe('Domain errors', () => {
