@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createPatientViaUI, createTestPatient } from './helpers/test-data';
+import { createPatientViaUI, createPatientViaAPI, createTestPatient } from './helpers/test-data';
 import { mockExportAPI, setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Export Functionality', () => {
@@ -56,12 +56,13 @@ test.describe('Export Functionality', () => {
   });
 
   test('should include patient data in export', async ({ page }) => {
-    // Create a test patient
-    const patient = createTestPatient({ mrn: '700004' });
-    await createPatientViaUI(page, patient);
+    // Create a test patient via API
+    const patient = createTestPatient();
+    await createPatientViaAPI(page, patient);
 
     // Use page.request to fetch the export
-    const response = await page.request.get('/api/export');
+    const response = await page.request.get('http://localhost:3000/api/export');
+    expect(response.ok()).toBeTruthy();
     const content = await response.text();
 
     // Should contain the patient's MRN in the export
@@ -69,15 +70,16 @@ test.describe('Export Functionality', () => {
   });
 
   test('should export multiple patients if they exist', async ({ page }) => {
-    // Create multiple test patients
-    const patient1 = createTestPatient({ mrn: '700002', firstName: 'Export', lastName: 'Test1' });
-    const patient2 = createTestPatient({ mrn: '700003', firstName: 'Export', lastName: 'Test2' });
+    // Create multiple test patients via API
+    const patient1 = createTestPatient({ firstName: 'Export', lastName: 'Test1' });
+    const patient2 = createTestPatient({ firstName: 'Export', lastName: 'Test2' });
 
-    await createPatientViaUI(page, patient1);
-    await createPatientViaUI(page, patient2);
+    await createPatientViaAPI(page, patient1);
+    await createPatientViaAPI(page, patient2);
 
     // Use page.request to fetch the export
-    const response = await page.request.get('/api/export');
+    const response = await page.request.get('http://localhost:3000/api/export');
+    expect(response.ok()).toBeTruthy();
     const content = await response.text();
 
     // Should contain both patients
