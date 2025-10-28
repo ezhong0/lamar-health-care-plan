@@ -1,0 +1,45 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Lamar Health" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "New Patient" [ref=e7] [cursor=pointer]:
+          - /url: /patients/new
+        - link "All Patients" [ref=e8] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e9]:
+        - link "GitHub" [ref=e10] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e11]
+          - text: GitHub
+        - button "Toggle theme" [ref=e13]:
+          - img [ref=e14]
+  - main [ref=e16]:
+    - paragraph [ref=e21]: Loading patient information...
+  - contentinfo [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]: Lamar Health Care Plan Generator
+          - generic [ref=e27]: ·
+          - generic [ref=e28]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e29] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e30]
+          - generic [ref=e33]: View on GitHub
+      - generic [ref=e35]:
+        - generic [ref=e36]: TypeScript
+        - generic [ref=e37]: React
+        - generic [ref=e38]: Next.js 16
+        - generic [ref=e39]: Prisma
+        - generic [ref=e40]: PostgreSQL
+        - generic [ref=e41]: Claude 3.5
+        - generic [ref=e42]: Tailwind CSS
+  - button "Open Next.js Dev Tools" [ref=e48] [cursor=pointer]:
+    - img [ref=e49]
+  - alert [ref=e52]
+```

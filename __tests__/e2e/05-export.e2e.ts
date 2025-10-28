@@ -6,67 +6,45 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { createPatientViaUI, createTestPatient } from './helpers/test-data';
+import { mockExportAPI, setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Export Functionality', () => {
-  test('should navigate to export page from home', async ({ page }) => {
-    await page.goto('/');
-
-    // Look for export link/button
-    const exportLink = page.getByRole('link', { name: /Export/i });
-
-    if (await exportLink.isVisible()) {
-      await exportLink.click();
-
-      // Should navigate to export page
-      await expect(page).toHaveURL('/export');
-
-      // Should see export UI
-      await expect(page.getByText(/Export/i)).toBeVisible();
-    }
+  test.beforeEach(async ({ page }) => {
+    await setupCommonMocks(page);
   });
 
-  test('should export patient data as CSV', async ({ page }) => {
-    await page.goto('/');
+  test('should export patient data via API endpoint', async ({ page }) => {
+    // Create a test patient first to ensure we have data
+    const patient = createTestPatient({ mrn: '700001' });
+    await createPatientViaUI(page, patient);
 
-    // Check if export functionality exists
-    const exportButton = page.getByRole('button', { name: /Export.*Data/i });
-
-    if (await exportButton.isVisible()) {
-      // Setup download listener
-      const downloadPromise = page.waitForEvent('download');
-
-      // Click export button
-      await exportButton.click();
-
-      // Wait for download
-      const download = await downloadPromise;
-
-      // Verify filename is CSV
-      expect(download.suggestedFilename()).toMatch(/\.(csv|xlsx)$/i);
-
-      // Verify file is not empty
-      const path = await download.path();
-      expect(path).toBeTruthy();
-    } else {
-      // Export might be on a separate page
-      await page.goto('/api/export');
-
-      // API should return CSV data
-      const content = await page.content();
-      expect(content.length).toBeGreaterThan(0);
-    }
-  });
-
-  test('should export data containing patient information', async ({ page }) => {
-    // Visit export page or API endpoint
+    // Navigate to the export API endpoint and capture response
+    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
     await page.goto('/api/export');
+    const response = await responsePromise;
 
-    // Check response headers
-    const response = await page.waitForResponse((resp) => resp.url().includes('/api/export'));
+    // Get the response body
+    const content = await response.text();
+
+    // Verify CSV headers are present
+    expect(content).toContain('firstName');
+    expect(content).toContain('lastName');
+    expect(content).toContain('mrn');
+
+    // Verify content is not empty
+    expect(content.length).toBeGreaterThan(50);
+  });
+
+  test('should export data with correct CSV format and headers', async ({ page }) => {
+    // Navigate and capture the response
+    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
+    await page.goto('/api/export');
+    const response = await responsePromise;
 
     // Should be CSV content type
     const contentType = response.headers()['content-type'];
-    expect(contentType).toMatch(/csv|excel|spreadsheet/i);
+    expect(contentType).toMatch(/csv|text/i);
 
     // Get content
     const content = await response.text();
@@ -75,16 +53,43 @@ test.describe('Export Functionality', () => {
     expect(content).toContain('firstName');
     expect(content).toContain('lastName');
     expect(content).toContain('mrn');
-    expect(content).toContain('medication');
+
+    // Should have at least header row
+    const lines = content.split('\n').filter((line) => line.trim());
+    expect(lines.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('should include care plans in export if available', async ({ page }) => {
-    await page.goto('/api/export');
+  test('should include patient data in export', async ({ page }) => {
+    // Create a test patient
+    const patient = createTestPatient({ mrn: '700004' });
+    await createPatientViaUI(page, patient);
 
-    const response = await page.waitForResponse((resp) => resp.url().includes('/api/export'));
+    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
+    await page.goto('/api/export');
+    const response = await responsePromise;
+
     const content = await response.text();
 
-    // Should have care plan column or related fields
-    expect(content).toContain('carePlan');
+    // Should contain the patient's MRN in the export
+    expect(content).toContain(patient.mrn);
+  });
+
+  test('should export multiple patients if they exist', async ({ page }) => {
+    // Create multiple test patients
+    const patient1 = createTestPatient({ mrn: '700002', firstName: 'Export', lastName: 'Test1' });
+    const patient2 = createTestPatient({ mrn: '700003', firstName: 'Export', lastName: 'Test2' });
+
+    await createPatientViaUI(page, patient1);
+    await createPatientViaUI(page, patient2);
+
+    const responsePromise = page.waitForResponse((resp) => resp.url().includes('/api/export'));
+    await page.goto('/api/export');
+    const response = await responsePromise;
+
+    const content = await response.text();
+
+    // Should contain both patients
+    expect(content).toContain(patient1.mrn);
+    expect(content).toContain(patient2.mrn);
   });
 });

@@ -8,31 +8,29 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { createTestPatient, createPatientViaUI, TEST_PATIENTS } from './helpers/test-data';
+import { mockCarePlanAPI, mockCarePlanAPIError } from './fixtures/api-mocks';
 
 test.describe('Care Plan Generation', () => {
+  test.beforeEach(async ({ page }) => {
+    // Mock the AI API to avoid costs and external dependencies
+    await mockCarePlanAPI(page);
+  });
+
   test('should generate care plan for a patient', async ({ page }) => {
-    // First create a patient
-    await page.goto('/patients/new');
-    await page.getByLabel('First Name').fill('CarePlan');
-    await page.getByLabel('Last Name').fill('TestPatient');
-    await page.getByLabel('Medical Record Number (MRN)').fill('888001');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Sarah Mitchell');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('G70.00');
-    await page.getByLabel('Clinical Notes').fill(
-      'Patient has generalized myasthenia gravis. Recent exacerbation with ptosis and muscle weakness. ' +
-        'Currently on pyridostigmine 60mg TID and prednisone 10mg daily. ' +
-        'Neurology recommends IVIG therapy for rapid symptomatic control.'
-    );
+    // Create a patient using the predefined test patient for care plan generation
+    const patient = createTestPatient({
+      ...TEST_PATIENTS.carePlan,
+      mrn: '900001', // Unique MRN for this test run
+    });
 
-    await page.getByRole('button', { name: 'Create Patient' }).click();
+    const patientId = await createPatientViaUI(page, patient);
 
-    // Should redirect to patient detail page
-    await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+    // Should be on patient detail page
+    await expect(page).toHaveURL(`/patients/${patientId}`);
 
     // Should see patient information
-    await expect(page.getByText('CarePlan TestPatient')).toBeVisible();
+    await expect(page.getByText(`${patient.firstName} ${patient.lastName}`)).toBeVisible();
 
     // Should see "Generate Care Plan" button
     const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
@@ -42,13 +40,12 @@ test.describe('Care Plan Generation', () => {
     await generateButton.click();
 
     // Should show loading state
-    await expect(page.getByText(/Generating/i)).toBeVisible();
+    await expect(page.getByText(/Generating/i)).toBeVisible({ timeout: 5000 });
 
-    // Wait for care plan to be generated (may take 10-30 seconds)
-    await expect(page.getByText(/Care Plan/i)).toBeVisible({ timeout: 60000 });
+    // Wait for care plan to be generated (mocked, so should be fast)
+    await expect(page.getByText(/Care Plan/i)).toBeVisible({ timeout: 10000 });
 
-    // Should see care plan content
-    // Care plans should contain clinical information
+    // Should see care plan content from our mock
     await expect(page.getByText(/Problem/i)).toBeVisible();
     await expect(page.getByText(/Goal/i)).toBeVisible();
     await expect(page.getByText(/Intervention/i)).toBeVisible();
@@ -123,25 +120,26 @@ test.describe('Care Plan Generation', () => {
   });
 
   test('should handle care plan generation error gracefully', async ({ page }) => {
-    // This test would require mocking API failure
-    // For now, we verify error states exist in the UI
+    // Override the mock to return an error
+    await mockCarePlanAPIError(page, 'AI service temporarily unavailable');
+
+    // Create a patient
+    const patient = createTestPatient({ mrn: '900003' });
+    const patientId = await createPatientViaUI(page, patient);
 
     // Navigate to patient detail
-    await page.goto('/patients');
-    const patientCards = page.locator('a[href^="/patients/"]');
+    await page.goto(`/patients/${patientId}`);
 
-    if ((await patientCards.count()) > 0) {
-      await patientCards.first().click();
+    // Try to generate care plan
+    const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+    await expect(generateButton).toBeVisible();
+    await generateButton.click();
 
-      // Verify generate button exists
-      const generateButton = page.getByRole('button', { name: /Generate Care Plan/i });
+    // Should show error message
+    await expect(page.getByText(/failed.*generate.*care plan/i)).toBeVisible({ timeout: 5000 });
 
-      // If button is visible, the error handling is built into the component
-      // Actual error testing would require API mocking or network interception
-      if (await generateButton.isVisible()) {
-        expect(await generateButton.isEnabled()).toBe(true);
-      }
-    }
+    // Button should still be available to retry
+    await expect(generateButton).toBeVisible();
   });
 
   test('should not allow generating care plan twice', async ({ page }) => {

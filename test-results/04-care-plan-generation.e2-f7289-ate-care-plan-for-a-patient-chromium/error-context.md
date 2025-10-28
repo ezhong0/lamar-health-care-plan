@@ -9,27 +9,117 @@
           - /url: /
         - link "New Patient" [ref=e7] [cursor=pointer]:
           - /url: /patients/new
-      - button "Toggle theme" [ref=e8]:
-        - img [ref=e9]
-  - main [ref=e11]:
-    - generic [ref=e13]:
-      - generic [ref=e14]:
-        - heading "New Patient" [level=1] [ref=e15]
-        - paragraph [ref=e16]: Enter patient information to create a new record and generate a care plan.
-      - generic [ref=e18]:
-        - generic [ref=e19]:
-          - heading "Review Warnings" [level=1] [ref=e20]
-          - paragraph [ref=e21]: We found 1 potential issue that require your attention. Please review and decide how to proceed.
-        - generic [ref=e25]:
-          - img [ref=e27]
-          - generic [ref=e29]:
-            - paragraph [ref=e30]: Duplicate Order
-            - paragraph [ref=e31]: Order for IVIG already exists for this patient (created Oct 27, 2025)
-            - generic [ref=e32]: "Existing Order: IVIG (10/27/2025)"
-        - generic [ref=e33]:
-          - button "Cancel" [ref=e34]
-          - button "Proceed Anyway" [ref=e35]
-  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
-    - img [ref=e42]
-  - alert [ref=e45]
+        - link "All Patients" [ref=e8] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e9]:
+        - link "GitHub" [ref=e10] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e11]
+          - text: GitHub
+        - button "Toggle theme" [ref=e13]:
+          - img [ref=e14]
+  - main [ref=e16]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "New Patient" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e22]:
+        - alert [ref=e23]:
+          - generic [ref=e24]: Provider information conflict. Please verify NPI and name.
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - heading "Try with Example Data" [level=3] [ref=e28]
+            - paragraph [ref=e29]: Load a sample patient (A.B. - IVIG for Myasthenia Gravis) from the project documentation to explore the application features.
+          - button "Load Example" [ref=e30]
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - heading "Patient Information" [level=2] [ref=e33]
+            - paragraph [ref=e34]: Enter the patient's basic information
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: First Name *
+              - textbox "First Name *" [ref=e38]:
+                - /placeholder: John
+                - text: CarePlan
+            - generic [ref=e39]:
+              - generic [ref=e40]: Last Name *
+              - textbox "Last Name *" [ref=e41]:
+                - /placeholder: Doe
+                - text: TestPatient
+            - generic [ref=e42]:
+              - generic [ref=e43]: Medical Record Number (MRN) *
+              - textbox "Medical Record Number (MRN) *" [ref=e44]:
+                - /placeholder: "123456"
+                - text: "900001"
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - heading "Provider Information" [level=2] [ref=e47]
+            - paragraph [ref=e48]: Referring provider details
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - generic [ref=e51]: Referring Provider Name *
+              - textbox "Referring Provider Name *" [ref=e52]:
+                - /placeholder: Dr. Smith
+                - text: Dr. Sarah Mitchell
+            - generic [ref=e53]:
+              - generic [ref=e54]: Provider NPI *
+              - textbox "Provider NPI *" [ref=e55]:
+                - /placeholder: "1234567893"
+                - text: "1234567893"
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - heading "Medication & Diagnosis" [level=2] [ref=e58]
+            - paragraph [ref=e59]: Current medication and diagnoses
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [ref=e62]: Medication Name *
+              - textbox "Medication Name *" [ref=e63]:
+                - /placeholder: IVIG
+                - text: IVIG
+            - generic [ref=e64]:
+              - generic [ref=e65]: Primary Diagnosis (ICD-10) *
+              - textbox "Primary Diagnosis (ICD-10) *" [ref=e66]:
+                - /placeholder: G70.00
+                - text: G70.00
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - heading "Patient Records" [level=2] [ref=e69]
+            - paragraph [ref=e70]: Clinical notes and relevant medical history
+          - generic [ref=e71]:
+            - generic [ref=e72]: Clinical Notes *
+            - textbox "Clinical Notes *" [ref=e73]:
+              - /placeholder: Enter relevant clinical information, lab results, symptoms, etc.
+              - text: Patient has generalized myasthenia gravis. Recent exacerbation with ptosis and muscle weakness. Currently on pyridostigmine 60mg TID and prednisone 10mg daily. Neurology recommends IVIG therapy for rapid symptomatic control.
+        - button "Create Patient" [ref=e75]
+  - contentinfo [ref=e76]:
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: Lamar Health Care Plan Generator
+          - generic [ref=e81]: ·
+          - generic [ref=e82]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e83] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e84]
+          - generic [ref=e87]: View on GitHub
+      - generic [ref=e89]:
+        - generic [ref=e90]: TypeScript
+        - generic [ref=e91]: React
+        - generic [ref=e92]: Next.js 16
+        - generic [ref=e93]: Prisma
+        - generic [ref=e94]: PostgreSQL
+        - generic [ref=e95]: Claude 3.5
+        - generic [ref=e96]: Tailwind CSS
+  - generic [ref=e101] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e102]:
+      - img [ref=e103]
+    - generic [ref=e106]:
+      - button "Open issues overlay" [ref=e107]:
+        - generic [ref=e108]:
+          - generic [ref=e109]: "0"
+          - generic [ref=e110]: "1"
+        - generic [ref=e111]: Issue
+      - button "Collapse issues badge" [ref=e112]:
+        - img [ref=e113]
+  - alert [ref=e115]
 ```

@@ -9,27 +9,53 @@
           - /url: /
         - link "New Patient" [ref=e7] [cursor=pointer]:
           - /url: /patients/new
-      - button "Toggle theme" [ref=e8]:
-        - img [ref=e9]
-  - main [ref=e11]:
-    - generic [ref=e13]:
-      - generic [ref=e14]:
-        - heading "New Patient" [level=1] [ref=e15]
-        - paragraph [ref=e16]: Enter patient information to create a new record and generate a care plan.
-      - generic [ref=e18]:
-        - generic [ref=e19]:
-          - heading "Review Warnings" [level=1] [ref=e20]
-          - paragraph [ref=e21]: We found 1 potential issue that require your attention. Please review and decide how to proceed.
-        - generic [ref=e25]:
-          - img [ref=e27]
-          - generic [ref=e29]:
-            - paragraph [ref=e30]: Duplicate Order
-            - paragraph [ref=e31]: Order for IVIG already exists for this patient (created Oct 27, 2025)
-            - generic [ref=e32]: "Existing Order: IVIG (10/27/2025)"
-        - generic [ref=e33]:
-          - button "Cancel" [ref=e34]
-          - button "Proceed Anyway" [ref=e35]
-  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
-    - img [ref=e42]
-  - alert [ref=e45]
+        - link "All Patients" [ref=e8] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e9]:
+        - link "GitHub" [ref=e10] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e11]
+          - text: GitHub
+        - button "Toggle theme" [ref=e13]:
+          - img [ref=e14]
+  - main [ref=e16]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "New Patient" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - heading "Review Warnings" [level=1] [ref=e25]
+          - paragraph [ref=e26]: We found 1 potential issue that require your attention. Please review and decide how to proceed.
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: Duplicate Order
+            - paragraph [ref=e36]: Order for IVIG already exists for this patient (created Oct 27, 2025)
+            - generic [ref=e37]: "Existing Order: IVIG (10/27/2025)"
+        - generic [ref=e38]:
+          - button "Cancel" [ref=e39]
+          - button "Proceed Anyway" [ref=e40]
+  - contentinfo [ref=e41]:
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Lamar Health Care Plan Generator
+          - generic [ref=e46]: ·
+          - generic [ref=e47]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e48] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e49]
+          - generic [ref=e52]: View on GitHub
+      - generic [ref=e54]:
+        - generic [ref=e55]: TypeScript
+        - generic [ref=e56]: React
+        - generic [ref=e57]: Next.js 16
+        - generic [ref=e58]: Prisma
+        - generic [ref=e59]: PostgreSQL
+        - generic [ref=e60]: Claude 3.5
+        - generic [ref=e61]: Tailwind CSS
+  - button "Open Next.js Dev Tools" [ref=e67] [cursor=pointer]:
+    - img [ref=e68]
+  - alert [ref=e71]
 ```

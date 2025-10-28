@@ -1,0 +1,106 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Lamar Health" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "New Patient" [ref=e7] [cursor=pointer]:
+          - /url: /patients/new
+        - link "All Patients" [ref=e8] [cursor=pointer]:
+          - /url: /patients
+      - generic [ref=e9]:
+        - link "GitHub" [ref=e10] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e11]
+          - text: GitHub
+        - button "Toggle theme" [ref=e13]:
+          - img [ref=e14]
+  - main [ref=e16]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "New Patient" [level=1] [ref=e20]
+        - paragraph [ref=e21]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e22]:
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - heading "Try with Example Data" [level=3] [ref=e26]
+            - paragraph [ref=e27]: Load a sample patient (A.B. - IVIG for Myasthenia Gravis) from the project documentation to explore the application features.
+          - button "Load Example" [ref=e28]
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - heading "Patient Information" [level=2] [ref=e31]
+            - paragraph [ref=e32]: Enter the patient's basic information
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: First Name *
+              - textbox "First Name *" [ref=e36]:
+                - /placeholder: John
+            - generic [ref=e37]:
+              - generic [ref=e38]: Last Name *
+              - textbox "Last Name *" [ref=e39]:
+                - /placeholder: Doe
+            - generic [ref=e40]:
+              - generic [ref=e41]: Medical Record Number (MRN) *
+              - textbox "Medical Record Number (MRN) *" [ref=e42]:
+                - /placeholder: "123456"
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - heading "Provider Information" [level=2] [ref=e45]
+            - paragraph [ref=e46]: Referring provider details
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]: Referring Provider Name *
+              - textbox "Referring Provider Name *" [ref=e50]:
+                - /placeholder: Dr. Smith
+            - generic [ref=e51]:
+              - generic [ref=e52]: Provider NPI *
+              - textbox "Provider NPI *" [ref=e53]:
+                - /placeholder: "1234567893"
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - heading "Medication & Diagnosis" [level=2] [ref=e56]
+            - paragraph [ref=e57]: Current medication and diagnoses
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Medication Name *
+              - textbox "Medication Name *" [ref=e61]:
+                - /placeholder: IVIG
+            - generic [ref=e62]:
+              - generic [ref=e63]: Primary Diagnosis (ICD-10) *
+              - textbox "Primary Diagnosis (ICD-10) *" [ref=e64]:
+                - /placeholder: G70.00
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Patient Records" [level=2] [ref=e67]
+            - paragraph [ref=e68]: Clinical notes and relevant medical history
+          - generic [ref=e69]:
+            - generic [ref=e70]: Clinical Notes *
+            - textbox "Clinical Notes *" [ref=e71]:
+              - /placeholder: Enter relevant clinical information, lab results, symptoms, etc.
+        - button "Create Patient" [ref=e73]
+  - contentinfo [ref=e74]:
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]: Lamar Health Care Plan Generator
+          - generic [ref=e79]: ·
+          - generic [ref=e80]: Built with Next.js, Prisma & Claude AI
+        - link "View on GitHub" [ref=e81] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e82]
+          - generic [ref=e85]: View on GitHub
+      - generic [ref=e87]:
+        - generic [ref=e88]: TypeScript
+        - generic [ref=e89]: React
+        - generic [ref=e90]: Next.js 16
+        - generic [ref=e91]: Prisma
+        - generic [ref=e92]: PostgreSQL
+        - generic [ref=e93]: Claude 3.5
+        - generic [ref=e94]: Tailwind CSS
+  - button "Open Next.js Dev Tools" [ref=e100] [cursor=pointer]:
+    - img [ref=e101]
+  - alert [ref=e104]
+```

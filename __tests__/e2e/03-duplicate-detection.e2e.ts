@@ -2,42 +2,43 @@
  * E2E Test: Duplicate Detection Warnings
  *
  * Tests all three types of duplicate detection:
- * 1. Duplicate patient (same MRN or similar name)
- * 2. Duplicate order (same patient + medication)
- * 3. Provider conflict (same NPI with different name)
- *
- * All are non-blocking warnings - user should be able to proceed.
+ * 1. Duplicate MRN (BLOCKING - prevents creation)
+ * 2. Similar patient name (WARNING - allows proceeding)
+ * 3. Duplicate order (WARNING - same patient + medication)
+ * 4. Provider conflict (WARNING - same NPI with different name)
  */
 
 import { test, expect } from '@playwright/test';
+import { createTestPatient, fillPatientForm, createPatientViaUI } from './helpers/test-data';
+import { setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Duplicate Detection', () => {
-  test('should warn about duplicate MRN but allow proceeding', async ({ page }) => {
-    // Create first patient
-    await page.goto('/patients/new');
-    await page.getByLabel('First Name').fill('Robert');
-    await page.getByLabel('Last Name').fill('Johnson');
-    await page.getByLabel('Medical Record Number (MRN)').fill('999001');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Sarah Mitchell');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('G70.00');
-    await page.getByLabel('Clinical Notes').fill('Test patient records');
-    await page.getByRole('button', { name: 'Create Patient' }).click();
+  test.beforeEach(async ({ page }) => {
+    await setupCommonMocks(page);
+  });
 
-    // Wait for creation
-    await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+  test('should block duplicate MRN (blocking error)', async ({ page }) => {
+    // Create first patient with unique MRN
+    const firstPatient = createTestPatient({
+      firstName: 'Robert',
+      lastName: 'Johnson',
+      mrn: '800001', // Use specific MRN for this test
+    });
 
-    // Try to create second patient with same MRN
+    await createPatientViaUI(page, firstPatient);
+
+    // Try to create second patient with SAME MRN (should fail)
+    const secondPatient = createTestPatient({
+      firstName: 'Different',
+      lastName: 'Person',
+      mrn: firstPatient.mrn, // Same MRN - should be blocked!
+      medicationName: 'Rituximab',
+      primaryDiagnosis: 'M05.79',
+      referringProviderNPI: '1245319599',
+    });
+
     await page.goto('/patients/new');
-    await page.getByLabel('First Name').fill('Different');
-    await page.getByLabel('Last Name').fill('Person');
-    await page.getByLabel('Medical Record Number (MRN)').fill('999001'); // Same MRN!
-    await page.getByLabel('Referring Provider Name').fill('Dr. Test');
-    await page.getByLabel('Provider NPI').fill('1245319599');
-    await page.getByLabel('Medication Name').fill('Rituximab');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('M05.79');
-    await page.getByLabel('Clinical Notes').fill('Different patient records');
+    await fillPatientForm(page, secondPatient);
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
     // Should show duplicate MRN error (blocking - MRN must be unique)
@@ -49,29 +50,23 @@ test.describe('Duplicate Detection', () => {
 
   test('should warn about similar patient name (fuzzy match)', async ({ page }) => {
     // Create first patient
-    await page.goto('/patients/new');
-    await page.getByLabel('First Name').fill('Catherine');
-    await page.getByLabel('Last Name').fill('Martinez');
-    await page.getByLabel('Medical Record Number (MRN)').fill('999002');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Provider');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('J45.50');
-    await page.getByLabel('Clinical Notes').fill('Test records');
-    await page.getByRole('button', { name: 'Create Patient' }).click();
+    const firstPatient = createTestPatient({
+      firstName: 'Catherine',
+      lastName: 'Martinez',
+      mrn: '800002',
+    });
 
-    await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+    await createPatientViaUI(page, firstPatient);
 
-    // Create patient with similar name
+    // Create patient with similar name but different MRN
+    const similarPatient = createTestPatient({
+      firstName: 'Katherine', // Similar to Catherine
+      lastName: 'Martinez',
+      mrn: '800003', // Different MRN
+    });
+
     await page.goto('/patients/new');
-    await page.getByLabel('First Name').fill('Katherine'); // Similar to Catherine
-    await page.getByLabel('Last Name').fill('Martinez');
-    await page.getByLabel('Medical Record Number (MRN)').fill('999003'); // Different MRN
-    await page.getByLabel('Referring Provider Name').fill('Dr. Provider');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('J45.50');
-    await page.getByLabel('Clinical Notes').fill('Test records');
+    await fillPatientForm(page, similarPatient);
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
     // Should show warning page
@@ -80,7 +75,7 @@ test.describe('Duplicate Detection', () => {
     await expect(page.getByText(/Catherine.*Martinez/i)).toBeVisible();
 
     // Should be able to proceed
-    await page.getByRole('button', { name: /Proceed/i }).click();
+    await page.getByRole('button', { name: /Proceed Anyway/i }).click();
 
     // Should redirect to patient detail page
     await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });

@@ -6,9 +6,12 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { createTestPatient, INVALID_NPIS, INVALID_ICD10_CODES } from './helpers/test-data';
+import { setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Form Validation', () => {
   test.beforeEach(async ({ page }) => {
+    await setupCommonMocks(page);
     await page.goto('/patients/new');
   });
 
@@ -16,26 +19,24 @@ test.describe('Form Validation', () => {
     // Try to submit empty form
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
-    // Should show validation errors (HTML5 validation or Zod errors)
-    // First name required
-    const firstNameInput = page.getByLabel('First Name');
-    await expect(firstNameInput).toHaveAttribute('required');
-
-    // Check if browser validation or custom validation kicks in
-    const isValid = await firstNameInput.evaluate((el: HTMLInputElement) => el.validity.valid);
-    expect(isValid).toBe(false);
+    // Should show validation errors from Zod/React Hook Form
+    // Note: React Hook Form validation happens on submit, not via HTML5 required attribute
+    // Wait for error messages to appear
+    await expect(page.getByText(/first name.*required/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('should show error for invalid MRN (not 6 digits)', async ({ page }) => {
-    // Fill form with invalid MRN
-    await page.getByLabel('First Name').fill('Test');
-    await page.getByLabel('Last Name').fill('Patient');
-    await page.getByLabel('Medical Record Number (MRN)').fill('123'); // Too short
-    await page.getByLabel('Referring Provider Name').fill('Dr. Test');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('G70.00');
-    await page.getByLabel('Clinical Notes').fill('Test notes');
+    // Use test patient with invalid MRN
+    const patient = createTestPatient({ mrn: '123' }); // Too short
+
+    await page.getByLabel('First Name').fill(patient.firstName);
+    await page.getByLabel('Last Name').fill(patient.lastName);
+    await page.getByLabel('Medical Record Number (MRN)').fill(patient.mrn);
+    await page.getByLabel('Referring Provider Name').fill(patient.referringProvider);
+    await page.getByLabel('Provider NPI').fill(patient.referringProviderNPI);
+    await page.getByLabel('Medication Name').fill(patient.medicationName);
+    await page.getByLabel('Primary Diagnosis (ICD-10)').fill(patient.primaryDiagnosis);
+    await page.getByLabel('Clinical Notes').fill(patient.clinicalNotes);
 
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
@@ -44,15 +45,17 @@ test.describe('Form Validation', () => {
   });
 
   test('should show error for invalid NPI (not 10 digits)', async ({ page }) => {
-    // Fill form with invalid NPI
-    await page.getByLabel('First Name').fill('Test');
-    await page.getByLabel('Last Name').fill('Patient');
-    await page.getByLabel('Medical Record Number (MRN)').fill('123456');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Test');
-    await page.getByLabel('Provider NPI').fill('123'); // Too short
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('G70.00');
-    await page.getByLabel('Clinical Notes').fill('Test notes');
+    // Use test patient with invalid NPI
+    const patient = createTestPatient({ referringProviderNPI: INVALID_NPIS.tooShort });
+
+    await page.getByLabel('First Name').fill(patient.firstName);
+    await page.getByLabel('Last Name').fill(patient.lastName);
+    await page.getByLabel('Medical Record Number (MRN)').fill(patient.mrn);
+    await page.getByLabel('Referring Provider Name').fill(patient.referringProvider);
+    await page.getByLabel('Provider NPI').fill(patient.referringProviderNPI);
+    await page.getByLabel('Medication Name').fill(patient.medicationName);
+    await page.getByLabel('Primary Diagnosis (ICD-10)').fill(patient.primaryDiagnosis);
+    await page.getByLabel('Clinical Notes').fill(patient.clinicalNotes);
 
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
@@ -61,32 +64,36 @@ test.describe('Form Validation', () => {
   });
 
   test('should show error for invalid NPI checksum (Luhn algorithm)', async ({ page }) => {
-    // Fill form with NPI that has invalid Luhn checksum
-    await page.getByLabel('First Name').fill('Test');
-    await page.getByLabel('Last Name').fill('Patient');
-    await page.getByLabel('Medical Record Number (MRN)').fill('123456');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Test');
-    await page.getByLabel('Provider NPI').fill('1234567890'); // Invalid Luhn checksum
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('G70.00');
-    await page.getByLabel('Clinical Notes').fill('Test notes');
+    // Use test patient with NPI that has invalid Luhn checksum
+    const patient = createTestPatient({ referringProviderNPI: INVALID_NPIS.invalidChecksum });
+
+    await page.getByLabel('First Name').fill(patient.firstName);
+    await page.getByLabel('Last Name').fill(patient.lastName);
+    await page.getByLabel('Medical Record Number (MRN)').fill(patient.mrn);
+    await page.getByLabel('Referring Provider Name').fill(patient.referringProvider);
+    await page.getByLabel('Provider NPI').fill(patient.referringProviderNPI);
+    await page.getByLabel('Medication Name').fill(patient.medicationName);
+    await page.getByLabel('Primary Diagnosis (ICD-10)').fill(patient.primaryDiagnosis);
+    await page.getByLabel('Clinical Notes').fill(patient.clinicalNotes);
 
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
     // Should show NPI validation error
-    await expect(page.getByText(/NPI checksum is invalid/i)).toBeVisible();
+    await expect(page.getByText(/NPI check digit is invalid/i)).toBeVisible();
   });
 
   test('should show error for invalid ICD-10 format', async ({ page }) => {
-    // Fill form with invalid ICD-10 code
-    await page.getByLabel('First Name').fill('Test');
-    await page.getByLabel('Last Name').fill('Patient');
-    await page.getByLabel('Medical Record Number (MRN)').fill('123456');
-    await page.getByLabel('Referring Provider Name').fill('Dr. Test');
-    await page.getByLabel('Provider NPI').fill('1234567893');
-    await page.getByLabel('Medication Name').fill('IVIG');
-    await page.getByLabel('Primary Diagnosis (ICD-10)').fill('INVALID'); // Invalid format
-    await page.getByLabel('Clinical Notes').fill('Test notes');
+    // Use test patient with invalid ICD-10 code
+    const patient = createTestPatient({ primaryDiagnosis: INVALID_ICD10_CODES.invalidFormat });
+
+    await page.getByLabel('First Name').fill(patient.firstName);
+    await page.getByLabel('Last Name').fill(patient.lastName);
+    await page.getByLabel('Medical Record Number (MRN)').fill(patient.mrn);
+    await page.getByLabel('Referring Provider Name').fill(patient.referringProvider);
+    await page.getByLabel('Provider NPI').fill(patient.referringProviderNPI);
+    await page.getByLabel('Medication Name').fill(patient.medicationName);
+    await page.getByLabel('Primary Diagnosis (ICD-10)').fill(patient.primaryDiagnosis);
+    await page.getByLabel('Clinical Notes').fill(patient.clinicalNotes);
 
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
