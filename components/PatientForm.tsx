@@ -53,31 +53,43 @@ export function PatientForm() {
       try {
         const prefillData = JSON.parse(prefillDataStr);
 
-        // Populate form fields
-        setValue('firstName', prefillData.firstName);
-        setValue('lastName', prefillData.lastName);
-        setValue('mrn', prefillData.mrn);
-        setValue('patientRecords', prefillData.patientRecords);
+        // Prepare form data object to populate both form and draft
+        const formData: Partial<PatientInput> = {
+          firstName: prefillData.firstName,
+          lastName: prefillData.lastName,
+          mrn: prefillData.mrn,
+          patientRecords: prefillData.patientRecords,
+        };
 
         // Handle optional fields
         if (prefillData.additionalDiagnoses?.length > 0) {
-          setValue('additionalDiagnoses', prefillData.additionalDiagnoses.join(', '));
+          formData.additionalDiagnoses = prefillData.additionalDiagnoses.join(', ') as any;
         }
         if (prefillData.medicationHistory?.length > 0) {
-          setValue('medicationHistory', prefillData.medicationHistory.join(', '));
+          formData.medicationHistory = prefillData.medicationHistory.join(', ') as any;
         }
 
         // For now, just populate with the first order
         // TODO: Support multiple orders in the form
         if (prefillData.orders && prefillData.orders.length > 0) {
           const firstOrder = prefillData.orders[0];
-          setValue('medicationName', firstOrder.medicationName);
-          setValue('primaryDiagnosis', firstOrder.primaryDiagnosis);
-          setValue('referringProvider', firstOrder.providerName);
-          setValue('referringProviderNPI', firstOrder.providerNpi);
+          formData.medicationName = firstOrder.medicationName;
+          formData.primaryDiagnosis = firstOrder.primaryDiagnosis;
+          formData.referringProvider = firstOrder.providerName;
+          formData.referringProviderNPI = firstOrder.providerNpi;
         }
 
-        // Clear the localStorage
+        // Populate form fields
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            setValue(key as keyof PatientInput, value as any);
+          }
+        });
+
+        // Save to draft immediately so it persists across navigation
+        localStorage.setItem('patient-form-draft', JSON.stringify(formData));
+
+        // Clear the demo prefill data now that it's in the draft
         localStorage.removeItem('demo-prefill-data');
 
         toast.info('Demo data loaded', {

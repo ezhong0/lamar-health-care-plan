@@ -203,7 +203,7 @@ export function DemoScenarioSelector() {
       <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 p-4">
         <p className="text-sm text-amber-900 dark:text-amber-200">
           <span className="font-medium">Note:</span> Loading a scenario will clear existing demo
-          data (patients with MRN starting with &quot;MRN0&quot;). Your production data will not be affected.
+          data (patients with MRN starting with &quot;00&quot;). Your production data will not be affected.
         </p>
       </div>
     </div>

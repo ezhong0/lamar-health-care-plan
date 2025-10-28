@@ -52,12 +52,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Clear existing demo data (patients with MRN starting with 'MRN0')
+    // Clear existing demo data (patients with MRN starting with '00')
     // This is a safe way to clear only demo/test data
     await prisma.patient.deleteMany({
       where: {
         mrn: {
-          startsWith: 'MRN0',
+          startsWith: '00',
         },
       },
     });
