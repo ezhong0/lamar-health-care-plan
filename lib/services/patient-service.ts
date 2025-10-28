@@ -312,7 +312,7 @@ export class PatientService {
    * @returns Patient or null if not found
    */
   async getPatientByMRN(mrn: string): Promise<Patient | null> {
-    const patient = await this.db.patient.findUnique({
+    const patient = await this.db.patient.findFirst({
       where: { mrn },
     });
 

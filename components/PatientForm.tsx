@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { WarningList } from './WarningList';
@@ -36,6 +36,7 @@ export function PatientForm() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
   const [isLinking, setIsLinking] = useState(false); // Loading state for linking
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const {
     register,
@@ -47,6 +48,9 @@ export function PatientForm() {
   } = useForm<PatientInput>({
     resolver: zodResolver(PatientInputSchema) as Resolver<PatientInput>,
   });
+
+  // Watch patientRecords for auto-expanding textarea
+  const patientRecordsValue = watch('patientRecords');
 
   // Check for demo prefill data from localStorage on mount
   useEffect(() => {
@@ -149,6 +153,16 @@ export function PatientForm() {
 
     return () => subscription.unsubscribe();
   }, [watch]);
+
+  // Auto-resize textarea when content changes
+  useEffect(() => {
+    if (textareaRef.current) {
+      // Reset height to auto to get the correct scrollHeight
+      textareaRef.current.style.height = 'auto';
+      // Set height to scrollHeight to fit content
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [patientRecordsValue]);
 
   const onSubmit = async (data: PatientInput) => {
     try {
@@ -576,9 +590,10 @@ export function PatientForm() {
         <div className="space-y-2">
           <Label htmlFor="patientRecords">Clinical Notes *</Label>
           <textarea
+            ref={textareaRef}
             id="patientRecords"
             {...register('patientRecords')}
-            className="flex min-h-[120px] w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-2 text-sm placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 dark:focus-visible:ring-neutral-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-[120px] w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-2 text-sm placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 dark:focus-visible:ring-neutral-300 disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-hidden"
             placeholder="Enter relevant clinical information, lab results, symptoms, etc."
           />
           {errors.patientRecords && (

@@ -133,22 +133,22 @@ export function DemoScenarioSelector() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-950/50">
-          <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-100 to-violet-50 dark:from-violet-950/50 dark:to-violet-900/30">
+          <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" />
         </div>
-        <div>
+        <div className="text-center">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Demo Scenarios</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="text-xs text-neutral-600 dark:text-neutral-400">
             Load curated patient data to explore key features
           </p>
         </div>
       </div>
 
-      {/* Scenarios Grid - 3 columns, smaller cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Scenarios Grid - Single row, smaller cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 max-w-7xl mx-auto">
         {scenarios.map((scenario, index) => (
           <motion.div
             key={scenario.id}
@@ -156,43 +156,43 @@ export function DemoScenarioSelector() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
           >
-            <Card className="p-4 space-y-3 h-full flex flex-col hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors">
+            <Card className="p-3 space-y-2 h-full flex flex-col hover:shadow-lg hover:border-violet-200 dark:hover:border-violet-800 transition-all group">
               {/* Icon and Title */}
-              <div className="space-y-2">
-                <div className="text-2xl">{scenario.icon}</div>
+              <div className="space-y-1.5">
+                <div className="text-xl">{scenario.icon}</div>
                 <div>
-                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <h3 className="text-xs font-semibold text-neutral-900 dark:text-white leading-tight">
                     {scenario.name}
                   </h3>
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 line-clamp-2">
+                  <p className="text-[10px] text-neutral-500 dark:text-neutral-500 mt-1 line-clamp-2 leading-snug">
                     {scenario.description}
                   </p>
                 </div>
               </div>
 
               {/* Patient Count */}
-              <div className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
-                <Users className="h-3 w-3" />
+              <div className="flex items-center gap-1 text-[10px] text-neutral-500 dark:text-neutral-500">
+                <Users className="h-2.5 w-2.5" />
                 <span>
                   {scenario.patientsCount} patient{scenario.patientsCount === 1 ? '' : 's'}
                 </span>
               </div>
 
               {/* Load Button */}
-              <div className="mt-auto pt-1">
+              <div className="mt-auto pt-0.5">
                 <Button
                   onClick={() => handleLoadScenario(scenario.id, scenario.name)}
                   disabled={loadingScenario !== null}
-                  className="w-full text-xs h-8"
+                  className="w-full text-[10px] h-7 group-hover:bg-violet-600 transition-colors"
                   variant={loadingScenario === scenario.id ? 'secondary' : 'default'}
                 >
                   {loadingScenario === scenario.id ? (
                     <>
-                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1.5" />
+                      <div className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
                       Loading...
                     </>
                   ) : (
-                    'Load Scenario'
+                    'Load'
                   )}
                 </Button>
               </div>
@@ -202,8 +202,8 @@ export function DemoScenarioSelector() {
       </div>
 
       {/* Info Note */}
-      <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 p-4">
-        <p className="text-sm text-amber-900 dark:text-amber-200">
+      <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/10 p-3 max-w-4xl mx-auto">
+        <p className="text-xs text-center text-amber-900 dark:text-amber-200">
           <span className="font-medium">Note:</span> Loading a scenario will clear existing demo
           data (patients with MRN starting with &quot;00&quot;). Your production data will not be affected.
         </p>

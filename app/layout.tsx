@@ -37,7 +37,7 @@ export default function RootLayout({
                       href="/"
                       className="text-lg font-semibold text-neutral-900 dark:text-white"
                     >
-                      Lamar Health
+                      Care Plan Generator
                     </Link>
                     <Link
                       href="/patients/new"
