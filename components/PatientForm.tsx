@@ -40,6 +40,8 @@ export function PatientForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
+    reset,
   } = useForm<PatientInput>({
     resolver: zodResolver(PatientInputSchema) as Resolver<PatientInput>,
   });
@@ -85,8 +87,54 @@ export function PatientForm() {
         console.error('Failed to parse demo prefill data:', error);
         localStorage.removeItem('demo-prefill-data');
       }
+    } else {
+      // Check for saved draft form data
+      const draftDataStr = localStorage.getItem('patient-form-draft');
+      if (draftDataStr) {
+        try {
+          const draftData = JSON.parse(draftDataStr);
+
+          // Only restore if there's meaningful data (not just empty strings)
+          const hasData = Object.values(draftData).some((val) =>
+            val && (typeof val === 'string' ? val.trim() !== '' : true)
+          );
+
+          if (hasData) {
+            // Restore all fields
+            Object.entries(draftData).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                // Type assertion needed because localStorage data is untyped
+                setValue(key as keyof PatientInput, value as any);
+              }
+            });
+
+            toast.info('Draft restored', {
+              description: 'Your previous form data has been restored.',
+            });
+          }
+        } catch (error) {
+          console.error('Failed to parse draft data:', error);
+          localStorage.removeItem('patient-form-draft');
+        }
+      }
     }
   }, [setValue]);
+
+  // Save form state to localStorage as user types (debounced)
+  useEffect(() => {
+    const subscription = watch((formData) => {
+      // Only save if there's meaningful data
+      const hasData = Object.values(formData).some((val) =>
+        val && (typeof val === 'string' ? val.trim() !== '' : true)
+      );
+
+      if (hasData) {
+        localStorage.setItem('patient-form-draft', JSON.stringify(formData));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const onSubmit = async (data: PatientInput) => {
     // Use mutateAsync to maintain async flow, but don't catch errors
@@ -95,6 +143,9 @@ export function PatientForm() {
 
     if (result.success && result.data) {
       const patientId = result.data.patient.id;
+
+      // Clear the draft since patient was successfully created
+      localStorage.removeItem('patient-form-draft');
 
       // Store patient ID for navigation after warnings are dismissed
       setCreatedPatientId(patientId);
@@ -141,6 +192,14 @@ export function PatientForm() {
     setValue('primaryDiagnosis', example.data.primaryDiagnosis);
     setValue('medicationName', example.data.medicationName);
     setValue('patientRecords', example.data.patientRecords);
+
+    // Load optional fields
+    if (example.data.additionalDiagnoses && example.data.additionalDiagnoses.length > 0) {
+      setValue('additionalDiagnoses', example.data.additionalDiagnoses);
+    }
+    if (example.data.medicationHistory && example.data.medicationHistory.length > 0) {
+      setValue('medicationHistory', example.data.medicationHistory);
+    }
   };
 
   /**
@@ -168,6 +227,14 @@ export function PatientForm() {
         setValue('primaryDiagnosis', data.primaryDiagnosis);
         setValue('medicationName', data.medicationName);
         setValue('patientRecords', data.patientRecords);
+
+        // Load optional fields
+        if (data.additionalDiagnoses && data.additionalDiagnoses.length > 0) {
+          setValue('additionalDiagnoses', data.additionalDiagnoses);
+        }
+        if (data.medicationHistory && data.medicationHistory.length > 0) {
+          setValue('medicationHistory', data.medicationHistory);
+        }
 
         // Clear the selector since this is an AI-generated example
         setSelectedExample('');
@@ -352,7 +419,11 @@ export function PatientForm() {
               inputMode="numeric"
               pattern="\d*"
             />
-            {errors.mrn && <p className="text-sm text-red-600 dark:text-red-400">{errors.mrn.message}</p>}
+            {errors.mrn ? (
+              <p className="text-sm text-red-600 dark:text-red-400">{errors.mrn.message}</p>
+            ) : (
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">6 digits only (e.g., 123456)</p>
+            )}
           </div>
         </div>
       </Card>
