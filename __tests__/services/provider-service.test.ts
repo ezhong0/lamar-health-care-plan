@@ -114,7 +114,7 @@ describe('ProviderService', () => {
       });
 
       // Should store without formatting
-      expect(provider.npi).toBe('9999999991');
+      expect(provider.npi).toBe('1234567893');
     });
 
     it('handles whitespace in input', async () => {
@@ -124,7 +124,7 @@ describe('ProviderService', () => {
       });
 
       expect(provider.name).toBe('Dr. Jane Smith');
-      expect(provider.npi).toBe('9999999991');
+      expect(provider.npi).toBe('1234567893');
     });
   });
 

@@ -1,7 +1,12 @@
 /**
  * Environment Validation Tests
  *
- * Tests environment variable validation and defaults.
+ * CRITICAL: These tests verify required environment variables.
+ * If these fail, the application WILL NOT WORK in production.
+ *
+ * Required variables:
+ * - DATABASE_URL: PostgreSQL connection string
+ * - ANTHROPIC_API_KEY: Claude API key for care plan generation
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -18,48 +23,54 @@ describe('Environment Variables', () => {
     process.env = originalEnv;
   });
 
-  describe('DATABASE_URL', () => {
-    it('is defined when app is running', () => {
-      // In test environment, DATABASE_URL may be undefined
-      // This test verifies the shape when it IS defined
-      const dbUrl = process.env.DATABASE_URL;
-      if (dbUrl) {
-        expect(dbUrl).toBeDefined();
-      } else {
-        // Test environment - that's okay
-        expect(true).toBe(true);
-      }
+  describe('DATABASE_URL (REQUIRED)', () => {
+    it('is required and defined', () => {
+      // CRITICAL: This must be set or the app will not work
+      expect(process.env.DATABASE_URL).toBeDefined();
+      expect(process.env.DATABASE_URL).not.toBe('');
     });
 
-    it('is a valid connection string format when defined', () => {
+    it('is a valid PostgreSQL connection string', () => {
       const dbUrl = process.env.DATABASE_URL;
-      if (dbUrl) {
-        expect(dbUrl).toMatch(/^(postgresql|postgres):\/\//);
-      } else {
-        // Not defined in test environment - that's okay
-        expect(true).toBe(true);
-      }
+
+      // Must start with postgresql:// or postgres://
+      expect(dbUrl).toMatch(/^(postgresql|postgres):\/\//);
+
+      // Must contain required parts: host, database
+      expect(dbUrl).toContain('@'); // user@host format
+      expect(dbUrl).toContain(':'); // port separator
+    });
+
+    it('contains database name', () => {
+      const dbUrl = process.env.DATABASE_URL!;
+
+      // Should have a database name after the last /
+      const parts = dbUrl.split('/');
+      const dbName = parts[parts.length - 1].split('?')[0];
+
+      expect(dbName).toBeTruthy();
+      expect(dbName.length).toBeGreaterThan(0);
     });
   });
 
-  describe('ANTHROPIC_API_KEY', () => {
-    it('is defined when care plan generation is available', () => {
-      // In test environment, API key may be undefined
-      // This just verifies it's a string when present
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (apiKey) {
-        expect(apiKey).toBeDefined();
-      } else {
-        // Test environment - that's okay
-        expect(true).toBe(true);
-      }
+  describe('ANTHROPIC_API_KEY (REQUIRED)', () => {
+    it('is required for care plan generation', () => {
+      // CRITICAL: This must be set or care plan generation will fail
+      expect(process.env.ANTHROPIC_API_KEY).toBeDefined();
+      expect(process.env.ANTHROPIC_API_KEY).not.toBe('');
     });
 
-    it('has reasonable length', () => {
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (apiKey) {
-        expect(apiKey.length).toBeGreaterThan(10);
-      }
+    it('has reasonable length (minimum 20 characters)', () => {
+      const apiKey = process.env.ANTHROPIC_API_KEY!;
+      // Anthropic API keys are typically 40+ characters
+      // Requiring at least 20 to catch obviously wrong values
+      expect(apiKey.length).toBeGreaterThan(20);
+    });
+
+    it('starts with sk- prefix', () => {
+      const apiKey = process.env.ANTHROPIC_API_KEY!;
+      // Anthropic API keys start with sk-ant-
+      expect(apiKey).toMatch(/^sk-/);
     });
   });
 
