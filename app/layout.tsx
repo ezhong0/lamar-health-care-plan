@@ -49,7 +49,19 @@ export default function RootLayout({
                       href="/patients"
                       className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
                     >
-                      All Patients
+                      Patients
+                    </Link>
+                    <Link
+                      href="/orders"
+                      className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                    >
+                      Orders
+                    </Link>
+                    <Link
+                      href="/providers"
+                      className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                    >
+                      Providers
                     </Link>
                   </div>
                   <div className="flex items-center gap-4">

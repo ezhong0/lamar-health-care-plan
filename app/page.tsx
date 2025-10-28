@@ -35,7 +35,17 @@ export default function Home() {
           </Link>
           <Link href="/patients">
             <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              View All Patients
+              View Patients
+            </Button>
+          </Link>
+          <Link href="/orders">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              View Orders
+            </Button>
+          </Link>
+          <Link href="/providers">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              View Providers
             </Button>
           </Link>
         </motion.div>

@@ -73,16 +73,17 @@ export class PatientService {
    * Create patient with full orchestration
    *
    * Steps:
-   * 1. Check for exact MRN duplicate (error if exists)
-   * 2. Check for similar patients (warnings)
+   * 1. Check for exact MRN duplicate (error if exists) - unless skipWarnings is true
+   * 2. Check for similar patients (warnings) - unless skipWarnings is true
    * 3. Upsert referring provider
    * 4. Create patient
    * 5. Create order
-   * 6. Check for duplicate orders (warnings)
+   * 6. Check for duplicate orders (warnings) - unless skipWarnings is true
    *
    * All wrapped in transaction for atomicity.
    *
    * @param input - Patient creation input
+   * @param skipWarnings - If true, skip all duplicate detection checks (used when warnings already validated)
    * @returns Result with patient, order, and warnings
    *
    * @example
@@ -101,7 +102,8 @@ export class PatientService {
    * // Show warnings to user (similar patients, duplicate orders)
    */
   async createPatient(
-    input: PatientServiceInput
+    input: PatientServiceInput,
+    skipWarnings = false
   ): Promise<Result<PatientServiceResult>> {
     const startTime = Date.now();
 
@@ -113,35 +115,40 @@ export class PatientService {
 
     try {
       const result = await this.db.$transaction(async (tx) => {
-        // Step 1: Check for exact MRN duplicate (hard error)
-        const existingPatient = await tx.patient.findUnique({
-          where: { mrn: input.mrn },
-        });
+        let similarPatientWarnings: Warning[] = [];
+        let duplicateOrderWarnings: Warning[] = [];
 
-        if (existingPatient) {
-          logger.warn('Duplicate patient detected', {
-            mrn: input.mrn,
-            existingPatientId: existingPatient.id,
+        if (!skipWarnings) {
+          // Step 1: Check for exact MRN duplicate (hard error)
+          const existingPatient = await tx.patient.findUnique({
+            where: { mrn: input.mrn },
           });
 
-          throw new DuplicatePatientError({
-            mrn: existingPatient.mrn,
-            firstName: existingPatient.firstName,
-            lastName: existingPatient.lastName,
-          });
+          if (existingPatient) {
+            logger.warn('Duplicate patient detected', {
+              mrn: input.mrn,
+              existingPatientId: existingPatient.id,
+            });
+
+            throw new DuplicatePatientError({
+              mrn: existingPatient.mrn,
+              firstName: existingPatient.firstName,
+              lastName: existingPatient.lastName,
+            });
+          }
+
+          // Step 2: Check for similar patients (warnings, not errors)
+          // Pass medication name to check if similar patient has same medication
+          similarPatientWarnings = await this.duplicateDetector.findSimilarPatients(
+            {
+              firstName: input.firstName,
+              lastName: input.lastName,
+              mrn: input.mrn,
+              medicationName: input.medicationName,
+            },
+            tx
+          );
         }
-
-        // Step 2: Check for similar patients (warnings, not errors)
-        // Pass medication name to check if similar patient has same medication
-        const similarPatientWarnings = await this.duplicateDetector.findSimilarPatients(
-          {
-            firstName: input.firstName,
-            lastName: input.lastName,
-            mrn: input.mrn,
-            medicationName: input.medicationName,
-          },
-          tx
-        );
 
         // Step 3: Upsert referring provider
         // This may return ProviderConflictWarning (same NPI, different name)
@@ -194,13 +201,15 @@ export class PatientService {
         });
 
         // Step 6: Check for duplicate orders (warnings)
-        const duplicateOrderWarnings = await this.duplicateDetector.findDuplicateOrders(
-          {
-            patientId: createdPatient.id as PatientId,
-            medicationName: input.medicationName,
-          },
-          tx
-        );
+        if (!skipWarnings) {
+          duplicateOrderWarnings = await this.duplicateDetector.findDuplicateOrders(
+            {
+              patientId: createdPatient.id as PatientId,
+              medicationName: input.medicationName,
+            },
+            tx
+          );
+        }
 
         // Combine all warnings
         const allWarnings: Warning[] = [

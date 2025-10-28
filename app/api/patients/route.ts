@@ -73,6 +73,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
     // Step 1: Parse request body
     const body = await req.json();
 
+    // Check if warnings were already validated (two-step flow)
+    const skipWarnings = body.skipWarnings === true;
+
     // Step 2: Validate with Zod
     // This throws ZodError if validation fails (caught by error handler)
     const validatedInput = PatientInputSchema.parse(body);
@@ -91,8 +94,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
       duplicateDetector
     );
 
-    // Step 4: Call service
-    const result = await patientService.createPatient(validatedInput);
+    // Step 4: Call service (skip warnings if already validated)
+    const result = await patientService.createPatient(validatedInput, skipWarnings);
 
     // Step 5: Handle Result type
     if (isFailure(result)) {

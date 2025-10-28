@@ -188,7 +188,9 @@ export function PatientForm() {
 
   const createPatientNow = async (data: PatientInput) => {
     // Actually create the patient (warnings already shown or none exist)
-    const result = await createPatient.mutateAsync(data);
+    // Pass skipWarnings flag to tell API we've already validated
+    const dataWithFlag = { ...data, skipWarnings: true };
+    const result = await createPatient.mutateAsync(dataWithFlag as any);
 
     if (result.success && result.data) {
       const patientId = result.data.patient.id;
