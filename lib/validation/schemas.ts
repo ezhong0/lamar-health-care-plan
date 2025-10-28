@@ -19,7 +19,6 @@
 import { z } from 'zod';
 import { validateNPI } from './npi-validator';
 import { validateICD10 } from './icd10-validator';
-import { sanitizeMarkdown } from '@/lib/utils/sanitize';
 
 // ============================================================================
 // Provider Schema
@@ -151,8 +150,9 @@ export const PatientInputSchema = z.object({
     .string()
     .min(1, 'Patient records are required for care plan generation')
     .max(50000, 'Patient records must be less than 50,000 characters')
-    .trim()
-    .transform(sanitizeMarkdown), // Sanitize to prevent XSS
+    .trim(),
+  // Note: Sanitization happens client-side during display (see CarePlanView component)
+  // Server-side sanitization removed to avoid jsdom dependency in production
 });
 
 export type PatientInput = z.infer<typeof PatientInputSchema>;
