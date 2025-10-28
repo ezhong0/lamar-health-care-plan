@@ -360,121 +360,140 @@ ${sanitizedRecords}
 
 ## Task
 
-Generate a comprehensive pharmacist care plan for this patient. The care plan must be detailed and thorough, following the structure below:
+Generate a comprehensive pharmacist care plan for this patient. The care plan should be detailed but concise, following the exact structure and formatting style below.
 
-### 1. Problem List / Drug Therapy Problems (DTPs)
+IMPORTANT FORMATTING REQUIREMENTS:
+- Total length: 1500-2000 words
+- Use bullet points for each item, not long paragraphs
+- Each bullet point should be 1-3 sentences maximum
+- Match the concise style of the example below
 
-List 4-6 relevant drug therapy problems covering:
-- Need for rapid therapeutic effect (efficacy)
-- Risk of adverse effects specific to this medication
-- Risk of complications (organ-specific: renal, cardiac, thrombotic, etc.)
+### 1. Problem list / Drug therapy problems (DTPs)
+
+List 4-6 relevant drug therapy problems as concise bullet points. Each DTP should be 1-2 sentences.
+
+Examples of appropriate DTP format:
+- Need for rapid immunomodulation to reduce myasthenic symptoms (efficacy).
+- Risk of infusion-related reactions (headache, chills, fever, rare anaphylaxis).
+- Risk of renal dysfunction or volume overload in susceptible patients (sucrose-stabilized products, older age, pre-existing renal disease).
+
+Cover these areas (be specific to this medication and diagnosis):
+- Efficacy / need for therapeutic effect
+- Adverse effect risks specific to this medication
+- Organ-specific complications (renal, cardiac, thrombotic, etc.)
 - Drug-drug interactions or dosing timing considerations
 - Patient education / adherence gaps
-- Any monitoring requirements
-
-Be specific to this medication and diagnosis, not generic.
+- Monitoring requirements
 
 ### 2. Goals (SMART)
 
-Include 3 types of goals:
+Include 3 goals, each as a single paragraph (1-2 sentences each). Use this exact format:
 
-**Primary:**
-- Clinical outcome goal (specific, measurable, time-bound)
+**Primary:** [1-2 sentences describing clinical outcome goal with timeframe]
 
-**Safety goal:**
-- Specific adverse events to prevent
-- Measurable safety parameters (labs, vitals)
-- Timeframe for monitoring
+**Safety goal:** [1-2 sentences describing adverse events to prevent with specific parameters]
 
-**Process:**
-- Completion of therapy course
-- Documentation requirements
+**Process:** [1-2 sentences describing therapy completion and documentation]
 
-### 3. Pharmacist Interventions / Plan
+Example format:
+**Primary:** Achieve clinically meaningful improvement in muscle strength and reduce fatigability within 2 weeks of completing IVIG course.
 
-Provide detailed interventions covering ALL 9 of these subsections:
+**Safety goal:** No severe infusion reaction, no acute kidney injury (no increase in SCr >0.3 mg/dL within 7 days post-infusion), and no thromboembolic events.
 
-1. **Dosing & Administration**
-   - Verify total dose calculation using actual body weight
-   - Document lot number and expiration of product
-   - Provide specific clinical details for this medication
+**Process:** Complete full 2 g/kg course (0.4 g/kg/day × 5 days) with documented vital sign monitoring and infusion logs.
 
-2. **Premedication**
-   - Recommend specific premeds with doses and timing
-   - Explain rationale for each premedication
+### 3. Pharmacist interventions / plan
 
-3. **Infusion Rates & Titration**
-   - Starting rate per manufacturer guidelines
-   - Stepwise escalation schedule with at least 3 planned rate increases
-   - What to do if infusion reactions occur
+Provide ALL 9 subsections below. Each subsection should be 2-4 sentences with specific clinical details. Use concise bullet points, not long paragraphs.
 
-4. **Hydration & Renal Protection**
-   - Pre-infusion hydration requirements
-   - Renal function monitoring schedule
-   - Special considerations for renal risk
+**1. Dosing & Administration**
 
-5. **Thrombosis Risk Mitigation**
-   - Baseline thrombosis risk assessment
-   - Prophylactic measures per protocol
-   - Patient education on warning signs
+Verify total dose calculation (specify actual numbers for this patient). Document lot number and expiration of product. Include specific administration instructions.
 
-6. **Concomitant Medications**
-   - Review drug interactions
-   - Timing adjustments needed
-   - Continue/adjust existing medications
+Example: "Verify total dose: 2.0 g/kg total (calculate using actual body weight unless otherwise specified). For 72 kg → 144 g total = 28.8 g/day × 5 days. Document lot number and expiration of product."
 
-7. **Monitoring During Infusion**
-   - Vitals frequency (q15min first hour, then q30-60min)
-   - Any disease-specific monitoring
-   - Infusion log documentation
+**2. Premedication**
 
-8. **Adverse Event Management**
-   - Mild reaction protocol
-   - Moderate/severe reaction protocol
-   - Emergency procedures
+Recommend specific premeds with doses and timing. Provide rationale.
 
-9. **Documentation & Communication**
-   - EMR documentation requirements
-   - Who to notify and when
-   - Dose modifications and adverse events
+Example: "Recommend acetaminophen 650 mg PO and diphenhydramine 25–50 mg PO 30–60 minutes prior to infusion; consider low-dose corticosteroid premed if prior reactions or severe symptoms (institutional practice varies). Premeds can reduce minor infusion reactions but are not foolproof."
 
-Each section should be 2-4 sentences with specific clinical details.
+**3. Infusion rates & titration**
 
-### 4. Monitoring Plan & Lab Schedule
+Describe starting rate and escalation. What to do if reactions occur. (For oral medications, discuss dosing schedule and any titration if applicable)
 
-Provide a detailed monitoring schedule:
+Example: "Start at a low rate (per product label/manufacturer) — example: 0.5 mL/kg/hr for first 15–30 min, then increase in stepwise fashion with at least three planned rate escalations up to manufacturer maximum as tolerated. If any infusion reactions occur, slow or stop and treat per reaction algorithm."
 
-**Before First Infusion:**
-- Required labs (CBC, BMP including SCr and BUN, organ function)
-- Baseline vitals
-- Any baseline assessments specific to condition
+**4. Hydration & renal protection**
 
-**During Each Infusion:**
-- Vital signs frequency (q15-30 min)
-- Infusion log documentation
-- Real-time monitoring
+Hydration requirements and renal monitoring schedule. Special considerations.
 
-**Within 72 Hours of Each Infusion:**
-- Assess for delayed adverse events
-- Monitor for specific complications
+Example: "Ensure adequate hydration prior to infusion (e.g., 250–500 mL normal saline if not fluid-overloaded) especially in patients with risk factors for renal dysfunction. Avoid sucrose-containing IVIG products in patients with uncontrolled diabetes or high renal risk. Monitor renal function (SCr, BUN, eGFR) pre-course and within 3–7 days post-completion."
 
-**Post-Course (3-7 Days):**
-- Follow-up labs to check organ function
-- Evaluate for complications if symptomatic
+**5. Thrombosis risk mitigation**
 
-**Clinical Follow-up:**
-- Pharmacy and specialty clinic follow-up timing
-- When to reassess therapy effectiveness
-- Long-term monitoring plan
+Assess baseline risk, prophylactic measures, patient education.
+
+Example: "Assess baseline thrombosis risk. For high-risk patients consider prophylactic measures per institutional protocol (early ambulation, hydration, consider hematology consult if prothrombotic). Educate patient to report chest pain, sudden dyspnea, or unilateral limb swelling immediately."
+
+**6. Concomitant medications**
+
+Drug interactions, timing adjustments, medication continuations.
+
+Example: "Continue pyridostigmine and prednisone; counsel re: timing of pyridostigmine (may cause increased secretions during infusion — evaluate symptoms). Adjustments to immunosuppression determined by neurology."
+
+**7. Monitoring during infusion**
+
+Vitals frequency, disease-specific monitoring, documentation. (For oral medications, discuss monitoring during therapy)
+
+Example: "Vitals: BP, HR, RR, SpO₂, Temp q15 min for first hour, then q30–60 min per protocol. Respiratory: baseline FVC or NIF daily during hospitalization or before each infusion to detect early respiratory compromise. Document infusion rate changes, premeds, and any adverse events in the infusion log."
+
+**8. Adverse event management**
+
+Mild and moderate/severe reaction protocols.
+
+Example: "Mild reaction (headache, chills, myalgia): slow infusion, give acetaminophen / antihistamine, observe. Moderate/severe (wheezing, hypotension, chest pain, anaphylaxis): stop infusion, follow emergency protocol (epinephrine for anaphylaxis, airway support), send labs, notify neurology and ordering prescriber."
+
+**9. Documentation & communication**
+
+EMR documentation, who to notify, when to communicate.
+
+Example: "Enter all interventions, patient education, and monitoring in the EMR. Communicate any dose modifications or adverse events to neurology and the infusion nursing team immediately."
+
+### 4. Monitoring plan & lab schedule
+
+Provide a monitoring schedule using brief bullet points. Keep each bullet point to 1 sentence.
+
+Example format:
+
+**Before first infusion:** CBC, BMP (including SCr, BUN), baseline vitals, baseline FVC.
+
+**During each infusion:** Vitals q15–30 min; infusion log.
+
+**Within 72 hours of each infusion day:** Assess for delayed adverse events (headache, rash, aseptic meningitis).
+
+**Post-course (3–7 days):** BMP to check renal function; evaluate for thrombotic events if symptomatic.
+
+**Clinical follow-up:** Neurology & pharmacy clinic at 2 weeks and 6–8 weeks to assess clinical response and need for further therapy.
+
+(Adapt timeframes based on medication - use "before first dose" and "during therapy" for oral medications)
 
 ## Guidelines
 
-- **Be comprehensive and detailed** - this should be 1500-2000 words
+CRITICAL FORMATTING RULES:
+- **Total length: 1500-2000 words maximum** (not per section, but total!)
+- **Each DTP bullet: 1-2 sentences maximum**
+- **Each Goal: 1-2 sentences maximum**
+- **Each Pharmacist Intervention subsection: 2-4 sentences maximum**
+- **Each Monitoring bullet: 1 sentence maximum**
+- Use bullet points and concise paragraphs, NOT long blocks of text
+- Match the concise style shown in the examples above
+- Be comprehensive but concise - include all required sections but keep each brief
 - Use evidence-based recommendations with specific clinical parameters
 - Include specific numbers (dose rates, vital sign frequencies, lab timing)
-- Consider specialty pharmacy context (high-cost medications, prior authorizations, compliance documentation)
-- Use professional medical language appropriate for pharmacist documentation
-- Format in clean markdown with clear headers and sections
+- Consider specialty pharmacy context when relevant
+- Use professional medical language
+- Format in clean markdown
 
 Generate the complete care plan now:`;
   }

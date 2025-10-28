@@ -83,13 +83,6 @@ export async function POST(
     // Check if patient exists
     const existingPatient = await prisma.patient.findUnique({
       where: { id: patientId },
-      include: {
-        orders: {
-          include: {
-            provider: true,
-          },
-        },
-      },
     });
 
     if (!existingPatient) {
@@ -105,38 +98,9 @@ export async function POST(
       );
     }
 
-    // Check for duplicate order
-    const duplicateOrder = existingPatient.orders.find(
-      (order) =>
-        order.medicationName.toLowerCase().trim() ===
-        input.medicationName.toLowerCase().trim()
-    );
-
-    if (duplicateOrder) {
-      logger.warn('Duplicate order detected', {
-        patientId,
-        medicationName: input.medicationName,
-        existingOrderId: duplicateOrder.id,
-      });
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: `This patient already has an order for ${input.medicationName}`,
-            code: 'DUPLICATE_ORDER',
-            details: {
-              existingOrder: {
-                id: duplicateOrder.id,
-                medicationName: duplicateOrder.medicationName,
-                createdAt: duplicateOrder.createdAt,
-              },
-            },
-          },
-        },
-        { status: 409 }
-      );
-    }
+    // Note: Duplicate order detection happens at validation stage (before user gets here)
+    // If user chose to link to existing patient, they've already seen and accepted the warning
+    // So we don't block duplicate orders here - we allow them to proceed
 
     // Upsert provider (same logic as patient creation)
     const provider = await prisma.provider.upsert({
