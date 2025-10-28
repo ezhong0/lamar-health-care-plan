@@ -317,7 +317,7 @@ describe('ICD-10 Validator', () => {
 
     it('should handle null-like input gracefully', () => {
       // Type system prevents this, but test runtime behavior
-      const result = validateICD10('' as any);
+      const result = validateICD10('');
 
       expect(result.valid).toBe(false);
     });

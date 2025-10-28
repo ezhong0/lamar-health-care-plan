@@ -6,6 +6,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
 import { logger } from '@/lib/infrastructure/logger';
+import { handleError } from '@/lib/infrastructure/error-handler';
+import type { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
   try {
@@ -16,9 +18,9 @@ export async function GET(request: Request) {
     const medication = searchParams.get('medication');
 
     // Build where clause
-    const where: any = {};
+    const where: Prisma.OrderWhereInput = {};
     if (status) {
-      where.status = status;
+      where.status = status as 'pending' | 'completed' | 'cancelled';
     }
     if (medication) {
       where.medicationName = {
@@ -73,13 +75,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logger.error('Failed to fetch orders', { error });
-
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch orders',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return handleError(error);
   }
 }

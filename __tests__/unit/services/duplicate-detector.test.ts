@@ -627,15 +627,69 @@ describe('DuplicateDetector', () => {
     });
   });
 
+  describe('Performance Benchmarks', () => {
+    it('should complete findSimilarPatients in <100ms with 100 patients', async () => {
+      // Create 100 patients
+      const createPatients = [];
+      for (let i = 0; i < 100; i++) {
+        createPatients.push({
+          firstName: `Patient${i}`,
+          lastName: `Test${i}`,
+          mrn: `${100000 + i}`,
+          additionalDiagnoses: [],
+          medicationHistory: [],
+          patientRecords: 'Test records',
+        });
+      }
+      await testDb.patient.createMany({ data: createPatients });
+
+      const start = Date.now();
+      await detector.findSimilarPatients(
+        {
+          firstName: 'NewPatient',
+          lastName: 'NewTest',
+          mrn: '999999',
+        },
+        testDb
+      );
+      const duration = Date.now() - start;
+
+      // Should complete in under 100ms
+      expect(duration).toBeLessThan(100);
+    });
+
+    it('should handle fuzzy matching at scale', async () => {
+      // Performance test: Check that Jaro-Winkler is fast enough for 100 comparisons
+      const start = Date.now();
+
+      for (let i = 0; i < 100; i++) {
+        // Access private method for testing
+        (detector as unknown as { [key: string]: (a: string, b: string) => number }).jaroWinkler(`Patient${i}`, `Patient${i + 1}`);
+      }
+
+      const duration = Date.now() - start;
+
+      // 100 fuzzy match calculations should be < 10ms
+      expect(duration).toBeLessThan(10);
+    });
+
+    it('should limit database queries for performance', async () => {
+      // Verify that we only check last 100 patients (not all)
+      // This is a constant defined in DUPLICATE_DETECTION config
+      const { MAX_PATIENTS_TO_CHECK } = await import('@/lib/config/constants').then(m => m.DUPLICATE_DETECTION);
+      expect(MAX_PATIENTS_TO_CHECK).toBe(100);
+    });
+  });
+
   describe('Patient Similarity Scoring', () => {
     it('should weight last name more than first name', () => {
       // Two patients: same last name vs same first name
-      const score1 = (detector as any).calculatePatientSimilarity(
+      const score1 = (detector as unknown as { [key: string]: (a: unknown, b: unknown) => number }).calculatePatientSimilarity(
         { firstName: 'John', lastName: 'Smith', mrn: '111111' },
         { firstName: 'Jane', lastName: 'Smith', mrn: '222222' }
       );
 
-      const score2 = (detector as any).calculatePatientSimilarity(
+      const score2 = (detector as unknown as { [key: string]: (a: unknown, b: unknown) => number }).calculatePatientSimilarity(
         { firstName: 'John', lastName: 'Smith', mrn: '111111' },
         { firstName: 'John', lastName: 'Jones', mrn: '222222' }
       );
@@ -645,7 +699,7 @@ describe('DuplicateDetector', () => {
     });
 
     it('should include MRN similarity in score', () => {
-      const score = (detector as any).calculatePatientSimilarity(
+      const score = (detector as unknown as { [key: string]: (a: unknown, b: unknown) => number }).calculatePatientSimilarity(
         { firstName: 'John', lastName: 'Smith', mrn: '123456' },
         { firstName: 'John', lastName: 'Smith', mrn: '123457' } // One digit off
       );
@@ -654,7 +708,7 @@ describe('DuplicateDetector', () => {
     });
 
     it('should return score between 0 and 1', () => {
-      const score = (detector as any).calculatePatientSimilarity(
+      const score = (detector as unknown as { [key: string]: (a: unknown, b: unknown) => number }).calculatePatientSimilarity(
         { firstName: 'John', lastName: 'Smith', mrn: '123456' },
         { firstName: 'Jane', lastName: 'Doe', mrn: '654321' }
       );
