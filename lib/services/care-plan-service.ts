@@ -47,9 +47,9 @@ export interface GenerateCarePlanInput {
  */
 export class CarePlanService {
   private readonly anthropic: Anthropic;
-  private readonly model: string = 'claude-sonnet-4-5-20250929';
-  private readonly maxTokens: number = 4096;
-  private readonly timeout: number = 60000; // 60 seconds
+  private readonly model: string = 'claude-haiku-4-5-20251001';
+  private readonly maxTokens: number = 2048;
+  private readonly timeout: number = 45000; // 45 seconds (under Vercel limit)
 
   constructor(
     private readonly db: PrismaClient,

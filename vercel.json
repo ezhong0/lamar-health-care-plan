@@ -2,8 +2,11 @@
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "functions": {
-    "app/api/**/*.ts": {
+    "app/api/care-plans": {
       "maxDuration": 60
+    },
+    "app/api/**/*.ts": {
+      "maxDuration": 10
     }
   }
 }
