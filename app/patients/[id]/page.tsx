@@ -27,7 +27,7 @@ export default function PatientDetailPage() {
   const queryClient = useQueryClient();
   const patientId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showPatientRecords, setShowPatientRecords] = useState(true);
+  const [showPatientRecords, setShowPatientRecords] = useState(false);
 
   const { data, isLoading, error } = usePatient(patientId);
   const generateCarePlan = useGenerateCarePlan();
