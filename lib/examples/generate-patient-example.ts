@@ -49,6 +49,24 @@ export async function generatePatientExample(): Promise<GenerationResult> {
     // Pick a random condition index to encourage variety
     const conditionSeed = timestamp % 11;
 
+    // Pick a random NPI index to force variety
+    const npiList = [
+      '1234567893', '1245319599', '1679576722', '1982736450',
+      '1000000004', '1000000012', '1000000020', '1000000038',
+      '1000000046', '1200000002', '1200000010', '1200000028',
+      '1200000036', '1200000044', '1400000000', '1400000018',
+      '1400000026', '1400000034', '1400000042', '1600000008',
+      '1600000016', '1600000024', '1600000032', '1600000040',
+      '1800000006', '1800000014', '1800000022', '1800000030',
+      '1800000048', '2000000002', '2000000010', '2000000028',
+      '2000000036', '2000000044',
+    ];
+    const npiIndex = timestamp % npiList.length;
+    const selectedNPI = npiList[npiIndex];
+
+    // Generate unique MRN based on timestamp
+    const uniqueMRN = String(100000 + (timestamp % 900000));
+
     const prompt = `You are generating a demo patient case for a specialty pharmacy management system.
 
 UNIQUENESS SEED: ${timestamp}-${randomSeed}-${conditionSeed}
@@ -61,6 +79,7 @@ Create ONE realistic patient scenario for a specialty biologic/infusion therapy.
 **Patient Demographics:**
 - Age: ${20 + (timestamp % 60)} years old (use this specific age)
 - Gender: ${timestamp % 2 === 0 ? 'Male' : 'Female'}
+- MRN: Use EXACTLY "${uniqueMRN}" (this is pre-generated to ensure uniqueness)
 - Use a memorable, professional name (diverse cultural backgrounds)
 - Avoid overused names: Skip "Marcus", "Chen", "Sarah", "Johnson", "Smith"
 - Good examples: "Amir Patel", "Rosa Martinez", "James O'Connor", "Yuki Tanaka"
@@ -88,7 +107,7 @@ Pick ONE condition from this list (rotate to #${conditionSeed}):
 Use this structure:
 \`\`\`
 Name: [Initials]. (Fictional)
-MRN: [6 digits] (fictional)
+MRN: ${uniqueMRN} (use this exact MRN)
 DOB: [Date] (Age [age])
 Sex: [M/F]
 Weight: [weight] kg
@@ -131,42 +150,9 @@ Plan: [Treatment plan in 2-3 sentences - mention the biologic therapy]
 ## CRITICAL Validation Requirements
 
 **NPI Number (referringProviderNPI):**
-You MUST pick ONE from this list (these are pre-validated):
-  - 1234567893
-  - 1245319599
-  - 1679576722
-  - 1982736450
-  - 1000000004
-  - 1000000012
-  - 1000000020
-  - 1000000038
-  - 1000000046
-  - 1200000002
-  - 1200000010
-  - 1200000028
-  - 1200000036
-  - 1200000044
-  - 1400000000
-  - 1400000018
-  - 1400000026
-  - 1400000034
-  - 1400000042
-  - 1600000008
-  - 1600000016
-  - 1600000024
-  - 1600000032
-  - 1600000040
-  - 1800000006
-  - 1800000014
-  - 1800000022
-  - 1800000030
-  - 1800000048
-  - 2000000002
-  - 2000000010
-  - 2000000028
-  - 2000000036
-  - 2000000044
-  (Randomly pick ONE - don't always use the same NPI)
+You MUST use EXACTLY this pre-selected NPI (to ensure variety across generations):
+  → ${selectedNPI}
+(This has been randomly selected from our validated NPI list)
 
 **ICD-10 Code (primaryDiagnosis):**
 Pick the code that matches your chosen condition:
@@ -195,24 +181,26 @@ Return ONLY a valid JSON object (no markdown code blocks, no explanations):
 {
   "firstName": "string (memorable, diverse)",
   "lastName": "string (memorable, diverse)",
-  "mrn": "string (exactly 6 digits)",
+  "mrn": "${uniqueMRN}",
   "referringProvider": "string (format: Dr. FirstName LastName with specialty-appropriate name)",
-  "referringProviderNPI": "string (pick ONE from the NPI list above)",
+  "referringProviderNPI": "${selectedNPI}",
   "primaryDiagnosis": "string (ICD-10 code with decimal, matching your chosen condition)",
   "medicationName": "string (specific brand/generic name matching condition)",
   "patientRecords": "string (use the concise clinical notes format shown above)"
 }
 
+CRITICAL: Use the exact MRN "${uniqueMRN}" and NPI "${selectedNPI}" provided above.
+
 Example output structure:
 {
   "firstName": "Amir",
   "lastName": "Patel",
-  "mrn": "123456",
+  "mrn": "${uniqueMRN}",
   "referringProvider": "Dr. Jennifer Wu",
-  "referringProviderNPI": "1234567893",
+  "referringProviderNPI": "${selectedNPI}",
   "primaryDiagnosis": "M05.79",
   "medicationName": "Infliximab",
-  "patientRecords": "Name: A.P. (Fictional)\\nMRN: 123456\\n..."
+  "patientRecords": "Name: A.P. (Fictional)\\nMRN: ${uniqueMRN}\\n..."
 }`;
 
     const response = await client.messages.create({
