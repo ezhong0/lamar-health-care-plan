@@ -33,6 +33,9 @@ export function Toaster() {
         className: 'font-sans',
         duration: 4000,
       }}
+      visibleToasts={3}
+      expand={false}
+      gap={8}
       richColors
     />
   );

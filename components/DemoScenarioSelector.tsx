@@ -95,9 +95,8 @@ export function DemoScenarioSelector() {
         // Store prefill data in localStorage and navigate to form
         localStorage.setItem('demo-prefill-data', JSON.stringify(prefillData));
 
-        toast.success('Demo loaded', {
-          id: toastId,
-        });
+        // Dismiss loading toast - PatientForm will show success toast with details
+        toast.dismiss(toastId);
 
         // Navigate to new patient form
         router.push('/patients/new');
@@ -106,8 +105,9 @@ export function DemoScenarioSelector() {
         // Clear draft when loading database-only scenarios too
         localStorage.removeItem('patient-form-draft');
 
-        toast.success('Demo loaded', {
+        toast.success(`${patientsCreated} patient${patientsCreated === 1 ? '' : 's'} created`, {
           id: toastId,
+          description: 'View the patients list to see the demo data',
         });
 
         // Navigate to patients list
