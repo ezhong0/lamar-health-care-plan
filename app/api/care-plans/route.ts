@@ -18,7 +18,8 @@
  */
 
 // Next.js Route Segment Config - set timeout for this endpoint
-export const maxDuration = 60;
+// Allows for 60s timeout + up to 2 retries with delays (total ~200s max)
+export const maxDuration = 240;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerateCarePlanInputSchema } from '@/lib/validation/schemas';

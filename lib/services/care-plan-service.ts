@@ -261,6 +261,82 @@ export class CarePlanService {
   }
 
   /**
+   * Call Claude with retry logic and progressive token reduction fallback
+   *
+   * Strategy:
+   * 1. First attempt with full token limit (3000 tokens)
+   * 2. If timeout/abort, retry with reduced tokens (2000 tokens) - faster generation
+   * 3. If still failing, final attempt with minimal tokens (1500 tokens)
+   *
+   * This provides a graceful degradation strategy where we prefer comprehensive
+   * care plans but will accept shorter ones if the API is slow.
+   *
+   * @param systemPrompt - Instructions for the model
+   * @param userData - Patient data
+   * @returns Generated care plan content
+   * @throws Error if all retry attempts fail
+   */
+  private async callClaudeWithRetry(systemPrompt: string, userData: string): Promise<string> {
+    const tokenLimits = [this.maxTokens, ...CARE_PLAN.FALLBACK_TOKENS];
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < CARE_PLAN.MAX_RETRIES + 1; attempt++) {
+      const currentTokenLimit = tokenLimits[attempt] || tokenLimits[tokenLimits.length - 1];
+
+      try {
+        logger.debug('LLM attempt', {
+          attempt: attempt + 1,
+          maxAttempts: CARE_PLAN.MAX_RETRIES + 1,
+          tokenLimit: currentTokenLimit,
+          isRetry: attempt > 0,
+        });
+
+        const content = await this.callClaude(systemPrompt, userData, currentTokenLimit);
+
+        if (attempt > 0) {
+          logger.info('LLM retry successful', {
+            attempt: attempt + 1,
+            tokenLimit: currentTokenLimit,
+          });
+        }
+
+        return content;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        const isTimeout = lastError.message.includes('timed out') ||
+                         lastError.message.includes('aborted') ||
+                         lastError.name === 'AbortError';
+
+        // Only retry on timeout/abort errors
+        if (isTimeout && attempt < CARE_PLAN.MAX_RETRIES) {
+          logger.warn('LLM timeout, retrying with reduced tokens', {
+            attempt: attempt + 1,
+            nextTokenLimit: tokenLimits[attempt + 1],
+            error: lastError.message,
+          });
+
+          // Small delay before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          continue;
+        }
+
+        // Non-timeout errors or final attempt - throw immediately
+        if (!isTimeout || attempt === CARE_PLAN.MAX_RETRIES) {
+          logger.error('LLM call failed after retries', {
+            attempts: attempt + 1,
+            finalError: lastError.message,
+          });
+          throw lastError;
+        }
+      }
+    }
+
+    // Should never reach here, but TypeScript needs this
+    throw lastError || new Error('LLM call failed for unknown reason');
+  }
+
+  /**
    * Call Claude API with timeout and proper prompt isolation
    *
    * Uses AbortController for timeout handling.
@@ -271,10 +347,15 @@ export class CarePlanService {
    *
    * @param systemPrompt - Instructions for the model (isolated from user data)
    * @param userData - Patient data (user-provided content)
+   * @param maxTokens - Optional token limit override (for fallback retries)
    * @returns Generated care plan content
    * @throws Error if timeout or API error
    */
-  private async callClaude(systemPrompt: string, userData: string): Promise<string> {
+  private async callClaude(
+    systemPrompt: string,
+    userData: string,
+    maxTokens?: number
+  ): Promise<string> {
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -285,7 +366,7 @@ export class CarePlanService {
       const response = await this.anthropic.messages.create(
         {
           model: this.model,
-          max_tokens: this.maxTokens,
+          max_tokens: maxTokens ?? this.maxTokens,
           // System prompt contains instructions (isolated from user data)
           system: systemPrompt,
           messages: [
