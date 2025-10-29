@@ -213,18 +213,18 @@ export async function GET(): Promise<NextResponse> {
         provider.name AS "latestOrderProviderName",
         provider.npi AS "latestOrderProviderNpi",
         COALESCE(care_plan_counts.count, 0)::int AS "carePlanCount"
-      FROM "Patient" p
+      FROM patients p
       LEFT JOIN LATERAL (
         SELECT id, medication_name, primary_diagnosis, status, created_at, provider_id
-        FROM "Order"
+        FROM orders
         WHERE patient_id = p.id
         ORDER BY created_at DESC
         LIMIT 1
       ) latest_order ON true
-      LEFT JOIN "Provider" provider ON provider.id = latest_order.provider_id
+      LEFT JOIN providers provider ON provider.id = latest_order.provider_id
       LEFT JOIN LATERAL (
         SELECT COUNT(*)::int as count
-        FROM "CarePlan"
+        FROM care_plans
         WHERE patient_id = p.id
       ) care_plan_counts ON true
       ORDER BY p.created_at DESC
