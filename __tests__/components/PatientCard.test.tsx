@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { renderWithProviders, screen } from '../utils/test-utils';
 import '@testing-library/jest-dom';
 import { PatientCard } from '@/components/PatientCard';
 import type { PatientWithRelations } from '@/lib/api/contracts';
@@ -45,31 +45,31 @@ describe('PatientCard', () => {
 
   describe('basic rendering', () => {
     it('renders patient name', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText('John Doe')).toBeInTheDocument();
     });
 
     it('renders patient MRN', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText(/MRN: 123456/)).toBeInTheDocument();
     });
 
     it('renders medication name', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText('IVIG')).toBeInTheDocument();
     });
 
     it('renders primary diagnosis', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText('J45.50')).toBeInTheDocument();
     });
 
     it('renders provider name', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText(/Provider: Dr\. Smith/)).toBeInTheDocument();
     });
@@ -77,7 +77,7 @@ describe('PatientCard', () => {
 
   describe('care plan status', () => {
     it('shows no care plans when none exist', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       expect(screen.getByText('No care plans yet')).toBeInTheDocument();
     });
@@ -105,7 +105,7 @@ describe('PatientCard', () => {
         ],
       };
 
-      render(<PatientCard patient={patientWithCarePlans} />);
+      renderWithProviders(<PatientCard patient={patientWithCarePlans} />);
 
       expect(screen.getByText('2 care plans')).toBeInTheDocument();
     });
@@ -118,7 +118,7 @@ describe('PatientCard', () => {
         orders: [],
       };
 
-      render(<PatientCard patient={patientWithoutOrders} />);
+      renderWithProviders(<PatientCard patient={patientWithoutOrders} />);
 
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText(/MRN: 123456/)).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe('PatientCard', () => {
         orders: [],
       };
 
-      render(<PatientCard patient={patientWithoutOrders} />);
+      renderWithProviders(<PatientCard patient={patientWithoutOrders} />);
 
       expect(screen.queryByText('Medication:')).not.toBeInTheDocument();
     });
@@ -138,7 +138,7 @@ describe('PatientCard', () => {
 
   describe('navigation', () => {
     it('renders as a link to patient detail page', () => {
-      render(<PatientCard patient={mockPatient} />);
+      renderWithProviders(<PatientCard patient={mockPatient} />);
 
       const link = screen.getByRole('link');
       expect(link).toHaveAttribute('href', '/patients/patient-1');
@@ -153,7 +153,7 @@ describe('PatientCard', () => {
         lastName: 'Montgomery-Worthington-Smith',
       };
 
-      render(<PatientCard patient={patientWithLongName} />);
+      renderWithProviders(<PatientCard patient={patientWithLongName} />);
 
       expect(screen.getByText(/Christopher Montgomery-Worthington-Smith/)).toBeInTheDocument();
     });
@@ -165,7 +165,7 @@ describe('PatientCard', () => {
         lastName: 'Smith-Jones',
       };
 
-      render(<PatientCard patient={patientWithSpecialChars} />);
+      renderWithProviders(<PatientCard patient={patientWithSpecialChars} />);
 
       expect(screen.getByText(/O'Brien Smith-Jones/)).toBeInTheDocument();
     });
@@ -181,7 +181,7 @@ describe('PatientCard', () => {
         ],
       };
 
-      render(<PatientCard patient={patientWithLongMed} />);
+      renderWithProviders(<PatientCard patient={patientWithLongMed} />);
 
       expect(screen.getByText(/Intravenous Immunoglobulin/)).toBeInTheDocument();
     });
@@ -204,7 +204,7 @@ describe('PatientCard', () => {
         ],
       };
 
-      render(<PatientCard patient={patientWithMultipleOrders} />);
+      renderWithProviders(<PatientCard patient={patientWithMultipleOrders} />);
 
       // Should show the latest order (IVIG)
       expect(screen.getByText('IVIG')).toBeInTheDocument();

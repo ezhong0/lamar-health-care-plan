@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
+import { logger } from '@/lib/infrastructure/logger';
 
 /**
  * DELETE /api/test/cleanup
@@ -141,7 +142,9 @@ export async function DELETE(request: NextRequest) {
       message: `Deleted ${patientResult.count} test patients and ${providerResult.count + testProviderResult.count} orphaned providers`,
     });
   } catch (error) {
-    console.error('Error cleaning up test data:', error);
+    logger.error('Error cleaning up test data', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
     return NextResponse.json(
       { error: 'Failed to cleanup test data', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -173,7 +176,9 @@ export async function POST(request: NextRequest) {
       message: 'Database reset complete',
     });
   } catch (error) {
-    console.error('Error resetting database:', error);
+    logger.error('Error resetting database', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
     return NextResponse.json(
       { error: 'Failed to reset database', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

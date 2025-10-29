@@ -19,6 +19,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CarePlanView } from '@/components/CarePlanView';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
 import { ApiError } from '@/lib/client/errors';
+import { logger } from '@/lib/infrastructure/logger';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -36,14 +37,18 @@ export default function PatientDetailPage() {
     } catch (error: unknown) {
       // Type-safe error handling
       if (error instanceof ApiError) {
-        console.error('API error generating care plan:', {
+        logger.error('API error generating care plan', {
           message: error.message,
           code: error.code,
         });
       } else if (error instanceof Error) {
-        console.error('Error generating care plan:', error.message);
+        logger.error('Error generating care plan', {
+          error: error.message
+        });
       } else {
-        console.error('Unknown error generating care plan:', error);
+        logger.error('Unknown error generating care plan', {
+          error: String(error)
+        });
       }
       // Error state will be handled by React Query (generateCarePlan.isError)
     }

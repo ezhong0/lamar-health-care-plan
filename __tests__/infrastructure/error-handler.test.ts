@@ -47,9 +47,9 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('already exists');
-      expect(body.code).toBe('DUPLICATE_PATIENT');
-      expect(body.details).toHaveProperty('existingPatient');
+      expect(body.error.message).toContain('already exists');
+      expect(body.error.code).toBe('DUPLICATE_PATIENT');
+      expect(body.error.details).toHaveProperty('existingPatient');
     });
 
     it('handles PatientNotFoundError with 404 status', async () => {
@@ -60,8 +60,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('not found');
-      expect(body.code).toBe('PATIENT_NOT_FOUND');
+      expect(body.error.message).toContain('not found');
+      expect(body.error.code).toBe('PATIENT_NOT_FOUND');
     });
 
     it('handles ProviderConflictError with 409 status', async () => {
@@ -72,8 +72,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('NPI');
-      expect(body.code).toBe('PROVIDER_CONFLICT');
+      expect(body.error.message).toContain('NPI');
+      expect(body.error.code).toBe('PROVIDER_CONFLICT');
     });
 
     it('handles CarePlanGenerationError with 500 status', async () => {
@@ -84,8 +84,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('LLM timeout');
-      expect(body.code).toBe('CARE_PLAN_GENERATION_FAILED');
+      expect(body.error.message).toContain('LLM timeout');
+      expect(body.error.code).toBe('CARE_PLAN_GENERATION_FAILED');
     });
 
     it('handles ValidationError with 400 status', async () => {
@@ -96,9 +96,9 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('Invalid input');
-      expect(body.code).toBe('VALIDATION_ERROR');
-      expect(body.details).toHaveProperty('fields');
+      expect(body.error.message).toContain('Invalid input');
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+      expect(body.error.details).toHaveProperty('fields');
     });
 
     it('logs domain errors as warnings', async () => {
@@ -147,14 +147,14 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toBe('Validation failed');
-      expect(body.code).toBe('VALIDATION_ERROR');
-      expect(body.details).toHaveLength(2);
-      expect(body.details[0]).toEqual({
+      expect(body.error.message).toBe('Validation failed');
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+      expect(body.error.details).toHaveLength(2);
+      expect(body.error.details[0]).toEqual({
         path: 'firstName',
         message: 'Expected string, received number',
       });
-      expect(body.details[1]).toEqual({
+      expect(body.error.details[1]).toEqual({
         path: 'mrn',
         message: 'MRN must be exactly 6 digits',
       });
@@ -174,7 +174,7 @@ describe('handleError', () => {
       const response = handleError(zodError);
       const body = await response.json();
 
-      expect(body.details[0].path).toBe('user.address.city');
+      expect(body.error.details[0].path).toBe('user.address.city');
     });
 
     it('logs validation errors as warnings', async () => {
@@ -215,8 +215,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toContain('already exists');
-      expect(body.code).toBe('DUPLICATE_RECORD');
+      expect(body.error.message).toContain('already exists');
+      expect(body.error.code).toBe('DUPLICATE_RECORD');
     });
 
     it('handles record not found (P2025) with 404 status', async () => {
@@ -234,8 +234,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toBe('Record not found');
-      expect(body.code).toBe('NOT_FOUND');
+      expect(body.error.message).toBe('Record not found');
+      expect(body.error.code).toBe('NOT_FOUND');
     });
 
     it('handles other Prisma errors with 500 status', async () => {
@@ -253,8 +253,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toBe('Database operation failed');
-      expect(body.code).toBe('DATABASE_ERROR');
+      expect(body.error.message).toBe('Database operation failed');
+      expect(body.error.code).toBe('DATABASE_ERROR');
     });
 
     it('logs Prisma errors', async () => {
@@ -286,8 +286,8 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.error).toBe('An unexpected error occurred');
-      expect(body.code).toBe('INTERNAL_ERROR');
+      expect(body.error.message).toBe('An unexpected error occurred');
+      expect(body.error.code).toBe('INTERNAL_ERROR');
     });
 
     it('handles non-Error objects', async () => {
@@ -298,7 +298,7 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
-      expect(body.code).toBe('INTERNAL_ERROR');
+      expect(body.error.code).toBe('INTERNAL_ERROR');
     });
 
     it('handles null error', async () => {
@@ -308,6 +308,7 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
+      expect(body.error.message).toBe('An unexpected error occurred');
     });
 
     it('handles undefined error', async () => {
@@ -317,6 +318,7 @@ describe('handleError', () => {
       const body = await response.json();
 
       expect(body.success).toBe(false);
+      expect(body.error.message).toBe('An unexpected error occurred');
     });
 
     it('logs unexpected errors with stack trace', async () => {
@@ -372,7 +374,9 @@ describe('handleError', () => {
         const response = handleError(error);
         const body = await response.json();
         expect(body.error).toBeDefined();
-        expect(typeof body.error).toBe('string');
+        expect(typeof body.error).toBe('object');
+        expect(body.error.message).toBeDefined();
+        expect(typeof body.error.message).toBe('string');
       }
     });
 
@@ -386,8 +390,8 @@ describe('handleError', () => {
       for (const error of errors) {
         const response = handleError(error);
         const body = await response.json();
-        expect(body.code).toBeDefined();
-        expect(typeof body.code).toBe('string');
+        expect(body.error.code).toBeDefined();
+        expect(typeof body.error.code).toBe('string');
       }
     });
   });

@@ -37,7 +37,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         await worker.start({
           onUnhandledRequest: 'bypass',
         });
-        console.log('🎭 MSW mocking enabled');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🎭 MSW mocking enabled');
+        }
       };
 
       initMSW();

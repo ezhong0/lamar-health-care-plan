@@ -15,6 +15,7 @@ import type {
   GetPatientResponse,
   ListPatientsResponse,
   ListOrdersResponse,
+  ListProvidersResponse,
 } from '@/lib/api/contracts';
 import { ApiError } from './errors';
 
@@ -119,4 +120,15 @@ export async function listPatients(): Promise<ListPatientsResponse> {
  */
 export async function listOrders(): Promise<ListOrdersResponse> {
   return apiFetch<ListOrdersResponse>('/api/orders?limit=100');
+}
+
+/**
+ * List all providers with optional search
+ */
+export async function listProviders(search?: string): Promise<ListProvidersResponse> {
+  const params = new URLSearchParams({ limit: '100', offset: '0' });
+  if (search) {
+    params.append('search', search);
+  }
+  return apiFetch<ListProvidersResponse>(`/api/providers?${params}`);
 }

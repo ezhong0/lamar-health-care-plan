@@ -172,8 +172,9 @@ describe('CarePlanService', () => {
       }
     });
 
-    // Note: This test verifies timeout behavior but is slow (26s)
-    // TODO: Refactor to use fake timers in a way that doesn't break database operations
+    // KNOWN ISSUE: Fake timers interfere with database operations in this test
+    // Using real timeouts for now. Future: investigate fake timer + DB mocking.
+    // Test is skipped to avoid slow test runs (would take 26s)
     it.skip('should handle LLM timeout', async () => {
       const provider = await testDb.provider.create({
         data: {

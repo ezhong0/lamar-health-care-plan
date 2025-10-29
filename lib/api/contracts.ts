@@ -24,6 +24,7 @@ export interface CreatePatientRequest {
   additionalDiagnoses?: string[];
   medicationHistory?: string[];
   patientRecords: string;
+  skipWarnings?: boolean; // Flag to skip duplicate warnings check
 }
 
 export interface CreatePatientResponse {
@@ -134,6 +135,26 @@ export interface ListOrdersResponse {
       name: string;
       npi: string;
     };
+  }>;
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+// ============================================================================
+// List Providers
+// ============================================================================
+
+export interface ListProvidersResponse {
+  providers: Array<{
+    id: string;
+    name: string;
+    npi: string;
+    createdAt: string;
+    updatedAt: string;
+    orderCount: number;
+    lastOrderDate: string | null;
   }>;
   total: number;
   limit: number;

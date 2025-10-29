@@ -91,3 +91,19 @@ export function useOrders() {
     enabled: isClient,
   });
 }
+
+/**
+ * Hook to fetch all providers
+ *
+ * Supports optional search parameter for filtering
+ */
+export function useProviders(search?: string) {
+  // Only run query on client-side to avoid SSR issues
+  const isClient = typeof window !== 'undefined';
+
+  return useQuery({
+    queryKey: ['providers', search],
+    queryFn: () => api.listProviders(search),
+    enabled: isClient,
+  });
+}

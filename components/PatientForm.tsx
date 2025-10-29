@@ -24,6 +24,25 @@ import { WarningList } from './WarningList';
 import type { Warning } from '@/lib/domain/warnings';
 import { ApiError } from '@/lib/client/errors';
 import { PATIENT_EXAMPLES, type PatientExample } from '@/lib/examples/patient-examples';
+import { logger } from '@/lib/infrastructure/logger';
+
+// Type guard helpers for runtime validation
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+const PATIENT_INPUT_KEYS = [
+  'firstName', 'lastName', 'dateOfBirth', 'mrn', 'gender',
+  'address', 'phoneNumber', 'email', 'emergencyContact',
+  'insuranceProvider', 'policyNumber', 'groupNumber',
+  'primaryDiagnosis', 'additionalDiagnoses', 'allergies',
+  'medicationHistory', 'orderingProviderId', 'medicationName',
+  'referringProvider', 'referringProviderNPI', 'patientRecords'
+] as const;
+
+function isValidPatientInputKey(key: string): key is keyof PatientInput {
+  return PATIENT_INPUT_KEYS.includes(key as any);
+}
 
 export function PatientForm() {
   const router = useRouter();
@@ -67,16 +86,15 @@ export function PatientForm() {
           patientRecords: prefillData.patientRecords,
         };
 
-        // Handle optional fields
-        if (prefillData.additionalDiagnoses?.length > 0) {
-          formData.additionalDiagnoses = prefillData.additionalDiagnoses as any;
+        // Handle optional fields with type validation
+        if (isStringArray(prefillData.additionalDiagnoses)) {
+          formData.additionalDiagnoses = prefillData.additionalDiagnoses;
         }
-        if (prefillData.medicationHistory?.length > 0) {
-          formData.medicationHistory = prefillData.medicationHistory as any;
+        if (isStringArray(prefillData.medicationHistory)) {
+          formData.medicationHistory = prefillData.medicationHistory;
         }
 
-        // For now, just populate with the first order
-        // TODO: Support multiple orders in the form
+        // Populate with the first order
         if (prefillData.orders && prefillData.orders.length > 0) {
           const firstOrder = prefillData.orders[0];
           formData.medicationName = firstOrder.medicationName;
@@ -85,10 +103,10 @@ export function PatientForm() {
           formData.referringProviderNPI = firstOrder.providerNpi;
         }
 
-        // Populate form fields
+        // Populate form fields with type validation
         Object.entries(formData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            setValue(key as keyof PatientInput, value as any);
+          if (value !== undefined && value !== null && isValidPatientInputKey(key)) {
+            setValue(key, value as PatientInput[typeof key]);
           }
         });
 
@@ -102,7 +120,9 @@ export function PatientForm() {
           description: 'Form pre-filled with demo scenario. Review and submit when ready!',
         });
       } catch (error) {
-        console.error('Failed to parse demo prefill data:', error);
+        logger.error('Failed to parse demo prefill data', {
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
         localStorage.removeItem('demo-prefill-data');
       }
     } else {
@@ -118,11 +138,10 @@ export function PatientForm() {
           );
 
           if (hasData) {
-            // Restore all fields
+            // Restore all fields with type validation
             Object.entries(draftData).forEach(([key, value]) => {
-              if (value !== undefined && value !== null) {
-                // Type assertion needed because localStorage data is untyped
-                setValue(key as keyof PatientInput, value as any);
+              if (value !== undefined && value !== null && isValidPatientInputKey(key)) {
+                setValue(key, value as PatientInput[typeof key]);
               }
             });
 
@@ -131,7 +150,9 @@ export function PatientForm() {
             });
           }
         } catch (error) {
-          console.error('Failed to parse draft data:', error);
+          logger.error('Failed to parse draft data', {
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
           localStorage.removeItem('patient-form-draft');
         }
       }
@@ -203,8 +224,11 @@ export function PatientForm() {
   const createPatientNow = async (data: PatientInput) => {
     // Actually create the patient (warnings already shown or none exist)
     // Pass skipWarnings flag to tell API we've already validated
-    const dataWithFlag = { ...data, skipWarnings: true };
-    const result = await createPatient.mutateAsync(dataWithFlag as any);
+    const dataWithFlag: PatientInput & { skipWarnings: boolean } = {
+      ...data,
+      skipWarnings: true,
+    };
+    const result = await createPatient.mutateAsync(dataWithFlag);
 
     if (result.success && result.data) {
       const patientId = result.data.patient.id;

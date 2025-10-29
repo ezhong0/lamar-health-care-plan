@@ -1,35 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
-
-interface Provider {
-  id: string;
-  name: string;
-  npi: string;
-  createdAt: string;
-  updatedAt: string;
-  orderCount: number;
-  lastOrderDate: string | null;
-}
-
-interface ProvidersResponse {
-  providers: Provider[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-}
+import { useProviders } from '@/lib/client/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ProvidersPage() {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [cleaningUp, setCleaningUp] = useState(false);
@@ -43,39 +24,11 @@ export default function ProvidersPage() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => {
-    fetchProviders();
-  }, [debouncedSearch]);
+  // Use React Query hook for data fetching
+  const { data, isLoading, error } = useProviders(debouncedSearch);
 
-  const fetchProviders = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        limit: '100',
-        offset: '0',
-      });
-
-      if (debouncedSearch) {
-        params.append('search', debouncedSearch);
-      }
-
-      const response = await fetch(`/api/providers?${params}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch providers');
-      }
-
-      const data: ProvidersResponse = await response.json();
-      setProviders(data.providers);
-      setTotal(data.total);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch providers'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const providers = data?.providers || [];
+  const total = data?.total || 0;
 
   const handleCleanup = async () => {
     if (!confirm('Delete all providers with no orders? This action cannot be undone.')) {
@@ -98,8 +51,8 @@ export default function ProvidersPage() {
 
       toast.success(data.data.message, { id: toastId });
 
-      // Refresh providers list
-      await fetchProviders();
+      // Refresh providers list using React Query cache invalidation
+      await queryClient.invalidateQueries({ queryKey: ['providers'] });
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : 'Failed to cleanup providers',
@@ -110,7 +63,7 @@ export default function ProvidersPage() {
     }
   };
 
-  if (loading && providers.length === 0) {
+  if (isLoading && providers.length === 0) {
     return (
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
@@ -129,7 +82,9 @@ export default function ProvidersPage() {
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <p className="text-red-800 dark:text-red-200">{error}</p>
+            <p className="text-red-800 dark:text-red-200">
+              {error instanceof Error ? error.message : 'Failed to load providers'}
+            </p>
           </div>
         </div>
       </div>
@@ -157,7 +112,7 @@ export default function ProvidersPage() {
           <div>
             <Button
               onClick={handleCleanup}
-              disabled={cleaningUp || loading}
+              disabled={cleaningUp || isLoading}
               variant="outline"
               className="text-sm"
             >

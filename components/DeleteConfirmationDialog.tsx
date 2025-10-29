@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/infrastructure/logger';
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -52,7 +53,9 @@ export function DeleteConfirmationDialog({
       onOpenChange(false);
     } catch (error) {
       // Error handling is done in parent component
-      console.error('Delete failed:', error);
+      logger.error('Delete patient failed', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     } finally {
       setIsDeleting(false);
     }

@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { Sparkles, Users } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/infrastructure/logger';
 
 interface Scenario {
   id: string;
@@ -55,7 +56,9 @@ export function DemoScenarioSelector() {
         }
       } catch (error) {
         toast.error('Failed to load demo scenarios');
-        console.error('Error fetching scenarios:', error);
+        logger.error('Failed to fetch demo scenarios', {
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
       } finally {
         setLoading(false);
       }
