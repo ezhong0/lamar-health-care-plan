@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createPatientViaUI, createTestPatient } from './helpers/test-data';
+import { createPatientViaUI, createPatientViaAPI, createTestPatient } from './helpers/test-data';
 import { setupCommonMocks } from './fixtures/api-mocks';
 
 test.describe('Export Functionality', () => {
@@ -71,8 +71,8 @@ test.describe('Export Functionality', () => {
 
   test('should export multiple patients if they exist', async ({ page }) => {
     // Create multiple test patients via API
-    const patient1 = createTestPatient({ firstName: 'Export', lastName: 'Test1' });
-    const patient2 = createTestPatient({ firstName: 'Export', lastName: 'Test2' });
+    const patient1 = createTestPatient({ firstName: 'ExportOne', lastName: 'TestPatient' });
+    const patient2 = createTestPatient({ firstName: 'ExportTwo', lastName: 'TestPatient' });
 
     await createPatientViaAPI(page, patient1);
     await createPatientViaAPI(page, patient2);

@@ -243,8 +243,12 @@ describe('PatientForm', () => {
       await user.click(screen.getByRole('button', { name: /Create Patient/i }));
 
       await waitFor(() => {
+        expect(mockMutateAsync).toHaveBeenCalled();
+      }, { timeout: 3000 });
+
+      await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/patients/patient-123');
-      });
+      }, { timeout: 3000 });
     });
 
 

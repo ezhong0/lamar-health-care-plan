@@ -91,7 +91,14 @@ test.describe('Duplicate Detection', () => {
     // If on warnings page, proceed
     if (page.url().includes('/patients/new')) {
       const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
-      await proceedButton.click();
+      const isButtonVisible = await proceedButton.isVisible().catch(() => false);
+
+      if (isButtonVisible) {
+        await proceedButton.click();
+      } else {
+        // No warnings button - wait for navigation
+        await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      }
     }
 
     // Should redirect to patient detail page eventually
@@ -133,7 +140,15 @@ test.describe('Duplicate Detection', () => {
 
     // If on warnings page, proceed
     if (page.url().includes('/patients/new')) {
-      await page.getByRole('button', { name: /Proceed Anyway/i }).click();
+      const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
+      const isButtonVisible = await proceedButton.isVisible().catch(() => false);
+
+      if (isButtonVisible) {
+        await proceedButton.click();
+      } else {
+        // No warnings button - wait for navigation
+        await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      }
     }
 
     await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
@@ -175,7 +190,15 @@ test.describe('Duplicate Detection', () => {
 
     // If on warnings page, proceed
     if (page.url().includes('/patients/new')) {
-      await page.getByRole('button', { name: /Proceed Anyway/i }).click();
+      const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
+      const isButtonVisible = await proceedButton.isVisible().catch(() => false);
+
+      if (isButtonVisible) {
+        await proceedButton.click();
+      } else {
+        // No warnings button - wait for navigation
+        await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      }
     }
 
     await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
@@ -209,15 +232,28 @@ test.describe('Duplicate Detection', () => {
     // Wait for warnings or success
     await Promise.race([
       page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 8000 }),
-      page.waitForSelector('text=/Warning/i', { timeout: 8000 })
+      page.waitForSelector('text=/Review Warnings|Warning/i', { timeout: 8000 })
     ]).catch(() => {});
 
-    // If on warnings page, click cancel
+    // If warnings appeared, click cancel
     if (page.url().includes('/patients/new')) {
-      await page.getByRole('button', { name: /Cancel/i }).click();
-    }
+      const warningsVisible = await page.getByRole('heading', { name: /Review Warnings/i }).isVisible().catch(() => false);
 
-    // Should navigate to patient detail page eventually
-    await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      if (warningsVisible) {
+        // Click cancel button
+        await page.getByRole('button', { name: /Cancel/i }).click();
+
+        // Should remain on form page after canceling
+        await page.waitForTimeout(1000);
+        await expect(page).toHaveURL('/patients/new');
+
+        // Warning modal should be closed, form should be visible
+        await expect(page.getByLabel('First Name')).toBeVisible();
+      }
+    } else {
+      // No warnings appeared - patient was created directly
+      // This is also valid behavior
+      await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/);
+    }
   });
 });

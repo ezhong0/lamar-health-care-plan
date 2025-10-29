@@ -106,7 +106,7 @@ describe('PatientService Integration', () => {
       }
     });
 
-    it('rejects duplicate MRN with error', async () => {
+    it('allows duplicate MRN but returns warning', async () => {
       // Create first patient
       await patientService.createPatient({
         firstName: 'Bob',
@@ -121,7 +121,7 @@ describe('PatientService Integration', () => {
         patientRecords: 'Test records',
       });
 
-      // Try to create patient with same MRN
+      // Try to create patient with same MRN - should succeed with warning
       const result = await patientService.createPatient({
         firstName: 'Different',
         lastName: 'Person',
@@ -135,11 +135,15 @@ describe('PatientService Integration', () => {
         patientRecords: 'Different records',
       });
 
-      expect(isFailure(result)).toBe(true);
+      // MRN duplicates are allowed (non-blocking) but should return a warning
+      expect(isFailure(result)).toBe(false);
 
-      if (isFailure(result)) {
-        expect(result.error.message).toContain('100002');
-        expect(result.error.message).toContain('already exists');
+      if (isSuccess(result)) {
+        expect(result.data.warnings.length).toBeGreaterThan(0);
+        const mrnWarning = result.data.warnings.find(w =>
+          w.type === 'DUPLICATE_PATIENT' && w.existingPatient.mrn === '100002'
+        );
+        expect(mrnWarning).toBeDefined();
       }
     });
 

@@ -1,199 +1,124 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e1]:
-  - generic [active]:
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
     - generic [ref=e4]:
       - generic [ref=e5]:
-        - generic [ref=e6]:
-          - navigation [ref=e7]:
-            - button "previous" [disabled] [ref=e8]:
-              - img "previous" [ref=e9]
-            - generic [ref=e11]:
-              - generic [ref=e12]: 1/
-              - text: "9"
-            - button "next" [ref=e13] [cursor=pointer]:
-              - img "next" [ref=e14]
-          - img
-        - generic [ref=e16]:
-          - link "Next.js 16.0.0 (stale) Turbopack" [ref=e17] [cursor=pointer]:
-            - /url: https://nextjs.org/docs/messages/version-staleness
-            - img [ref=e18]
-            - generic "There is a newer version (16.0.1) available, upgrade recommended!" [ref=e20]: Next.js 16.0.0 (stale)
-            - generic [ref=e21]: Turbopack
-          - img
-      - generic [ref=e22]:
-        - dialog "Console Error" [ref=e23]:
-          - generic [ref=e26]:
-            - generic [ref=e27]:
-              - generic [ref=e28]:
-                - generic [ref=e30]: Console Error
-                - generic [ref=e31]:
-                  - button "Copy Error Info" [ref=e32] [cursor=pointer]:
-                    - img [ref=e33]
-                  - button "No related documentation found" [disabled] [ref=e35]:
-                    - img [ref=e36]
-                  - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e38] [cursor=pointer]:
-                    - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
-                    - img [ref=e39]
-              - generic [ref=e48]: "❌ Environment validation failed:"
-            - generic [ref=e50]:
-              - generic [ref=e51]:
-                - paragraph [ref=e52]:
-                  - text: Call Stack
-                  - generic [ref=e53]: "36"
-                - button "Show 15 ignore-listed frame(s)" [ref=e54] [cursor=pointer]:
-                  - text: Show 15 ignore-listed frame(s)
-                  - img [ref=e55]
-              - generic [ref=e57]:
-                - generic [ref=e58]:
-                  - text: createConsoleError
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e59] [cursor=pointer]:
-                    - img [ref=e60]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (2196:71)
-              - generic [ref=e62]:
-                - generic [ref=e63]:
-                  - text: handleConsoleError
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e64] [cursor=pointer]:
-                    - img [ref=e65]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (2977:54)
-              - generic [ref=e67]:
-                - generic [ref=e68]:
-                  - text: console.error
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e69] [cursor=pointer]:
-                    - img [ref=e70]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (3121:57)
-              - generic [ref=e72]:
-                - generic [ref=e73]:
-                  - text: validateEnv
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e74] [cursor=pointer]:
-                    - img [ref=e75]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_82864ffe._.js (2582:17)
-              - generic [ref=e77]:
-                - generic [ref=e78]:
-                  - text: module evaluation
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e79] [cursor=pointer]:
-                    - img [ref=e80]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_82864ffe._.js (2601:13)
-              - generic [ref=e82]:
-                - generic [ref=e83]:
-                  - text: module evaluation
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e84] [cursor=pointer]:
-                    - img [ref=e85]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_82864ffe._.js (2622:157)
-              - generic [ref=e87]:
-                - generic [ref=e88]:
-                  - text: module evaluation
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e89] [cursor=pointer]:
-                    - img [ref=e90]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_82864ffe._.js (2693:160)
-              - generic [ref=e92]:
-                - generic [ref=e93]:
-                  - text: requireModule
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e94] [cursor=pointer]:
-                    - img [ref=e95]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (85:84)
-              - generic [ref=e97]:
-                - generic [ref=e98]:
-                  - text: initializeModuleChunk
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e99] [cursor=pointer]:
-                    - img [ref=e100]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (1051:25)
-              - generic [ref=e102]:
-                - generic [ref=e103]:
-                  - text: readChunk
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e104] [cursor=pointer]:
-                    - img [ref=e105]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (811:17)
-              - generic [ref=e107]:
-                - generic [ref=e108]:
-                  - text: Object.react_stack_bottom_frame
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e109] [cursor=pointer]:
-                    - img [ref=e110]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (14810:20)
-              - generic [ref=e112]:
-                - generic [ref=e113]:
-                  - text: resolveLazy
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e114] [cursor=pointer]:
-                    - img [ref=e115]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (3889:20)
-              - generic [ref=e117]:
-                - generic [ref=e118]:
-                  - text: beginWork
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e119] [cursor=pointer]:
-                    - img [ref=e120]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (6651:77)
-              - generic [ref=e122]:
-                - generic [ref=e123]:
-                  - text: runWithFiberInDEV
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e124] [cursor=pointer]:
-                    - img [ref=e125]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (959:74)
-              - generic [ref=e127]:
-                - generic [ref=e128]:
-                  - text: performUnitOfWork
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e129] [cursor=pointer]:
-                    - img [ref=e130]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (9487:97)
-              - generic [ref=e132]:
-                - generic [ref=e133]:
-                  - text: workLoopConcurrentByScheduler
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e134] [cursor=pointer]:
-                    - img [ref=e135]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (9483:58)
-              - generic [ref=e137]:
-                - generic [ref=e138]:
-                  - text: renderRootConcurrent
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e139] [cursor=pointer]:
-                    - img [ref=e140]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (9466:71)
-              - generic [ref=e142]:
-                - generic [ref=e143]:
-                  - text: performWorkOnRoot
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e144] [cursor=pointer]:
-                    - img [ref=e145]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (8993:150)
-              - generic [ref=e147]:
-                - generic [ref=e148]:
-                  - text: performWorkOnRootViaSchedulerTask
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e149] [cursor=pointer]:
-                    - img [ref=e150]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js (10155:9)
-              - generic [ref=e152]:
-                - generic [ref=e153]:
-                  - text: MessagePort.performWorkUntilDeadline
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e154] [cursor=pointer]:
-                    - img [ref=e155]
-                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_a0e4c7b4._.js (2647:64)
-              - generic [ref=e157]:
-                - generic [ref=e158]:
-                  - text: NewPatientPage
-                  - button "Sourcemapping failed. Click to log cause of error." [ref=e159] [cursor=pointer]:
-                    - img [ref=e160]
-                - text: about:/Server/file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/server/chunks/ssr/%5Broot-of-the-server%5D__b1e332a7._.js (103:268)
-          - generic [ref=e162]: "1"
-          - generic [ref=e163]: "2"
-        - contentinfo [ref=e164]:
-          - region "Error feedback" [ref=e165]:
-            - paragraph [ref=e166]:
-              - link "Was this helpful?" [ref=e167] [cursor=pointer]:
-                - /url: https://nextjs.org/telemetry#error-feedback
-            - button "Mark as helpful" [ref=e168] [cursor=pointer]:
-              - img [ref=e169]
-            - button "Mark as not helpful" [ref=e172] [cursor=pointer]:
-              - img [ref=e173]
-    - generic [ref=e179] [cursor=pointer]:
-      - button "Open Next.js Dev Tools" [ref=e180]:
-        - img [ref=e181]
-      - generic [ref=e184]:
-        - button "Open issues overlay" [ref=e185]:
-          - generic [ref=e186]:
-            - generic [ref=e187]: "8"
-            - generic [ref=e188]: "9"
-          - generic [ref=e189]:
-            - text: Issue
-            - generic [ref=e190]: s
-        - button "Collapse issues badge" [ref=e191]:
-          - img [ref=e192]
-  - 'heading "Application error: a client-side exception has occurred while loading localhost (see the browser console for more information)." [level=2] [ref=e196]'
+        - link "Care Plan Generator" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e7]:
+          - link "New Patient" [ref=e8] [cursor=pointer]:
+            - /url: /patients/new
+          - link "Patients" [ref=e9] [cursor=pointer]:
+            - /url: /patients
+          - link "Orders" [ref=e10] [cursor=pointer]:
+            - /url: /orders
+          - link "Providers" [ref=e11] [cursor=pointer]:
+            - /url: /providers
+      - generic [ref=e12]:
+        - link "GitHub" [ref=e13] [cursor=pointer]:
+          - /url: https://github.com/ezhong0/lamar-health-care-plan
+          - img [ref=e14]
+          - generic [ref=e16]: GitHub
+        - button "Toggle theme" [ref=e17]:
+          - img [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "New Patient" [level=1] [ref=e25]
+        - paragraph [ref=e26]: Enter patient information to create a new record and generate a care plan.
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - heading "Try with Example Data" [level=3] [ref=e31]
+            - paragraph [ref=e32]: Generate a realistic patient scenario with AI to explore the application.
+          - button "Generate with AI" [ref=e34]:
+            - img
+            - text: Generate with AI
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - heading "Patient Information" [level=2] [ref=e37]
+            - paragraph [ref=e38]: Enter the patient's basic information
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: First Name *
+              - textbox "First Name *" [ref=e42]:
+                - /placeholder: John
+                - text: John
+            - generic [ref=e43]:
+              - generic [ref=e44]: Last Name *
+              - textbox "Last Name *" [ref=e45]:
+                - /placeholder: Doe
+                - text: Doe
+            - generic [ref=e46]:
+              - generic [ref=e47]: Medical Record Number (MRN) *
+              - textbox "Medical Record Number (MRN) *" [ref=e48]:
+                - /placeholder: "123456"
+                - text: "761661"
+              - paragraph [ref=e49]: 6 digits only (e.g., 123456)
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - heading "Provider Information" [level=2] [ref=e52]
+            - paragraph [ref=e53]: Referring provider details
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]: Referring Provider Name *
+              - textbox "Referring Provider Name *" [ref=e57]:
+                - /placeholder: Dr. Smith
+                - text: Dr. Test Provider 1761764761661
+            - generic [ref=e58]:
+              - generic [ref=e59]: Provider NPI *
+              - textbox "Provider NPI *" [ref=e60]:
+                - /placeholder: "1234567893"
+                - text: "1000002729"
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - heading "Medication & Diagnosis" [level=2] [ref=e63]
+            - paragraph [ref=e64]: Current medication and diagnoses
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: Medication Name *
+              - textbox "Medication Name *" [ref=e68]:
+                - /placeholder: IVIG
+                - text: IVIG
+            - generic [ref=e69]:
+              - generic [ref=e70]: Primary Diagnosis (ICD-10) *
+              - textbox "Primary Diagnosis (ICD-10) *" [ref=e71]:
+                - /placeholder: G70.00
+                - text: G70.00
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - heading "Patient Records" [level=2] [ref=e74]
+            - paragraph [ref=e75]: Clinical notes and relevant medical history
+          - generic [ref=e76]:
+            - generic [ref=e77]: Clinical Notes *
+            - textbox "Clinical Notes *" [ref=e78]:
+              - /placeholder: Enter relevant clinical information, lab results, symptoms, etc.
+              - text: Patient has history of myasthenia gravis. Recent exacerbation requiring IVIG therapy.
+        - generic [ref=e79]:
+          - button "Creating..." [disabled]
+  - contentinfo [ref=e80]:
+    - generic [ref=e81]:
+      - generic [ref=e82]:
+        - generic [ref=e83]: Care Plan Generator
+        - generic [ref=e84]: ·
+        - generic [ref=e85]: Built with Next.js, Prisma & Claude AI
+      - generic [ref=e87]:
+        - generic [ref=e88]: TypeScript
+        - generic [ref=e89]: React
+        - generic [ref=e90]: Next.js 16
+        - generic [ref=e91]: Prisma
+        - generic [ref=e92]: PostgreSQL
+        - generic [ref=e93]: Claude 3.5
+        - generic [ref=e94]: Tailwind CSS
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e100] [cursor=pointer]:
+    - generic [ref=e103]:
+      - text: Compiling
+      - generic [ref=e104]:
+        - generic [ref=e105]: .
+        - generic [ref=e106]: .
+        - generic [ref=e107]: .
+  - alert [ref=e108]
 ```

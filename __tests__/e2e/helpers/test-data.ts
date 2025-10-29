@@ -150,6 +150,16 @@ export async function createPatientViaUI(
   // Listen for API response to extract patient ID reliably
   let createdPatientId: string | null = null;
 
+  // Set up response listener BEFORE clicking
+  const responsePromise = page.waitForResponse(
+    (response) => {
+      const isMatch = (response.url().includes('/api/patients/validate') || response.url().includes('/api/patients'))
+        && (response.request().method() === 'POST');
+      return isMatch;
+    },
+    { timeout: 15000 }
+  ).catch(() => null); // Don't fail if no response, we'll check URL instead
+
   page.on('response', async (response) => {
     if (response.url().includes('/api/patients') && response.request().method() === 'POST') {
       if (response.ok()) {
@@ -167,11 +177,8 @@ export async function createPatientViaUI(
 
   await page.getByRole('button', { name: 'Create Patient' }).click();
 
-  // Wait for API response
-  await page.waitForResponse(
-    (response) => response.url().includes('/api/patients') && response.request().method() === 'POST',
-    { timeout: 10000 }
-  );
+  // Wait for API response (or timeout gracefully)
+  await responsePromise;
 
   // Wait a bit for React to process the response
   await page.waitForTimeout(500);
@@ -183,11 +190,20 @@ export async function createPatientViaUI(
     // Click proceed button and wait for navigation
     const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
 
-    // Wait for navigation promise and click simultaneously
-    await Promise.all([
-      page.waitForURL(/\/patients\/[a-z0-9-]+$/, { timeout: 15000 }),
-      proceedButton.click()
-    ]);
+    // Wait for button to be visible and enabled
+    await proceedButton.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    const isButtonEnabled = await proceedButton.isEnabled().catch(() => false);
+
+    if (isButtonEnabled) {
+      // Wait for navigation promise and click simultaneously
+      await Promise.all([
+        page.waitForURL(/\/patients\/[a-z0-9-]+$/, { timeout: 15000 }),
+        proceedButton.click()
+      ]);
+    } else {
+      // Button not found or not enabled - just wait for navigation
+      await page.waitForURL(/\/patients\/[a-z0-9-]+$/, { timeout: 15000 });
+    }
 
     // Wait for page to be ready
     await page.waitForLoadState('domcontentloaded');

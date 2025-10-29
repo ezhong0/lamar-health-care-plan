@@ -371,10 +371,14 @@ describe('ExportService', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        // Should be truncated to 200 chars + ellipsis
+        // The care plan should be truncated, but the entire row contains many columns
+        // So we check that the care plan content itself is truncated
         const lines = result.data.split('\n');
         const dataRow = lines[1];
-        expect(dataRow.length).toBeLessThan(longContent.length);
+        // The care plan field should not contain the full 500 'a' characters
+        // It should be truncated to ~200 chars + "..."
+        const aCount = (dataRow.match(/a/g) || []).length;
+        expect(aCount).toBeLessThan(longContent.length);
         expect(result.data).toContain('...');
       }
     });

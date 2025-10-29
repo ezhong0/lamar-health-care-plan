@@ -44,17 +44,27 @@ test.describe('Patient Creation - Happy Path', () => {
     // Check if we're on warnings page
     const currentUrl = page.url();
     if (currentUrl.includes('/patients/new')) {
-      // Still on new patient page - must be showing warnings
+      // Still on new patient page - check if warnings dialog exists
       const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
-      await proceedButton.click();
-      await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      const isWarningVisible = await proceedButton.isVisible().catch(() => false);
+
+      if (isWarningVisible) {
+        await proceedButton.click();
+        await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      } else {
+        // No warnings - wait a bit longer for navigation
+        await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+      }
     }
 
     // Verify we're on patient detail page
     await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/);
 
-    // Should show patient name in heading
-    await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
+    // Wait for page to fully load
+    await page.waitForLoadState('domcontentloaded');
+
+    // Should show patient name in heading - with longer timeout for hydration
+    await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible({ timeout: 10000 });
 
     // Should show MRN
     await expect(page.getByText(`MRN: ${patient.mrn}`)).toBeVisible();

@@ -100,7 +100,7 @@ describe('WarningList', () => {
       />
     );
 
-    expect(screen.getByText('Duplicate Patient')).toBeInTheDocument();
+    expect(screen.getByText('Duplicate MRN')).toBeInTheDocument();
     expect(screen.getByText('This patient already exists')).toBeInTheDocument();
     expect(screen.getByText(/Jane Smith/)).toBeInTheDocument();
     expect(screen.getByText(/MRN: 123456/)).toBeInTheDocument();
@@ -130,10 +130,12 @@ describe('WarningList', () => {
     expect(screen.getByText('Provider name does not match NPI')).toBeInTheDocument();
     expect(screen.getByText(/NPI:/)).toBeInTheDocument();
     expect(screen.getByText(/1234567890/)).toBeInTheDocument();
-    expect(screen.getByText(/Expected:/)).toBeInTheDocument();
-    expect(screen.getByText(/Dr. Smith/)).toBeInTheDocument();
-    expect(screen.getByText(/Provided:/)).toBeInTheDocument();
-    expect(screen.getByText(/Dr. Jones/)).toBeInTheDocument();
+    // Check for the expected and provided names in the details section
+    const container = screen.getByText('Provider Name Mismatch').closest('div');
+    expect(container).toHaveTextContent('Expected:');
+    expect(container).toHaveTextContent('Dr. Smith');
+    expect(container).toHaveTextContent('Provided:');
+    expect(container).toHaveTextContent('Dr. Jones');
   });
 
   it('calls onProceed when Proceed button is clicked', async () => {
@@ -160,7 +162,7 @@ describe('WarningList', () => {
       />
     );
 
-    const proceedButton = screen.getByRole('button', { name: /Proceed Anyway/i });
+    const proceedButton = screen.getByRole('button', { name: /Create New Patient/i });
     await userEvent.click(proceedButton);
 
     expect(onProceed).toHaveBeenCalledTimes(1);

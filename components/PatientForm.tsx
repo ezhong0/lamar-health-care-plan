@@ -25,6 +25,7 @@ import type { Warning } from '@/lib/domain/warnings';
 import { ApiError } from '@/lib/client/errors';
 import { PATIENT_EXAMPLES, type PatientExample } from '@/lib/examples/patient-examples';
 import { logger } from '@/lib/infrastructure/logger';
+import { PdfUpload } from './PdfUpload';
 
 // Type guard helpers for runtime validation
 function isStringArray(value: unknown): value is string[] {
@@ -196,7 +197,22 @@ export function PatientForm() {
         body: JSON.stringify(data),
       });
 
-      const validateResult = await validateResponse.json();
+      // Check if response has content before parsing JSON
+      let validateResult;
+      try {
+        const text = await validateResponse.text();
+        if (text) {
+          validateResult = JSON.parse(text);
+        } else {
+          throw new Error('Empty response from validation endpoint');
+        }
+      } catch (parseError) {
+        logger.error('Failed to parse validation response', {
+          error: parseError instanceof Error ? parseError.message : 'Unknown error',
+          status: validateResponse.status,
+        });
+        throw new Error('Server error during validation. Please try again.');
+      }
 
       // Handle validation errors (blocking errors like duplicate MRN)
       if (!validateResponse.ok || !validateResult.success) {
@@ -611,8 +627,23 @@ export function PatientForm() {
           </p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="patientRecords">Clinical Notes *</Label>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="patientRecords">Clinical Notes *</Label>
+            <PdfUpload
+              onTextExtracted={(text) => {
+                setValue('patientRecords', text, { shouldValidate: true });
+                // Trigger resize
+                if (textareaRef.current) {
+                  textareaRef.current.style.height = 'auto';
+                  textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+                }
+                toast.success('PDF processed', {
+                  description: 'Text extracted and added to clinical notes. You can edit it if needed.',
+                });
+              }}
+            />
+          </div>
           <textarea
             id="patientRecords"
             {...(() => {
@@ -640,6 +671,9 @@ export function PatientForm() {
           {errors.patientRecords && (
             <p className="text-sm text-red-600 dark:text-red-400">{errors.patientRecords.message}</p>
           )}
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            Tip: Upload a PDF to auto-populate this field, or type/paste text directly.
+          </p>
         </div>
       </Card>
 
