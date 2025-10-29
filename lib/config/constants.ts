@@ -38,11 +38,17 @@ export const CARE_PLAN = {
   /** Maximum tokens for LLM response (1500-2000 words ≈ 2000-2700 tokens, using 3000 with buffer) */
   MAX_TOKENS: 3000,
 
-  /** Timeout for LLM API calls in milliseconds (30s should be sufficient with optimized token limit) */
-  TIMEOUT_MS: 30000,
+  /** Timeout for LLM API calls in milliseconds (60s for complex care plans) */
+  TIMEOUT_MS: 60000,
 
   /** Maximum number of recent orders to include in care plan prompt */
   MAX_ORDERS_IN_PROMPT: 10,
+
+  /** Retry configuration */
+  MAX_RETRIES: 2,
+
+  /** Fallback token limits for retries (progressive reduction to improve speed) */
+  FALLBACK_TOKENS: [2000, 1500],
 } as const;
 
 /**

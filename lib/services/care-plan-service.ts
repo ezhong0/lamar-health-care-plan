@@ -126,8 +126,8 @@ export class CarePlanService {
         userDataLength: userData.length,
       });
 
-      // Step 3: Call Claude with proper prompt isolation
-      const content = await this.callClaude(systemPrompt, userData);
+      // Step 3: Call Claude with retry and fallback logic
+      const content = await this.callClaudeWithRetry(systemPrompt, userData);
 
       // Step 4: Validate response (enhanced validation)
       if (!content || content.length < 100) {
