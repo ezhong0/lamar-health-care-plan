@@ -28,9 +28,9 @@ function WarningItem({ warning }: { warning: Warning }) {
       return (
         <div className="space-y-2">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
+            <div className={`flex-shrink-0 w-6 h-6 rounded-full ${warning.hasSameMedication ? 'bg-red-100 dark:bg-red-900/20' : 'bg-amber-100 dark:bg-amber-900/20'} flex items-center justify-center`}>
               <svg
-                className="w-4 h-4 text-amber-600 dark:text-amber-500"
+                className={`w-4 h-4 ${warning.hasSameMedication ? 'text-red-600 dark:text-red-500' : 'text-amber-600 dark:text-amber-500'}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -44,7 +44,7 @@ function WarningItem({ warning }: { warning: Warning }) {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-900 dark:text-white">
+              <p className={`text-sm font-medium ${warning.hasSameMedication ? 'text-red-900 dark:text-red-400' : 'text-neutral-900 dark:text-white'}`}>
                 {warning.hasSameMedication ? 'Duplicate MRN and Order' : 'Duplicate MRN'}
               </p>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{warning.message}</p>
@@ -53,8 +53,8 @@ function WarningItem({ warning }: { warning: Warning }) {
                 {warning.existingPatient.mrn})
               </div>
               {warning.canLinkToExisting ? (
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/20 rounded-md">
-                  <p className="text-xs text-blue-900 dark:text-blue-100">
+                <div className={`mt-3 p-3 ${warning.hasSameMedication ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/20' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/20'} border rounded-md`}>
+                  <p className={`text-xs ${warning.hasSameMedication ? 'text-red-900 dark:text-red-100' : 'text-blue-900 dark:text-blue-100'}`}>
                     <span className="font-medium">Options:</span> You can add this order to the existing patient{warning.hasSameMedication ? ' (they already have this medication)' : ''}, or create a new patient record with the same MRN (patients may have multiple orders).
                   </p>
                 </div>
@@ -234,11 +234,19 @@ export function WarningList({ warnings, onProceed, onCancel, onLinkToExisting }:
 
         {/* Warnings List */}
         <div className="space-y-4">
-          {warnings.map((warning, index) => (
-            <Card key={index} className="p-4 bg-amber-50/50 dark:bg-amber-900/5 border-amber-200 dark:border-amber-900/20">
-              <WarningItem warning={warning} />
-            </Card>
-          ))}
+          {warnings.map((warning, index) => {
+            // Use red for duplicate MRN with same medication, amber for other warnings
+            const isDangerousWarning = warning.type === 'DUPLICATE_PATIENT' && warning.hasSameMedication;
+            const cardClasses = isDangerousWarning
+              ? 'p-4 bg-red-50/50 dark:bg-red-900/5 border-red-300 dark:border-red-900/30'
+              : 'p-4 bg-amber-50/50 dark:bg-amber-900/5 border-amber-200 dark:border-amber-900/20';
+
+            return (
+              <Card key={index} className={cardClasses}>
+                <WarningItem warning={warning} />
+              </Card>
+            );
+          })}
         </div>
 
         {/* Actions */}
