@@ -27,6 +27,7 @@ export default function PatientDetailPage() {
   const queryClient = useQueryClient();
   const patientId = params.id as string;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showPatientRecords, setShowPatientRecords] = useState(true);
 
   const { data, isLoading, error } = usePatient(patientId);
   const generateCarePlan = useGenerateCarePlan();
@@ -169,8 +170,27 @@ export default function PatientDetailPage() {
               </div>
             )}
             <div className="md:col-span-2">
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Patient Records</p>
-              <p className="text-neutral-900 dark:text-white mt-1 whitespace-pre-wrap">{patient.patientRecords}</p>
+              <button
+                onClick={() => setShowPatientRecords(!showPatientRecords)}
+                className="flex items-center justify-between w-full text-left group"
+              >
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors">
+                  Patient Records
+                </p>
+                <svg
+                  className={`w-4 h-4 text-neutral-500 dark:text-neutral-400 transition-transform ${
+                    showPatientRecords ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showPatientRecords && (
+                <p className="text-neutral-900 dark:text-white mt-3 whitespace-pre-wrap">{patient.patientRecords}</p>
+              )}
             </div>
           </div>
         </Card>
