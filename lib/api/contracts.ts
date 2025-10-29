@@ -118,28 +118,35 @@ export interface ListPatientsResponse {
 // ============================================================================
 
 export interface ListOrdersResponse {
-  orders: Array<{
-    id: string;
-    medicationName: string;
-    primaryDiagnosis: string;
-    status: string;
-    createdAt: string;
-    patient: {
+  success: boolean;
+  data?: {
+    orders: Array<{
       id: string;
-      firstName: string;
-      lastName: string;
-      mrn: string;
-    };
-    provider: {
-      id: string;
-      name: string;
-      npi: string;
-    };
-  }>;
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
+      medicationName: string;
+      primaryDiagnosis: string;
+      status: string;
+      createdAt: string;
+      patient: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        mrn: string;
+      };
+      provider: {
+        id: string;
+        name: string;
+        npi: string;
+      };
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+  error?: {
+    message: string;
+    code: string;
+  };
 }
 
 // ============================================================================
@@ -147,17 +154,24 @@ export interface ListOrdersResponse {
 // ============================================================================
 
 export interface ListProvidersResponse {
-  providers: Array<{
-    id: string;
-    name: string;
-    npi: string;
-    createdAt: string;
-    updatedAt: string;
-    orderCount: number;
-    lastOrderDate: string | null;
-  }>;
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
+  success: boolean;
+  data?: {
+    providers: Array<{
+      id: string;
+      name: string;
+      npi: string;
+      createdAt: string;
+      updatedAt: string;
+      orderCount: number;
+      lastOrderDate: string | null;
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+  error?: {
+    message: string;
+    code: string;
+  };
 }

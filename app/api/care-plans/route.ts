@@ -27,6 +27,7 @@ import { prisma } from '@/lib/infrastructure/db';
 import { env } from '@/lib/infrastructure/env';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
+import { checkRateLimit } from '@/lib/infrastructure/rate-limit';
 import { isFailure } from '@/lib/domain/result';
 import { toPatientId } from '@/lib/domain/types';
 import type { GenerateCarePlanResponse } from '@/lib/api/contracts';
@@ -52,6 +53,14 @@ export async function POST(
   const requestId = crypto.randomUUID();
 
   logger.info('Care plan generation request received', { requestId });
+
+  // CRITICAL: Check rate limit BEFORE processing (prevents LLM cost explosions)
+  // Limit: 3 requests per minute per IP (care plans are expensive ~$0.012 each)
+  const rateLimitResult = await checkRateLimit(req, 'carePlan');
+  if (rateLimitResult) {
+    logger.warn('Care plan request rate limited', { requestId });
+    return rateLimitResult as NextResponse<GenerateCarePlanResponse>;
+  }
 
   try {
     // Step 1: Parse and validate input

@@ -28,8 +28,9 @@ export default function ProvidersPage() {
   // Use React Query hook for data fetching
   const { data, isLoading, error } = useProviders(debouncedSearch);
 
-  const providers = data?.providers || [];
-  const total = data?.total || 0;
+  // Extract providers from standardized response format
+  const providers = data?.data?.providers || [];
+  const total = data?.data?.total || 0;
 
   const handleCleanup = async () => {
     if (!confirm('Delete all providers with no orders? This action cannot be undone.')) {

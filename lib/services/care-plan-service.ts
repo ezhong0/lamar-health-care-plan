@@ -116,23 +116,37 @@ export class CarePlanService {
         );
       }
 
-      // Step 2: Build prompt
-      const prompt = this.buildPrompt(patientData);
+      // Step 2: Build prompt (separate instructions from data for security)
+      const { systemPrompt, userData } = this.buildPrompt(patientData);
 
       logger.debug('Calling LLM', {
         patientId: input.patientId,
         model: this.model,
-        promptLength: prompt.length,
+        systemPromptLength: systemPrompt.length,
+        userDataLength: userData.length,
       });
 
-      // Step 3: Call Claude (NO retry - fail fast for better UX)
-      const content = await this.callClaude(prompt);
+      // Step 3: Call Claude with proper prompt isolation
+      const content = await this.callClaude(systemPrompt, userData);
 
-      // Step 4: Validate response (basic check)
+      // Step 4: Validate response (enhanced validation)
       if (!content || content.length < 100) {
         throw new CarePlanGenerationError(
           'LLM response too short or empty',
           new Error(`Response length: ${content.length}`)
+        );
+      }
+
+      // Additional output validation to detect malformed or suspicious responses
+      const validation = this.validateCarePlanContent(content);
+      if (!validation.valid) {
+        logger.warn('Care plan content failed validation', {
+          patientId: input.patientId,
+          reason: validation.reason,
+        });
+        throw new CarePlanGenerationError(
+          `Generated care plan failed validation: ${validation.reason}`,
+          new Error(validation.reason)
         );
       }
 
@@ -247,16 +261,20 @@ export class CarePlanService {
   }
 
   /**
-   * Call Claude API with timeout
+   * Call Claude API with timeout and proper prompt isolation
    *
    * Uses AbortController for timeout handling.
    * Anthropic SDK supports signal parameter for cancellation.
    *
-   * @param prompt - System prompt for care plan generation
+   * Security: Uses system prompt for instructions and user message for data
+   * to provide better isolation against prompt injection attacks.
+   *
+   * @param systemPrompt - Instructions for the model (isolated from user data)
+   * @param userData - Patient data (user-provided content)
    * @returns Generated care plan content
    * @throws Error if timeout or API error
    */
-  private async callClaude(prompt: string): Promise<string> {
+  private async callClaude(systemPrompt: string, userData: string): Promise<string> {
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -268,10 +286,13 @@ export class CarePlanService {
         {
           model: this.model,
           max_tokens: this.maxTokens,
+          // System prompt contains instructions (isolated from user data)
+          system: systemPrompt,
           messages: [
             {
               role: 'user',
-              content: prompt,
+              // User message contains only patient data (no instructions)
+              content: userData,
             },
           ],
         },
@@ -301,7 +322,7 @@ export class CarePlanService {
   }
 
   /**
-   * Build care plan generation prompt
+   * Build care plan generation prompt with proper isolation
    *
    * Prompt engineering principles:
    * 1. Clear role definition (clinical pharmacist)
@@ -310,8 +331,11 @@ export class CarePlanService {
    * 4. Relevant context (patient data, orders, medications)
    * 5. Quality guidelines (evidence-based, specific)
    *
+   * Security: Separates instructions (system prompt) from user data (user message)
+   * to provide better protection against prompt injection attacks.
+   *
    * @param patientData - Patient with orders
-   * @returns Formatted prompt for Claude
+   * @returns Object with systemPrompt (instructions) and userData (patient info)
    */
   private buildPrompt(patientData: {
     firstName: string;
@@ -329,38 +353,18 @@ export class CarePlanService {
         npi: string;
       };
     }>;
-  }): string {
+  }): { systemPrompt: string; userData: string } {
     const mostRecentOrder = patientData.orders[0];
 
     // Sanitize user-provided text to prevent prompt injection
     const sanitizedRecords = sanitizeForLLM(patientData.patientRecords);
 
-    return `You are a clinical pharmacist creating a care plan for a specialty pharmacy patient.
-
-## Patient Information
-
-**Name:** ${patientData.firstName} ${patientData.lastName}
-**MRN:** ${patientData.mrn}
-
-**Current Order:**
-- Medication: ${mostRecentOrder.medicationName}
-- Primary Diagnosis: ${mostRecentOrder.primaryDiagnosis}
-- Referring Provider: ${mostRecentOrder.provider.name} (NPI: ${mostRecentOrder.provider.npi})
-
-**Additional Diagnoses:**
-${patientData.additionalDiagnoses.length > 0 ? patientData.additionalDiagnoses.map((d) => `- ${d}`).join('\n') : '- None'}
-
-**Medication History:**
-${patientData.medicationHistory.length > 0 ? patientData.medicationHistory.map((m) => `- ${m}`).join('\n') : '- None'}
-
-**Patient Records:**
-${sanitizedRecords}
-
----
+    // System prompt contains only instructions (no patient data)
+    const systemPrompt = `You are a clinical pharmacist creating a care plan for a specialty pharmacy patient.
 
 ## Task
 
-Generate a comprehensive pharmacist care plan for this patient. The care plan should be detailed but concise, following the exact structure and formatting style below.
+Generate a comprehensive pharmacist care plan for the patient whose information will be provided in the next message. The care plan should be detailed but concise, following the exact structure and formatting style below.
 
 IMPORTANT FORMATTING REQUIREMENTS:
 - Total length: 1500-2000 words
@@ -495,7 +499,95 @@ CRITICAL FORMATTING RULES:
 - Use professional medical language
 - Format in clean markdown
 
-Generate the complete care plan now:`;
+Generate the complete care plan now based on the patient information provided.`;
+
+    // User data contains only patient information (no instructions)
+    const userData = `## Patient Information
+
+**Name:** ${patientData.firstName} ${patientData.lastName}
+**MRN:** ${patientData.mrn}
+
+**Current Order:**
+- Medication: ${mostRecentOrder.medicationName}
+- Primary Diagnosis: ${mostRecentOrder.primaryDiagnosis}
+- Referring Provider: ${mostRecentOrder.provider.name} (NPI: ${mostRecentOrder.provider.npi})
+
+**Additional Diagnoses:**
+${patientData.additionalDiagnoses.length > 0 ? patientData.additionalDiagnoses.map((d) => `- ${d}`).join('\n') : '- None'}
+
+**Medication History:**
+${patientData.medicationHistory.length > 0 ? patientData.medicationHistory.map((m) => `- ${m}`).join('\n') : '- None'}
+
+**Patient Records:**
+${sanitizedRecords}
+
+---
+
+Please generate the care plan following the structure and guidelines provided in your system instructions.`;
+
+    return { systemPrompt, userData };
+  }
+
+  /**
+   * Validate care plan content for quality and safety
+   *
+   * Checks for:
+   * - Presence of required sections
+   * - Reasonable length
+   * - No suspicious patterns (prompt injection attempts)
+   * - Medical content (not generic responses)
+   *
+   * @param content - Generated care plan text
+   * @returns Validation result with reason if invalid
+   */
+  private validateCarePlanContent(content: string): { valid: boolean; reason?: string } {
+    // Check minimum length (comprehensive care plans should be substantial)
+    if (content.length < 500) {
+      return { valid: false, reason: 'Content too short (less than 500 characters)' };
+    }
+
+    // Check maximum length (prevent token exhaustion responses)
+    if (content.length > 20000) {
+      return { valid: false, reason: 'Content too long (over 20,000 characters)' };
+    }
+
+    // Check for required sections (basic structure validation)
+    const requiredSections = [
+      'Problem list',
+      'Goals',
+      'interventions',
+      'Monitoring',
+    ];
+
+    for (const section of requiredSections) {
+      if (!content.toLowerCase().includes(section.toLowerCase())) {
+        return { valid: false, reason: `Missing required section: ${section}` };
+      }
+    }
+
+    // Check for suspicious patterns that might indicate prompt injection worked
+    const suspiciousPatterns = [
+      /ignore (all )?previous instructions/i,
+      /you are (now )?a different/i,
+      /disregard (all )?previous/i,
+      /system:\s*override/i,
+      /\[INST\]/i, // Llama-style instruction markers
+      /<\|im_start\|>/i, // ChatML markers
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(content)) {
+        return { valid: false, reason: 'Suspicious pattern detected in output' };
+      }
+    }
+
+    // Check that content appears to be medical/clinical (contains relevant terminology)
+    const medicalTermCount = (content.match(/\b(patient|medication|diagnosis|treatment|therapy|dose|adverse|monitoring|clinical|pharmacist)\b/gi) || []).length;
+    if (medicalTermCount < 10) {
+      return { valid: false, reason: 'Content lacks sufficient medical terminology' };
+    }
+
+    return { valid: true };
   }
 
   /**

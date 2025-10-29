@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
 import { logger } from '@/lib/infrastructure/logger';
 import { handleError } from '@/lib/infrastructure/error-handler';
+import type { ListOrdersResponse } from '@/lib/api/contracts';
 import type { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
@@ -66,12 +67,18 @@ export async function GET(request: Request) {
       medication,
     });
 
-    return NextResponse.json({
-      orders,
-      total,
-      limit,
-      offset,
-      hasMore: offset + orders.length < total,
+    return NextResponse.json<ListOrdersResponse>({
+      success: true,
+      data: {
+        orders: orders.map(order => ({
+          ...order,
+          createdAt: order.createdAt.toISOString(),
+        })),
+        total,
+        limit,
+        offset,
+        hasMore: offset + orders.length < total,
+      },
     });
   } catch (error) {
     logger.error('Failed to fetch orders', { error });

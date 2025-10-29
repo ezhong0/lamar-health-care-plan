@@ -117,18 +117,43 @@ export async function listPatients(): Promise<ListPatientsResponse> {
 
 /**
  * List all orders
+ *
+ * Returns orders wrapped in standardized response format
  */
 export async function listOrders(): Promise<ListOrdersResponse> {
-  return apiFetch<ListOrdersResponse>('/api/orders?limit=100');
+  const response = await apiFetch<ListOrdersResponse>('/api/orders?limit=100');
+
+  // Response is now { success, data: { orders, ... }, error }
+  if (!response.success || !response.data) {
+    throw new ApiError(
+      response.error?.message || 'Failed to fetch orders',
+      response.error?.code
+    );
+  }
+
+  return response;
 }
 
 /**
  * List all providers with optional search
+ *
+ * Returns providers wrapped in standardized response format
  */
 export async function listProviders(search?: string): Promise<ListProvidersResponse> {
   const params = new URLSearchParams({ limit: '100', offset: '0' });
   if (search) {
     params.append('search', search);
   }
-  return apiFetch<ListProvidersResponse>(`/api/providers?${params}`);
+
+  const response = await apiFetch<ListProvidersResponse>(`/api/providers?${params}`);
+
+  // Response is now { success, data: { providers, ... }, error }
+  if (!response.success || !response.data) {
+    throw new ApiError(
+      response.error?.message || 'Failed to fetch providers',
+      response.error?.code
+    );
+  }
+
+  return response;
 }

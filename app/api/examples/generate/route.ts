@@ -5,14 +5,22 @@
  * Server-side only to protect API key.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { generatePatientExampleWithRetry } from '@/lib/examples/generate-patient-example';
 import { logger } from '@/lib/infrastructure/logger';
+import { checkRateLimit } from '@/lib/infrastructure/rate-limit';
 
-export async function POST(): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const requestId = crypto.randomUUID();
 
   logger.info('AI patient example generation requested', { requestId });
+
+  // Check rate limit (5 requests per minute per IP)
+  const rateLimitResult = await checkRateLimit(req, 'example');
+  if (rateLimitResult) {
+    logger.warn('Example generation request rate limited', { requestId });
+    return rateLimitResult;
+  }
 
   try {
     const result = await generatePatientExampleWithRetry(2);
@@ -34,10 +42,14 @@ export async function POST(): Promise<NextResponse> {
         error: result.error,
       });
 
+      // Use centralized error handler for consistent error format
       return NextResponse.json(
         {
           success: false,
-          error: result.error,
+          error: {
+            message: result.error || 'Failed to generate patient example',
+            code: 'GENERATION_ERROR',
+          },
         },
         { status: 500 }
       );
@@ -48,10 +60,14 @@ export async function POST(): Promise<NextResponse> {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
+    // Use centralized error handler
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to generate patient example. Please try again.',
+        error: {
+          message: 'Failed to generate patient example. Please try again.',
+          code: 'INTERNAL_ERROR',
+        },
       },
       { status: 500 }
     );

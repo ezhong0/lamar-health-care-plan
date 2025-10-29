@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/infrastructure/db';
 import { logger } from '@/lib/infrastructure/logger';
 import { handleError } from '@/lib/infrastructure/error-handler';
+import type { ListProvidersResponse } from '@/lib/api/contracts';
 
 export async function GET(request: Request) {
   try {
@@ -68,10 +69,10 @@ export async function GET(request: Request) {
       id: provider.id,
       name: provider.name,
       npi: provider.npi,
-      createdAt: provider.createdAt,
-      updatedAt: provider.updatedAt,
+      createdAt: provider.createdAt.toISOString(),
+      updatedAt: provider.updatedAt.toISOString(),
       orderCount: provider._count.orders,
-      lastOrderDate: provider.orders[0]?.createdAt || null,
+      lastOrderDate: provider.orders[0]?.createdAt.toISOString() || null,
     }));
 
     logger.info('Providers fetched', {
@@ -80,12 +81,15 @@ export async function GET(request: Request) {
       search,
     });
 
-    return NextResponse.json({
-      providers: providersWithStats,
-      total,
-      limit,
-      offset,
-      hasMore: offset + providersWithStats.length < total,
+    return NextResponse.json<ListProvidersResponse>({
+      success: true,
+      data: {
+        providers: providersWithStats,
+        total,
+        limit,
+        offset,
+        hasMore: offset + providersWithStats.length < total,
+      },
     });
   } catch (error) {
     logger.error('Failed to fetch providers', { error });

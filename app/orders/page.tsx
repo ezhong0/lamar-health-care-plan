@@ -13,8 +13,12 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Extract orders from standardized response format
+  const orders = data?.data?.orders || [];
+  const total = data?.data?.total || 0;
+
   // Client-side filtering (for demo purposes - in production, filter server-side)
-  const filteredOrders = data?.orders.filter((order) => {
+  const filteredOrders = orders.filter((order) => {
     const matchesStatus = !statusFilter || order.status === statusFilter;
     const matchesSearch =
       !searchTerm ||
@@ -24,7 +28,7 @@ export default function OrdersPage() {
       order.patient.mrn.includes(searchTerm);
 
     return matchesStatus && matchesSearch;
-  }) || [];
+  });
 
   if (isLoading) {
     return (
@@ -108,7 +112,7 @@ export default function OrdersPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-6 border rounded-lg">
           <p className="text-sm text-muted-foreground">Total Orders</p>
-          <p className="text-3xl font-bold mt-1">{data?.total || 0}</p>
+          <p className="text-3xl font-bold mt-1">{total}</p>
         </div>
         <div className="p-6 border rounded-lg">
           <p className="text-sm text-muted-foreground">Filtered</p>
