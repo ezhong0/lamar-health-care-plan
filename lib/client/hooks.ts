@@ -75,3 +75,19 @@ export function usePatients() {
     enabled: isClient,
   });
 }
+
+/**
+ * Hook to fetch all orders
+ *
+ * Automatically caches and handles loading/error states
+ */
+export function useOrders() {
+  // Only run query on client-side to avoid SSR issues
+  const isClient = typeof window !== 'undefined';
+
+  return useQuery({
+    queryKey: ['orders'],
+    queryFn: () => api.listOrders(),
+    enabled: isClient,
+  });
+}

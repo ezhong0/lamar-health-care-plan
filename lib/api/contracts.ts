@@ -111,3 +111,32 @@ export interface ListPatientsResponse {
     code: string;
   };
 }
+
+// ============================================================================
+// List Orders
+// ============================================================================
+
+export interface ListOrdersResponse {
+  orders: Array<{
+    id: string;
+    medicationName: string;
+    primaryDiagnosis: string;
+    status: string;
+    createdAt: string;
+    patient: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      mrn: string;
+    };
+    provider: {
+      id: string;
+      name: string;
+      npi: string;
+    };
+  }>;
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}

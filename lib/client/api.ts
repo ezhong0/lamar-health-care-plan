@@ -14,6 +14,7 @@ import type {
   GenerateCarePlanResponse,
   GetPatientResponse,
   ListPatientsResponse,
+  ListOrdersResponse,
 } from '@/lib/api/contracts';
 import { ApiError } from './errors';
 
@@ -111,4 +112,11 @@ export async function getPatient(id: string): Promise<GetPatientResponse> {
  */
 export async function listPatients(): Promise<ListPatientsResponse> {
   return apiFetch<ListPatientsResponse>('/api/patients');
+}
+
+/**
+ * List all orders
+ */
+export async function listOrders(): Promise<ListOrdersResponse> {
+  return apiFetch<ListOrdersResponse>('/api/orders?limit=100');
 }
