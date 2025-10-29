@@ -52,7 +52,7 @@ export function sanitizeMarkdown(content: string): string {
 
   let sanitized = content;
 
-  // Step 1: Remove dangerous tags
+  // Step 1: Remove dangerous tags completely (including their content)
   const dangerousTags = [
     'script', 'iframe', 'object', 'embed', 'applet',
     'meta', 'link', 'style', 'form', 'input', 'button',
@@ -60,8 +60,11 @@ export function sanitizeMarkdown(content: string): string {
   ];
 
   for (const tag of dangerousTags) {
+    // Remove tags with content (non-greedy to handle multiple tags)
     sanitized = sanitized.replace(new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gis'), '');
+    // Remove self-closing tags
     sanitized = sanitized.replace(new RegExp(`<${tag}[^>]*/>`, 'gi'), '');
+    // Remove unclosed opening tags
     sanitized = sanitized.replace(new RegExp(`<${tag}[^>]*>`, 'gi'), '');
   }
 
@@ -140,8 +143,23 @@ export function sanitizePlainText(content: string): string {
     return '';
   }
 
-  // Strip all HTML tags while keeping text content
-  return content.replace(/<[^>]*>/g, '');
+  let sanitized = content;
+
+  // First, remove dangerous tags AND their content (security critical)
+  const dangerousTags = [
+    'script', 'iframe', 'object', 'embed', 'applet',
+    'style', 'noscript'
+  ];
+
+  for (const tag of dangerousTags) {
+    // Remove tags with their content
+    sanitized = sanitized.replace(new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gis'), '');
+    // Remove self-closing dangerous tags
+    sanitized = sanitized.replace(new RegExp(`<${tag}[^>]*/>`, 'gi'), '');
+  }
+
+  // Then strip all remaining HTML tags (but keep their text content)
+  return sanitized.replace(/<[^>]*>/g, '');
 }
 
 /**

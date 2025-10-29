@@ -112,7 +112,7 @@ describe('DuplicateDetector', () => {
       expect(warnings).toHaveLength(0);
     });
 
-    it('should skip exact MRN match', async () => {
+    it('should detect exact MRN match as DUPLICATE_PATIENT warning', async () => {
       // Create existing patient
       await testDb.patient.create({
         data: {
@@ -125,18 +125,23 @@ describe('DuplicateDetector', () => {
         },
       });
 
-      // Check for same patient (exact MRN match should be skipped)
+      // Check for same patient (exact MRN match should return DUPLICATE_PATIENT warning)
       const warnings = await detector.findSimilarPatients(
         {
-          firstName: 'John',
-          lastName: 'Smith',
+          firstName: 'Different',
+          lastName: 'Person',
           mrn: '123456', // Same MRN
         },
         testDb
       );
 
-      // Should skip exact MRN (that's a hard duplicate, not similarity)
-      expect(warnings).toHaveLength(0);
+      // Should return DUPLICATE_PATIENT warning for exact MRN match
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0].type).toBe('DUPLICATE_PATIENT');
+      expect(warnings[0]).toHaveProperty('existingPatient');
+      if (warnings[0].type === 'DUPLICATE_PATIENT') {
+        expect(warnings[0].existingPatient.mrn).toBe('123456');
+      }
     });
 
     it('should handle multiple similar patients', async () => {

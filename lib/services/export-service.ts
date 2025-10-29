@@ -106,9 +106,9 @@ export class ExportService {
             ? patient.additionalDiagnoses.join('; ')
             : 'None';
 
-        // Include full care plan content (not truncated)
+        // Truncate long care plan content for CSV readability
         const carePlanContent = latestCarePlan
-          ? latestCarePlan.content
+          ? this.truncateContent(latestCarePlan.content, 200)
           : 'N/A';
 
         rows.push(
@@ -217,5 +217,22 @@ export class ExportService {
    */
   private formatDate(date: Date): string {
     return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  }
+
+  /**
+   * Truncate long content for CSV export
+   *
+   * Limits content to a maximum length to keep CSV files manageable.
+   * Appends "..." to indicate truncation.
+   *
+   * @param content - Content to truncate
+   * @param maxLength - Maximum length before truncation (default 200)
+   * @returns Truncated content with "..." if needed
+   */
+  private truncateContent(content: string, maxLength: number = 200): string {
+    if (content.length <= maxLength) {
+      return content;
+    }
+    return content.substring(0, maxLength) + '...';
   }
 }

@@ -36,7 +36,7 @@
 
 import type { Prisma } from '@prisma/client';
 import type { PatientId, OrderId } from '@/lib/domain/types';
-import type { SimilarPatientWarning, DuplicateOrderWarning } from '@/lib/domain/warnings';
+import type { SimilarPatientWarning, DuplicatePatientWarning, DuplicateOrderWarning } from '@/lib/domain/warnings';
 import { logger } from '@/lib/infrastructure/logger';
 import { DUPLICATE_DETECTION } from '@/lib/config/constants';
 
@@ -94,7 +94,7 @@ export class DuplicateDetector {
   async findSimilarPatients(
     input: PatientMatchInput,
     tx: Prisma.TransactionClient
-  ): Promise<SimilarPatientWarning[]> {
+  ): Promise<Array<SimilarPatientWarning | DuplicatePatientWarning>> {
     const startTime = Date.now();
 
     logger.debug('Checking for similar patients', {
@@ -123,11 +123,32 @@ export class DuplicateDetector {
       take: DUPLICATE_DETECTION.MAX_PATIENTS_TO_CHECK,
     });
 
-    const warnings: SimilarPatientWarning[] = [];
+    const warnings: Array<SimilarPatientWarning | DuplicatePatientWarning> = [];
 
     for (const patient of allPatients) {
-      // Skip exact MRN match (handled upstream as hard duplicate)
+      // Check for exact MRN match (duplicate patient)
       if (patient.mrn === input.mrn) {
+        // Check if this patient already has the same medication
+        const hasSameMedication = input.medicationName && patient.orders
+          ? patient.orders.some(order =>
+              order.medicationName.toLowerCase().trim() === input.medicationName!.toLowerCase().trim()
+            )
+          : false;
+
+        const message = `Duplicate MRN detected: Patient ${patient.firstName} ${patient.lastName} already exists with MRN ${patient.mrn}`;
+
+        warnings.push({
+          type: 'DUPLICATE_PATIENT',
+          severity: 'high',
+          message,
+          existingPatient: {
+            id: patient.id as PatientId,
+            mrn: patient.mrn,
+            name: `${patient.firstName} ${patient.lastName}`,
+          },
+          canLinkToExisting: !hasSameMedication, // Can only link if not duplicate medication
+          hasSameMedication,
+        });
         continue;
       }
 
