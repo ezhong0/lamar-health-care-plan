@@ -56,6 +56,7 @@ export function PatientForm() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
   const [isLinking, setIsLinking] = useState(false); // Loading state for linking
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track entire submission process
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const {
@@ -187,6 +188,7 @@ export function PatientForm() {
   }, [patientRecordsValue]);
 
   const onSubmit = async (data: PatientInput) => {
+    setIsSubmitting(true); // Show immediate feedback
     try {
       // Step 1: Validate and check for warnings BEFORE creating
       const validateResponse = await fetch('/api/patients/validate', {
@@ -242,12 +244,14 @@ export function PatientForm() {
         setPendingOrderData(data);
         setWarnings(validateResult.data.warnings);
         setShowWarnings(true);
+        setIsSubmitting(false); // Stop loading - waiting for user decision
         return; // Stop here - don't create yet
       }
 
       // Step 3: No warnings - proceed with creation
       await createPatientNow(data);
     } catch (error) {
+      setIsSubmitting(false); // Clear loading on error
       toast.error('Validation failed', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
       });
@@ -255,25 +259,31 @@ export function PatientForm() {
   };
 
   const createPatientNow = async (data: PatientInput) => {
-    // Actually create the patient (warnings already shown or none exist)
-    // Pass skipWarnings flag to tell API we've already validated
-    const dataWithFlag: PatientInput & { skipWarnings: boolean } = {
-      ...data,
-      skipWarnings: true,
-    };
-    const result = await createPatient.mutateAsync(dataWithFlag);
+    try {
+      // Actually create the patient (warnings already shown or none exist)
+      // Pass skipWarnings flag to tell API we've already validated
+      const dataWithFlag: PatientInput & { skipWarnings: boolean } = {
+        ...data,
+        skipWarnings: true,
+      };
+      const result = await createPatient.mutateAsync(dataWithFlag);
 
-    if (result.success && result.data) {
-      const patientId = result.data.patient.id;
+      if (result.success && result.data) {
+        const patientId = result.data.patient.id;
 
-      // Clear the draft since patient was successfully created
-      localStorage.removeItem('patient-form-draft');
+        // Clear the draft since patient was successfully created
+        localStorage.removeItem('patient-form-draft');
 
-      // Store patient ID
-      setCreatedPatientId(patientId);
+        // Store patient ID
+        setCreatedPatientId(patientId);
 
-      // Navigate to patient detail immediately (no warnings to show)
-      router.push(`/patients/${patientId}`);
+        // Navigate to patient detail immediately (no warnings to show)
+        router.push(`/patients/${patientId}`);
+        // Keep loading state active during navigation
+      }
+    } catch (error) {
+      setIsSubmitting(false); // Clear loading on error
+      throw error; // Re-throw to let the caller handle it
     }
   };
 
@@ -285,7 +295,12 @@ export function PatientForm() {
     }
 
     setShowWarnings(false); // Close warning modal
-    await createPatientNow(pendingOrderData); // Actually create the patient
+    setIsSubmitting(true); // Show loading again
+    try {
+      await createPatientNow(pendingOrderData); // Actually create the patient
+    } catch (error) {
+      // Error already handled in createPatientNow
+    }
   };
 
   const handleCancelCreate = () => {
@@ -293,6 +308,7 @@ export function PatientForm() {
     setShowWarnings(false);
     setWarnings([]);
     setPendingOrderData(null);
+    setIsSubmitting(false); // Clear any loading state
   };
 
   const handleLinkToExisting = async (existingPatientId: string) => {
@@ -699,10 +715,36 @@ export function PatientForm() {
         <Button
           type="submit"
           size="lg"
-          disabled={createPatient.isPending}
+          disabled={isSubmitting || createPatient.isPending}
           className="min-w-[180px] shadow-lg hover:shadow-xl transition-all duration-200"
         >
-          {createPatient.isPending ? 'Creating...' : 'Create Patient'}
+          {isSubmitting || createPatient.isPending ? (
+            <>
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Creating...
+            </>
+          ) : (
+            'Create Patient'
+          )}
         </Button>
       </div>
         </form>
