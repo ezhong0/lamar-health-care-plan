@@ -2,15 +2,16 @@
  * HTML Sanitization Utilities
  *
  * Prevents XSS attacks by sanitizing user input before storage and rendering.
- * Uses DOMPurify for robust HTML/script stripping.
+ * Uses regex-based sanitization that works in serverless environments.
  *
  * SECURITY NOTE:
  * - Sanitize on INPUT (API layer) to store clean data
  * - React JSX already escapes on output, but this provides defense in depth
  * - Use for any user-provided text that may contain HTML/scripts
+ * - Serverless-safe: No DOM dependencies (jsdom), works on Vercel/Lambda
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+// No external dependencies - serverless-friendly implementation
 
 /**
  * Sanitization configuration for different contexts
@@ -65,6 +66,9 @@ export const SanitizeConfig = {
 /**
  * Sanitize HTML/script content from user input
  *
+ * Serverless-safe implementation using regex (no jsdom dependency).
+ * Strips dangerous tags/attributes while optionally preserving safe formatting.
+ *
  * @param input - User-provided string (may contain malicious content)
  * @param config - Sanitization strictness level
  * @returns Safe string with malicious content removed
@@ -92,8 +96,86 @@ export function sanitizeHTML(
     return '';
   }
 
-  // DOMPurify.sanitize removes dangerous content
-  return DOMPurify.sanitize(input, config);
+  let sanitized = input;
+
+  // Step 1: Remove dangerous tags completely (script, iframe, object, embed, etc.)
+  const dangerousTags = [
+    'script',
+    'iframe',
+    'object',
+    'embed',
+    'applet',
+    'meta',
+    'link',
+    'style',
+    'form',
+    'input',
+    'button',
+    'textarea',
+    'select',
+  ];
+
+  for (const tag of dangerousTags) {
+    // Remove opening and closing tags with any attributes
+    const regex = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gis');
+    sanitized = sanitized.replace(regex, '');
+    // Remove self-closing tags
+    const selfClosingRegex = new RegExp(`<${tag}[^>]*/>`, 'gi');
+    sanitized = sanitized.replace(selfClosingRegex, '');
+  }
+
+  // Step 2: Remove dangerous attributes (on*, javascript:, data:, etc.)
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, ''); // onclick, onerror, etc.
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*[^\s>]*/gi, ''); // onclick without quotes
+  sanitized = sanitized.replace(/javascript:/gi, '');
+  sanitized = sanitized.replace(/data:text\/html/gi, '');
+
+  // Step 3: Apply config-specific rules
+  if (config.ALLOWED_TAGS.length === 0) {
+    // STRICT mode - strip ALL tags
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
+  } else {
+    // STANDARD/PERMISSIVE - strip tags not in allowlist
+    const allowedTagsRegex = config.ALLOWED_TAGS.join('|');
+    // Remove tags that aren't in the allowlist
+    sanitized = sanitized.replace(
+      new RegExp(`<(?!\/?(${allowedTagsRegex})(?:\\s|>|\/))[^>]*>`, 'gi'),
+      ''
+    );
+
+    // Remove attributes not in allowlist (if specified)
+    if (config.ALLOWED_ATTR.length > 0) {
+      const allowedAttrsRegex = config.ALLOWED_ATTR.join('|');
+      // This removes all attributes except those in allowlist
+      sanitized = sanitized.replace(
+        new RegExp(`\\s+(?!(${allowedAttrsRegex})=)[a-zA-Z-]+\\s*=\\s*["'][^"']*["']`, 'gi'),
+        ''
+      );
+    } else {
+      // No attributes allowed - remove all
+      sanitized = sanitized.replace(/<([a-zA-Z]+)[^>]*>/g, '<$1>');
+    }
+  }
+
+  // Step 4: Decode HTML entities to prevent double-encoding attacks
+  sanitized = sanitized
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, '&');
+
+  // Step 5: Re-sanitize in case decoded entities created new dangerous patterns
+  if (sanitized !== input && sanitized.includes('<')) {
+    // Recursively sanitize once more (but prevent infinite loop)
+    const reSanitized = sanitizeHTML(sanitized, config);
+    if (reSanitized === sanitized) {
+      return sanitized;
+    }
+    return reSanitized;
+  }
+
+  return sanitized;
 }
 
 /**
