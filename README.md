@@ -1,10 +1,13 @@
 # AI Care Plan Generator
 
+## 🚀 [**Live Demo**](https://lamar-health-care-plan.vercel.app) ← Try it now!
+
 Automated care plan generation system for specialty pharmacies, built with Next.js, TypeScript, and Claude AI. Reduces manual care plan creation from 20-40 minutes to under 30 seconds while ensuring data integrity through comprehensive validation and duplicate detection.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)](https://nextjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000000?logo=vercel)](https://lamar-health-care-plan.vercel.app)
 
 ## Problem Statement
 
