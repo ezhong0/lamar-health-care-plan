@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Clipboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
 import { useOrders } from '@/lib/client/hooks';
@@ -27,10 +28,12 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground">Loading orders...</p>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-3">
+            <div className="w-8 h-8 border-4 border-neutral-900 dark:border-neutral-100 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading orders...</p>
+          </div>
         </div>
       </div>
     );
@@ -38,22 +41,27 @@ export default function OrdersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <p className="text-red-600">Error loading orders</p>
-          <p className="text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : 'Unknown error'}
-          </p>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-3">
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+              <p className="text-red-800 dark:text-red-200 font-medium mb-2">Error loading orders</p>
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {error instanceof Error ? error.message : 'Unknown error'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight">Orders</h1>
+    <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">Orders</h1>
         <p className="text-muted-foreground mt-2">
           View and manage all medication orders
         </p>
@@ -117,12 +125,18 @@ export default function OrdersPage() {
       {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length === 0 ? (
-          <div className="text-center py-12 border rounded-lg">
-            <p className="text-muted-foreground">
+          <div className="flex flex-col items-center justify-center py-16 border border-neutral-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-900">
+            <Clipboard className="h-12 w-12 text-neutral-300 dark:text-neutral-700 mb-3" />
+            <p className="text-neutral-600 dark:text-neutral-400 font-medium mb-1">
               {searchTerm || statusFilter
                 ? 'No orders match your filters'
                 : 'No orders yet'}
             </p>
+            {!searchTerm && !statusFilter && (
+              <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                Orders will appear here when patients are created
+              </p>
+            )}
           </div>
         ) : (
           filteredOrders.map((order, index) => (
@@ -190,6 +204,7 @@ export default function OrdersPage() {
             </motion.div>
           ))
         )}
+      </div>
       </div>
     </div>
   );

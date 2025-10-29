@@ -502,9 +502,9 @@ export function PatientForm() {
 
       {/* Patient Information */}
       <Card className="p-8 space-y-6">
-        <div>
+        <div className="space-y-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Patient Information</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
             Enter the patient&apos;s basic information
           </p>
         </div>
@@ -543,9 +543,9 @@ export function PatientForm() {
 
       {/* Provider Information */}
       <Card className="p-8 space-y-6">
-        <div>
+        <div className="space-y-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Provider Information</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
             Referring provider details
           </p>
         </div>
@@ -576,9 +576,9 @@ export function PatientForm() {
 
       {/* Medication & Diagnosis */}
       <Card className="p-8 space-y-6">
-        <div>
+        <div className="space-y-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Medication & Diagnosis</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
             Current medication and diagnoses
           </p>
         </div>
@@ -604,9 +604,9 @@ export function PatientForm() {
 
       {/* Patient Records */}
       <Card className="p-8 space-y-6">
-        <div>
+        <div className="space-y-2 pb-4 border-b border-neutral-200 dark:border-neutral-800">
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Patient Records</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
             Clinical notes and relevant medical history
           </p>
         </div>

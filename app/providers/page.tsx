@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -65,12 +66,11 @@ export default function ProvidersPage() {
 
   if (isLoading && providers.length === 0) {
     return (
-      <div className="py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-neutral-600 dark:text-neutral-400">
-              Loading providers...
-            </div>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-3">
+            <div className="w-8 h-8 border-4 border-neutral-900 dark:border-neutral-100 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading providers...</p>
           </div>
         </div>
       </div>
@@ -79,10 +79,11 @@ export default function ProvidersPage() {
 
   if (error) {
     return (
-      <div className="py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <p className="text-red-800 dark:text-red-200">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+            <p className="text-red-800 dark:text-red-200 font-medium mb-2">Error loading providers</p>
+            <p className="text-sm text-red-600 dark:text-red-400">
               {error instanceof Error ? error.message : 'Failed to load providers'}
             </p>
           </div>
@@ -92,8 +93,8 @@ export default function ProvidersPage() {
   }
 
   return (
-    <div className="py-12 px-4">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -148,9 +149,13 @@ export default function ProvidersPage() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {providers.length === 0 ? (
-            <div className="col-span-full text-center py-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg">
-              <p className="text-neutral-500 dark:text-neutral-400">
+            <div className="col-span-full flex flex-col items-center justify-center py-16 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg">
+              <UserPlus className="h-12 w-12 text-neutral-300 dark:text-neutral-700 mb-3" />
+              <p className="text-neutral-600 dark:text-neutral-400 font-medium mb-1">
                 No providers found
+              </p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                Providers will be created automatically when you add patients
               </p>
             </div>
           ) : (
@@ -160,7 +165,7 @@ export default function ProvidersPage() {
                 href={`/providers/${provider.id}`}
                 className="group"
               >
-                <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+                <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-6 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200">
                   <div className="space-y-4">
                     {/* Provider Name */}
                     <div>

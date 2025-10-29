@@ -16,7 +16,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Trash2 } from 'lucide-react';
+import { Search, Trash2, Users, FileQuestion } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -127,9 +127,9 @@ export default function PatientsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-6 py-12 space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-semibold text-neutral-900 dark:text-white mb-2">
               Patients
@@ -161,7 +161,7 @@ export default function PatientsPage() {
 
         {/* Search Bar */}
         {data?.success && data.data && data.data.patients.length > 0 && (
-          <div className="mb-6">
+          <div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
               <input
@@ -188,7 +188,7 @@ export default function PatientsPage() {
 
         {/* Stats */}
         {data?.success && data.data && (
-          <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
                 {searchQuery ? 'Filtered' : 'Total'} Patients
@@ -245,9 +245,13 @@ export default function PatientsPage() {
 
         {/* Empty State - No Patients */}
         {data?.success && data.data && data.data.patients.length === 0 && (
-          <div className="text-center py-12 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
-            <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-              No patients yet. Create your first patient or load demo data.
+          <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md">
+            <Users className="h-12 w-12 text-neutral-300 dark:text-neutral-700 mb-3" />
+            <p className="text-neutral-600 dark:text-neutral-400 font-medium mb-1">
+              No patients yet
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6">
+              Create your first patient or load demo data to get started
             </p>
             <div className="flex items-center justify-center gap-3">
               <Link href="/patients/new">
