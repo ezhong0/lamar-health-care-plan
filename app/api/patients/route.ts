@@ -24,14 +24,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PatientInputSchema } from '@/lib/validation/schemas';
-import { PatientService } from '@/lib/services/patient-service';
-import { ProviderService } from '@/lib/services/provider-service';
-import { DuplicateDetector } from '@/lib/services/duplicate-detector';
+import { createPatientServices } from '@/lib/services/factory';
 import { prisma, isDatabaseConfigured } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { checkRateLimit } from '@/lib/infrastructure/rate-limit';
 import { isFailure } from '@/lib/domain/result';
+import { sanitizePatientInput, containsXSSPatterns } from '@/lib/utils/sanitize-html';
 import type { CreatePatientResponse } from '@/lib/api/contracts';
 import crypto from 'crypto';
 
@@ -89,22 +88,27 @@ export async function POST(req: NextRequest): Promise<NextResponse<CreatePatient
     // This throws ZodError if validation fails (caught by error handler)
     const validatedInput = PatientInputSchema.parse(body);
 
-    logger.debug('Input validated', {
+    // Step 2.5: Sanitize input to prevent XSS
+    // Log potential XSS attempts for security monitoring
+    if (containsXSSPatterns(JSON.stringify(body))) {
+      logger.warn('Potential XSS attempt detected in patient input', {
+        requestId,
+        ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
+      });
+    }
+
+    const sanitizedInput = sanitizePatientInput(validatedInput);
+
+    logger.debug('Input validated and sanitized', {
       requestId,
-      mrn: validatedInput.mrn,
+      mrn: sanitizedInput.mrn,
     });
 
-    // Step 3: Initialize services with dependency injection
-    const providerService = new ProviderService(prisma);
-    const duplicateDetector = new DuplicateDetector();
-    const patientService = new PatientService(
-      prisma,
-      providerService,
-      duplicateDetector
-    );
+    // Step 3: Initialize services using factory (ensures consistent DI)
+    const { patientService } = createPatientServices(prisma);
 
     // Step 4: Call service (skip warnings if already validated)
-    const result = await patientService.createPatient(validatedInput, skipWarnings);
+    const result = await patientService.createPatient(sanitizedInput, skipWarnings);
 
     // Step 5: Handle Result type
     if (isFailure(result)) {

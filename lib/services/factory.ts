@@ -17,6 +17,7 @@ import { ProviderService } from './provider-service';
 import { DuplicateDetector } from './duplicate-detector';
 import { CarePlanService } from './care-plan-service';
 import { ExportService } from './export-service';
+import { SeedService } from './seed-service';
 import { env } from '@/lib/infrastructure/env';
 
 /**
@@ -88,6 +89,21 @@ export function createExportService(prisma: PrismaClient): ExportService {
 }
 
 /**
+ * Create seed service
+ *
+ * @param prisma - Prisma client instance
+ * @returns SeedService instance
+ *
+ * @example
+ * const seedService = createSeedService(prisma);
+ * const result = await seedService.seedDemoData();
+ */
+export function createSeedService(prisma: PrismaClient): SeedService {
+  const { patientService } = createPatientServices(prisma);
+  return new SeedService(prisma, patientService);
+}
+
+/**
  * Create all services (convenience function)
  *
  * Useful for contexts where you need multiple service types.
@@ -100,5 +116,6 @@ export function createAllServices(prisma: PrismaClient) {
     ...createPatientServices(prisma),
     carePlanService: createCarePlanService(prisma),
     exportService: createExportService(prisma),
+    seedService: createSeedService(prisma),
   };
 }

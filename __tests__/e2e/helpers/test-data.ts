@@ -144,6 +144,7 @@ export async function createPatientViaUI(
   const patientData = createTestPatient(data);
 
   await page.goto('/patients/new');
+  await page.waitForLoadState('networkidle');
   await fillPatientForm(page, patientData);
 
   // Listen for API response to extract patient ID reliably

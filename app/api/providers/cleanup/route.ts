@@ -9,6 +9,23 @@ import { logger } from '@/lib/infrastructure/logger';
 import { handleError } from '@/lib/infrastructure/error-handler';
 
 export async function DELETE() {
+  // SECURITY: Only allow in development/test environments
+  // While this only deletes orphaned providers, it's still a maintenance endpoint
+  // that should not be publicly accessible in production
+  if (process.env.NODE_ENV === 'production') {
+    logger.warn('Provider cleanup blocked in production');
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'This endpoint is not available in production',
+          code: 'FORBIDDEN',
+        },
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     logger.info('Starting provider cleanup');
 

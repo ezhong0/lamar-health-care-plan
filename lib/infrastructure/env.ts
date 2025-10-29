@@ -8,10 +8,11 @@
  * Subsequent imports get the validated config object.
  *
  * In test mode, uses test defaults to avoid requiring .env during tests.
+ * In browser (client-side), returns safe defaults since server env vars are not available.
  *
  * Usage:
  * import { env } from '@/lib/infrastructure/env';
- * console.log(env.ANTHROPIC_API_KEY);
+ * console.log(env.ANTHROPIC_API_KEY); // Only on server-side
  */
 
 import { z } from 'zod';
@@ -20,6 +21,12 @@ import { z } from 'zod';
  * Check if we're running in test mode
  */
 const isTestMode = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+
+/**
+ * Check if we're running in a browser (client-side)
+ * In the browser, process.env is replaced at build time with public env vars only
+ */
+const isBrowser = typeof window !== 'undefined';
 
 /**
  * Environment variable schema
@@ -71,8 +78,20 @@ export type Env = z.infer<typeof envSchema>;
  * In production, logs warnings but doesn't throw to prevent server crash.
  * In development, throws to catch config issues early.
  * In test mode, uses safe defaults.
+ * In browser, returns safe defaults since env vars aren't available client-side.
  */
 function validateEnv(): Env {
+  // Skip validation in browser - server-side env vars are not available
+  if (isBrowser) {
+    return {
+      ANTHROPIC_API_KEY: '', // Not available in browser
+      DATABASE_URL: '', // Not available in browser
+      NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
+      LOG_LEVEL: 'info',
+      NEXT_PUBLIC_USE_MOCKS: process.env.NEXT_PUBLIC_USE_MOCKS === 'true',
+    };
+  }
+
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {

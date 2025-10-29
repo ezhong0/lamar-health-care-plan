@@ -1,0 +1,145 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - navigation [ref=e7]:
+            - button "previous" [disabled] [ref=e8]:
+              - img "previous" [ref=e9]
+            - generic [ref=e11]:
+              - generic [ref=e12]: 1/
+              - text: "9"
+            - button "next" [ref=e13] [cursor=pointer]:
+              - img "next" [ref=e14]
+          - img
+        - generic [ref=e16]:
+          - link "Next.js 16.0.0 (stale) Turbopack" [ref=e17] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e18]
+            - generic "There is a newer version (16.0.1) available, upgrade recommended!" [ref=e20]: Next.js 16.0.0 (stale)
+            - generic [ref=e21]: Turbopack
+          - img
+      - generic [ref=e22]:
+        - dialog "Console Error" [ref=e23]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e28]:
+                - generic [ref=e30]: Console Error
+                - generic [ref=e31]:
+                  - button "Copy Error Info" [ref=e32] [cursor=pointer]:
+                    - img [ref=e33]
+                  - button "No related documentation found" [disabled] [ref=e35]:
+                    - img [ref=e36]
+                  - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e38] [cursor=pointer]:
+                    - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                    - img [ref=e39]
+              - generic [ref=e48]: "❌ Environment validation failed:"
+            - generic [ref=e50]:
+              - generic [ref=e51]:
+                - paragraph [ref=e52]:
+                  - text: Call Stack
+                  - generic [ref=e53]: "32"
+                - button "Show 20 ignore-listed frame(s)" [ref=e54] [cursor=pointer]:
+                  - text: Show 20 ignore-listed frame(s)
+                  - img [ref=e55]
+              - generic [ref=e57]:
+                - generic [ref=e58]:
+                  - text: createConsoleError
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e59] [cursor=pointer]:
+                    - img [ref=e60]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (2196:71)
+              - generic [ref=e62]:
+                - generic [ref=e63]:
+                  - text: handleConsoleError
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e64] [cursor=pointer]:
+                    - img [ref=e65]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (2977:54)
+              - generic [ref=e67]:
+                - generic [ref=e68]:
+                  - text: console.error
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e69] [cursor=pointer]:
+                    - img [ref=e70]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_4b2403f5._.js (3121:57)
+              - generic [ref=e72]:
+                - generic [ref=e73]:
+                  - text: validateEnv
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e74] [cursor=pointer]:
+                    - img [ref=e75]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_c90b2294._.js (1452:17)
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - text: module evaluation
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e79] [cursor=pointer]:
+                    - img [ref=e80]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_c90b2294._.js (1471:13)
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - text: module evaluation
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e84] [cursor=pointer]:
+                    - img [ref=e85]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_c90b2294._.js (1492:157)
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - text: module evaluation
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e89] [cursor=pointer]:
+                    - img [ref=e90]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_c90b2294._.js (1560:160)
+              - generic [ref=e92]:
+                - generic [ref=e93]:
+                  - text: module evaluation
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e94] [cursor=pointer]:
+                    - img [ref=e95]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/_c90b2294._.js (1901:168)
+              - generic [ref=e97]:
+                - generic [ref=e98]:
+                  - text: requireModule
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e99] [cursor=pointer]:
+                    - img [ref=e100]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (85:84)
+              - generic [ref=e102]:
+                - generic [ref=e103]:
+                  - text: initializeModuleChunk
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e104] [cursor=pointer]:
+                    - img [ref=e105]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (1051:25)
+              - generic [ref=e107]:
+                - generic [ref=e108]:
+                  - text: resolveModuleChunk
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e109] [cursor=pointer]:
+                    - img [ref=e110]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (976:35)
+              - generic [ref=e112]:
+                - generic [ref=e113]:
+                  - text: <unknown>
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e114] [cursor=pointer]:
+                    - img [ref=e115]
+                - text: file:///Users/edwardzhong/Projects/lamar%20health/.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js (1686:24)
+          - generic [ref=e117]: "1"
+          - generic [ref=e118]: "2"
+        - contentinfo [ref=e119]:
+          - region "Error feedback" [ref=e120]:
+            - paragraph [ref=e121]:
+              - link "Was this helpful?" [ref=e122] [cursor=pointer]:
+                - /url: https://nextjs.org/telemetry#error-feedback
+            - button "Mark as helpful" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+            - button "Mark as not helpful" [ref=e127] [cursor=pointer]:
+              - img [ref=e128]
+    - generic [ref=e134] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e135]:
+        - img [ref=e136]
+      - generic [ref=e139]:
+        - button "Open issues overlay" [ref=e140]:
+          - generic [ref=e141]:
+            - generic [ref=e142]: "8"
+            - generic [ref=e143]: "9"
+          - generic [ref=e144]:
+            - text: Issue
+            - generic [ref=e145]: s
+        - button "Collapse issues badge" [ref=e146]:
+          - img [ref=e147]
+  - 'heading "Application error: a client-side exception has occurred while loading localhost (see the browser console for more information)." [level=2] [ref=e151]'
+```

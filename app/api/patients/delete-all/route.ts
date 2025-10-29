@@ -17,6 +17,22 @@ export async function DELETE() {
 
   logger.info('Delete all patients request received', { requestId });
 
+  // SECURITY: Only allow in development/test environments
+  // This is a destructive operation that should NEVER be exposed in production
+  if (process.env.NODE_ENV === 'production') {
+    logger.warn('Delete all patients blocked in production', { requestId });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'This endpoint is not available in production',
+          code: 'FORBIDDEN',
+        },
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     // Count patients before deletion
     const patientCount = await prisma.patient.count();

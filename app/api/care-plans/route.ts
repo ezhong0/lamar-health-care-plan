@@ -22,9 +22,8 @@ export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerateCarePlanInputSchema } from '@/lib/validation/schemas';
-import { CarePlanService } from '@/lib/services/care-plan-service';
+import { createCarePlanService } from '@/lib/services/factory';
 import { prisma } from '@/lib/infrastructure/db';
-import { env } from '@/lib/infrastructure/env';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
 import { checkRateLimit } from '@/lib/infrastructure/rate-limit';
@@ -72,9 +71,8 @@ export async function POST(
       patientId: validatedInput.patientId,
     });
 
-    // Step 2: Initialize service with validated API key
-    // env.ANTHROPIC_API_KEY is guaranteed to exist and be valid due to startup validation
-    const carePlanService = new CarePlanService(prisma, env.ANTHROPIC_API_KEY);
+    // Step 2: Initialize service using factory (ensures consistent DI)
+    const carePlanService = createCarePlanService(prisma);
 
     // Step 3: Generate care plan
     // This handles retry logic, timeout, and comprehensive logging internally
@@ -141,8 +139,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   logger.info('List care plans request received', { patientId });
 
   try {
-    // Use validated environment configuration
-    const carePlanService = new CarePlanService(prisma, env.ANTHROPIC_API_KEY);
+    // Initialize service using factory
+    const carePlanService = createCarePlanService(prisma);
     const carePlans = await carePlanService.getCarePlansForPatient(
       toPatientId(patientId)
     );

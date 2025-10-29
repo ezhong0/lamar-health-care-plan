@@ -17,10 +17,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { SeedService } from '@/lib/services/seed-service';
-import { PatientService } from '@/lib/services/patient-service';
-import { ProviderService } from '@/lib/services/provider-service';
-import { DuplicateDetector } from '@/lib/services/duplicate-detector';
+import { createSeedService } from '@/lib/services/factory';
 import { prisma, isDatabaseConfigured } from '@/lib/infrastructure/db';
 import { handleError } from '@/lib/infrastructure/error-handler';
 import { logger } from '@/lib/infrastructure/logger';
@@ -72,15 +69,8 @@ export async function POST(): Promise<NextResponse<SeedResponse>> {
   }
 
   try {
-    // Initialize services with dependency injection
-    const providerService = new ProviderService(prisma);
-    const duplicateDetector = new DuplicateDetector();
-    const patientService = new PatientService(
-      prisma,
-      providerService,
-      duplicateDetector
-    );
-    const seedService = new SeedService(prisma, patientService);
+    // Initialize seed service using factory (ensures consistent DI)
+    const seedService = createSeedService(prisma);
 
     // Seed demo data
     const result = await seedService.seedDemoData();
@@ -151,14 +141,8 @@ export async function GET(): Promise<NextResponse> {
   }
 
   try {
-    const providerService = new ProviderService(prisma);
-    const duplicateDetector = new DuplicateDetector();
-    const patientService = new PatientService(
-      prisma,
-      providerService,
-      duplicateDetector
-    );
-    const seedService = new SeedService(prisma, patientService);
+    // Initialize seed service using factory
+    const seedService = createSeedService(prisma);
 
     const stats = await seedService.getDemoStats();
 

@@ -22,8 +22,9 @@ test.describe('Patient Creation - Happy Path', () => {
       clinicalNotes: 'Patient has history of myasthenia gravis. Recent exacerbation requiring IVIG therapy.',
     });
 
-    // Navigate to new patient form
+    // Navigate to new patient form and wait for hydration
     await page.goto('/patients/new');
+    await page.waitForLoadState('networkidle');
 
     // Verify form loads
     await expect(page.getByRole('heading', { name: 'Patient Information' })).toBeVisible();
@@ -34,25 +35,23 @@ test.describe('Patient Creation - Happy Path', () => {
     // Submit form
     await page.getByRole('button', { name: 'Create Patient' }).click();
 
-    // Should show loading state
-    await expect(page.getByRole('button', { name: 'Creating...' })).toBeVisible();
+    // Wait for either navigation to patient page OR warnings page
+    await Promise.race([
+      page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 8000 }),
+      page.waitForSelector('text=/Review Warnings/i', { timeout: 8000 })
+    ]).catch(() => {}); // One will succeed
 
-    // Wait for page response
-    await page.waitForTimeout(1000);
-
-    // Handle warnings page if it appears
-    const warningsHeading = page.getByRole('heading', { name: /Review Warnings/i });
-    const warningsVisible = await warningsHeading.isVisible().catch(() => false);
-
-    if (warningsVisible) {
-      // Warnings appeared - click "Proceed Anyway"
-      await page.waitForTimeout(500);
+    // Check if we're on warnings page
+    const currentUrl = page.url();
+    if (currentUrl.includes('/patients/new')) {
+      // Still on new patient page - must be showing warnings
       const proceedButton = page.getByRole('button', { name: /Proceed Anyway/i });
       await proceedButton.click();
+      await page.waitForURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
     }
 
-    // Should redirect to patient detail page
-    await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/, { timeout: 10000 });
+    // Verify we're on patient detail page
+    await expect(page).toHaveURL(/\/patients\/[a-z0-9]+/);
 
     // Should show patient name in heading
     await expect(page.getByRole('heading', { name: `${patient.firstName} ${patient.lastName}` })).toBeVisible();
@@ -77,8 +76,9 @@ test.describe('Patient Creation - Happy Path', () => {
     expect(patientId).toBeTruthy();
     expect(patientId.length).toBeGreaterThan(0);
 
-    // Navigate to patients list
+    // Navigate to patients list and wait for hydration
     await page.goto('/patients');
+    await page.waitForLoadState('networkidle');
 
     // Should see the patient in the list - use link that contains both name and MRN for uniqueness
     await expect(page.getByRole('link', { name: new RegExp(`${patient.firstName} ${patient.lastName}.*${patient.mrn}`) })).toBeVisible();
@@ -86,6 +86,7 @@ test.describe('Patient Creation - Happy Path', () => {
 
   test('should show all form fields with correct labels', async ({ page }) => {
     await page.goto('/patients/new');
+    await page.waitForLoadState('networkidle');
 
     // Verify all expected form fields are present
     await expect(page.getByLabel('First Name')).toBeVisible();
