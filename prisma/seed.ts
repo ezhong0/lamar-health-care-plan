@@ -45,6 +45,48 @@ async function main() {
         npi: '1679576722',
       },
     }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. David Park',
+        npi: '1982736450',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Emily Johnson',
+        npi: '1000000004',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Michael Thompson',
+        npi: '1000000012',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Lisa Anderson',
+        npi: '1000000020',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Robert Williams',
+        npi: '1000000038',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Jennifer Martinez',
+        npi: '1000000046',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'Dr. Christopher Lee',
+        npi: '1200000002',
+      },
+    }),
   ]);
   console.log(`✓ Created ${providers.length} providers\n`);
 
