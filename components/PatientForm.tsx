@@ -201,17 +201,34 @@ export function PatientForm() {
       let validateResult;
       try {
         const text = await validateResponse.text();
-        if (text) {
+        if (!text || text.trim() === '') {
+          throw new Error('Empty response from validation endpoint. The server may be unavailable.');
+        }
+
+        try {
           validateResult = JSON.parse(text);
-        } else {
-          throw new Error('Empty response from validation endpoint');
+        } catch (jsonError) {
+          logger.error('Failed to parse validation JSON', {
+            error: jsonError instanceof Error ? jsonError.message : 'Unknown error',
+            status: validateResponse.status,
+            responsePreview: text.substring(0, 100),
+          });
+          throw new Error('Invalid server response. Please check that all services are running.');
         }
       } catch (parseError) {
-        logger.error('Failed to parse validation response', {
+        logger.error('Failed to read validation response', {
           error: parseError instanceof Error ? parseError.message : 'Unknown error',
           status: validateResponse.status,
         });
-        throw new Error('Server error during validation. Please try again.');
+
+        // Provide helpful error message based on status
+        if (validateResponse.status === 503) {
+          throw new Error('Database is unavailable. Please ensure PostgreSQL is running.');
+        } else if (validateResponse.status >= 500) {
+          throw new Error('Server error. Please try again or contact support.');
+        } else {
+          throw new Error(parseError instanceof Error ? parseError.message : 'Validation failed');
+        }
       }
 
       // Handle validation errors (blocking errors like duplicate MRN)

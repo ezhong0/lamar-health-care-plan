@@ -18,6 +18,25 @@ import { toPatientId } from '@/lib/domain/types';
 
 export async function POST(req: NextRequest) {
   try {
+    // Test database connection first
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (dbError) {
+      logger.error('Database connection failed in validation endpoint', {
+        error: dbError instanceof Error ? dbError.message : 'Unknown error',
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Database connection unavailable. Please ensure the database is running.',
+            code: 'DATABASE_UNAVAILABLE',
+          },
+        },
+        { status: 503 }
+      );
+    }
+
     // Parse and validate input
     const body = await req.json();
     const validationResult = PatientInputSchema.safeParse(body);
