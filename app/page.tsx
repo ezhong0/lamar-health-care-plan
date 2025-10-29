@@ -24,8 +24,8 @@ export default function Home() {
               AI-Powered Care Plan Generation
             </h1>
             <p className="text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-              Streamline your workflow with intelligent pharmacist care plans. Generate
-              comprehensive, validated care plans in minutes, not hours.
+              Generate comprehensive pharmacist care plans in minutes, not hours.
+              Create patient records and instantly generate evidence-based care plans.
             </p>
           </div>
 
@@ -37,22 +37,7 @@ export default function Home() {
           >
             <Link href="/patients/new">
               <Button size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-                Create New Patient
-              </Button>
-            </Link>
-            <Link href="/patients">
-              <Button size="lg" variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
-                View Patients
-              </Button>
-            </Link>
-            <Link href="/orders">
-              <Button size="lg" variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
-                View Orders
-              </Button>
-            </Link>
-            <Link href="/providers">
-              <Button size="lg" variant="outline" className="shadow-sm hover:shadow-md transition-shadow">
-                View Providers
+                Generate Care Plan
               </Button>
             </Link>
           </motion.div>
